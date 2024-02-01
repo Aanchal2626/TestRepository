@@ -4,7 +4,7 @@ let renderRouter = require("./render.router");
 let documentRouter = require("./document.router");
 let authMiddleware = require("../middlewares/auth.middleware");
 
-router.use("/", authMiddleware.checkLoginStatus, renderRouter);
+router.use("/", renderRouter);
 router.use("/auth", authRouter);
 router.use("/docs", documentRouter);
 

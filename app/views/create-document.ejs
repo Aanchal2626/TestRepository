@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+  <head>
+    <base href="../" />
+    <meta charset="utf-8" />
+    <meta name="author" content="Softnio" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers." />
+    <!-- Fav Icon  -->
+    <link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+    <!-- Page Title  -->
+    <title>Documents | Document Controller</title>
+    <!-- StyleSheets  -->
+    <link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+    <link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+  </head>
+
+  <body class="nk-body bg-lighter npc-general has-sidebar">
+    <div class="nk-app-root">
+      <!-- main @s -->
+      <div class="nk-main">
+        <%- include('./common/sidebar'); -%>
+        <div class="nk-wrap">
+          <%- include('./common/navbar'); -%>
+          <div class="nk-content">
+            <div class="container-fluid">
+              <div class="nk-content-inner">
+                <div class="nk-content-body">
+                  <div class="nk-block nk-block-lg">
+                    <div class="nk-block-head nk-block-head-sm">
+                      <div class="nk-block-between g-3">
+                        <div class="nk-block-head-content">
+                          <h3 class="nk-block-title page-title">Add Document</h3>
+                        </div>
+                        <div class="nk-block-head-content">
+                          <a href="/documents" class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card card-bordered">
+                      <div class="card-inner">
+                        <form action="#" class="form-validate is-alter">
+                          <div class="row g-gs">
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_site">Site</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select js-select2" id="doc_site" name="doc_site" data-placeholder="Select Site" required>
+                                    <option label="empty" value=""></option>
+                                    <% sites.forEach(function(site) { %>
+                                    <option value="<%= site.site_name %>" data-parent-id="<%= site.site_id %>"><%= site.site_name %></option>
+                                    <% }); %>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_folder">Folder</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select js-select2" id="doc_folder" name="doc_folder" data-placeholder="Select Folder" required>
+                                    <option label="empty" value=""></option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_type">Type</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select js-select2" id="doc_type" name="doc_type" data-placeholder="Select Type" required>
+                                    <option label="empty" value=""></option>
+                                    <option value="INCOMING">INCOMING</option>
+                                    <option value="OUTGOING">OUTGOING</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_number">Number</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="Document Number" id="doc_number" name="doc_number" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-8">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_reference">Reference</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select js-select2" id="doc_reference" name="doc_reference" data-placeholder="Select Reference" multiple>
+                                    <option label="empty" value=""></option>
+                                    <option label="INCOMING" value="INCOMING">INCOMING</option>
+                                    <option label="OUTGOING" value="OUTGOING">OUTGOING</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_subject">Subject</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="Document Subject" id="doc_subject" name="doc_subject" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_storage_location">Storage Location</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="Storage Location" id="doc_storage_location" name="doc_storage_location" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_purpose">Purpose</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="Storage Location" id="doc_purpose" name="doc_purpose" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-sm-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_date">Date</label>
+                                <div class="form-control-wrap focused">
+                                  <div class="form-icon form-icon-right"><em class="icon ni ni-calendar-alt"></em></div>
+                                  <input type="text" id="doc_date" name="doc_date" placeholder="Document Date" class="form-control date-picker" />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_from"> From</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="Document From" id="doc_from" name="doc_from" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_to"> To</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="Document To" id="doc_to" name="doc_to" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_confidential">Confidential</label>
+                                <div class="form-control-wrap">
+                                  <select class="form-select js-select2" id="doc_confidential" name="doc_confidential" data-placeholder="Select Option.." required>
+                                    <option label="empty" value=""></option>
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_source">Source</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" placeholder="Source" id="doc_source" name="doc_source" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="form-label" for="doc_file">Upload PDF</label>
+                                <div class="form-control-wrap">
+                                  <input type="file" class="form-control" placeholder="Upload File" id="doc_file" name="doc_file" required />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-12">
+                              <div class="form-group">
+                                <button type="submit" class="btn btn-lg btn-primary">Upload</button>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <%- include('./common/footer'); -%>
+        </div>
+      </div>
+    </div>
+
+    <script src="/app/assets/js/bundle.js"></script>
+    <script src="/app/assets/js/scripts.js"></script>
+    <script>
+      let folders = `<%- JSON.stringify(folders) %>`;
+      folders = folders ? JSON.parse(folders) : [];
+      $(document).ready(function () {
+        $("#doc_site, #doc_folder, #doc_type").on("change", function () {
+          let docSiteValue = $("#doc_site").val();
+          let docFolderValue = $("#doc_folder").val();
+          let docTypeValue = $("#doc_type").val();
+          let docNumberInput = $("#doc_number");
+          let dataSiteId = $("#doc_folder").find("option:selected").data("site-id");
+          if (docSiteValue && docFolderValue && docTypeValue == "OUTGOING") {
+            docNumberInput.prop("disabled", true).val();
+            $.ajax({
+              type: "GET",
+              url: "/docs/generate-document-number",
+              data: { site_id: dataSiteId },
+              success: function (response) {},
+              error: function (xhr, status, error) {
+                console.log(error);
+              },
+            });
+          } else {
+            docNumberInput.prop("disabled", false).val("");
+          }
+        });
+        $("#doc_site").on("change", function () {
+          var selectedSiteParentId = $(this).find("option:selected").data("parent-id");
+          var folderSelect = $("#doc_folder");
+          folderSelect.empty().append('<option label="empty" value=""></option>');
+          folders.forEach(function (folder) {
+            if (folder.site_parent_id == selectedSiteParentId) {
+              folderSelect.append('<option data-site-id="' + folder.site_id + '" value="' + folder.site_name + '">' + folder.site_name + "</option>");
+            }
+          });
+          folderSelect.val("");
+        });
+      });
+    </script>
+  </body>
+</html>

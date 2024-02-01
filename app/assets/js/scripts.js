@@ -81,23 +81,9 @@
 
     // CurrentLink Detect @v1.0
     NioApp.CurrentLink = function () {
-        var _link = '.nk-menu-link, .menu-link, .nav-link',
-            _currentURL = window.location.href,
-            fileName = _currentURL.substring(0, (_currentURL.indexOf("#") == -1) ? _currentURL.length : _currentURL.indexOf("#")),
-            fileName = fileName.substring(0, (fileName.indexOf("?") == -1) ? fileName.length : fileName.indexOf("?"));
 
-        $(_link).each(function () {
-            var self = $(this), _self_link = self.attr('href');
-            if (fileName.match(_self_link)) {
-                self.closest("li").addClass('active current-page').parents().closest("li").addClass("active current-page");
-                self.closest("li").children('.nk-menu-sub').css('display', 'block');
-                self.parents().closest("li").children('.nk-menu-sub').css('display', 'block');
-                this.scrollIntoView({ block: "start"});
-            } else {
-                self.closest("li").removeClass('active current-page').parents().closest("li:not(.current-page)").removeClass("active");
-            }
-        });
     };
+
 
     // PasswordSwitch @v1.0
     NioApp.PassSwitch = function () {
@@ -163,7 +149,7 @@
 
         $doc.on('mouseup', function (e) {
             if (toggleCurrent) {
-                var $toggleCurrent = $(toggleCurrent), currentTarget =  $(toggleCurrent).data('target'), $contentCurrent=$(`[data-content="${currentTarget}"]`), $dpd = $('.datepicker-dropdown'), $tpc = $('.ui-timepicker-container'), $mdl = $('.modal');
+                var $toggleCurrent = $(toggleCurrent), currentTarget = $(toggleCurrent).data('target'), $contentCurrent = $(`[data-content="${currentTarget}"]`), $dpd = $('.datepicker-dropdown'), $tpc = $('.ui-timepicker-container'), $mdl = $('.modal');
                 if (!$toggleCurrent.is(e.target) && $toggleCurrent.has(e.target).length === 0 && !$contentCurrent.is(e.target) && $contentCurrent.has(e.target).length === 0
                     && $(e.target).closest('.select2-container').length === 0 && !$dpd.is(e.target) && $dpd.has(e.target).length === 0
                     && !$tpc.is(e.target) && $tpc.has(e.target).length === 0 && !$mdl.is(e.target) && $mdl.has(e.target).length === 0) {
@@ -335,9 +321,9 @@
     };
 
     //On change validation for third party plugins
-    NioApp.Validate.OnChange  = function (elm) {
-        $(elm).on('change', function() { 
-            $(this).valid(); 
+    NioApp.Validate.OnChange = function (elm) {
+        $(elm).on('change', function () {
+            $(this).valid();
         });
     }
 
@@ -745,23 +731,23 @@
         // data
         let data_step_init = (elm.dataset.stepInit && !isNaN(elm.dataset.stepInit)) ? parseInt(elm.dataset.stepInit) : false;
         let settings = {
-            selectors : {
-                nav : opt.selectors.nav ? opt.selectors.nav : 'stepper-nav',
-                progress : opt.selectors.progress ? opt.selectors.progress : 'stepper-progress',
-                content : opt.selectors.content ? opt.selectors.content : 'stepper-steps',
-                prev : opt.selectors.prev ? opt.selectors.prev : 'step-prev',
-                next : opt.selectors.next ? opt.selectors.next : 'step-next',
-                submit : opt.selectors.submit ? opt.selectors.submit : 'step-submit',
+            selectors: {
+                nav: opt.selectors.nav ? opt.selectors.nav : 'stepper-nav',
+                progress: opt.selectors.progress ? opt.selectors.progress : 'stepper-progress',
+                content: opt.selectors.content ? opt.selectors.content : 'stepper-steps',
+                prev: opt.selectors.prev ? opt.selectors.prev : 'step-prev',
+                next: opt.selectors.next ? opt.selectors.next : 'step-next',
+                submit: opt.selectors.submit ? opt.selectors.submit : 'step-submit',
             },
             classes: {
-                nav_current : opt.classes.nav_current ? opt.classes.nav_current : 'current',
-                nav_done : opt.classes.nav_done ? opt.classes.nav_done : 'done',
-                step_active : opt.classes.step_active ? opt.classes.step_active : 'active',
-                step_done : opt.classes.step_done ? opt.classes.step_done : 'done',
+                nav_current: opt.classes.nav_current ? opt.classes.nav_current : 'current',
+                nav_done: opt.classes.nav_done ? opt.classes.nav_done : 'done',
+                step_active: opt.classes.step_active ? opt.classes.step_active : 'active',
+                step_done: opt.classes.step_done ? opt.classes.step_done : 'done',
             },
-            current_step : data_step_init ? data_step_init : parseInt(opt.current_step),
+            current_step: data_step_init ? data_step_init : parseInt(opt.current_step),
         }
-        
+
         let nav_items = elm.querySelectorAll(`.${settings.selectors.nav} > *`),
             step_items = elm.querySelectorAll(`.${settings.selectors.content} > *`),
             step_progress = elm.querySelector(`.${settings.selectors.progress}`),
@@ -785,42 +771,42 @@
         function showStep(_current) {
             let _index = _current - 1;
             elm.style.display = 'block';
-            if(_step_nav){
-                nav_items.forEach(function(itm,idx){
+            if (_step_nav) {
+                nav_items.forEach(function (itm, idx) {
                     itm.classList.remove(_nav_current_class);
                 })
                 nav_items[_index].classList.add(_nav_current_class)
             }
 
-            step_items.forEach(function(itm,idx){
+            step_items.forEach(function (itm, idx) {
                 itm.classList.remove(_step_active_class);
             })
             step_items[_index].classList.add(_step_active_class)
-            
+
             //update pagination
             paginateStep(_current);
 
-            if(_step_progress){
+            if (_step_progress) {
                 step_progress_count.innerHTML = `${_current} of ${_step_count}`
-                step_progress_bar.style.width = `${(100 /_step_count) * (_current)}%`
+                step_progress_bar.style.width = `${(100 / _step_count) * (_current)}%`
             }
         }
 
         //Manage Step pagination
         function paginateStep(_current) {
-            if(_current === 1){
+            if (_current === 1) {
                 step_next.style.display = 'block';
                 step_prev.style.display = 'none';
                 step_submit.style.display = 'none';
                 elm.setAttribute("data-step-current", "first");
             }
-            if(_step_count !== _current & _current !== 1){
+            if (_step_count !== _current & _current !== 1) {
                 step_prev.style.display = 'block';
                 step_next.style.display = 'block';
                 step_submit.style.display = 'none';
                 elm.setAttribute("data-step-current", _current);
             }
-            if(_step_count === _current){
+            if (_step_count === _current) {
                 step_prev.style.display = 'block';
                 step_submit.style.display = 'block';
                 step_next.style.display = 'none';
@@ -829,16 +815,16 @@
         }
 
         //Step Init
-        if(_nav_count === _step_count){
+        if (_nav_count === _step_count) {
             showStep(_init_step);
-        }else if(!_step_nav){
+        } else if (!_step_nav) {
             showStep(_init_step);
-        }else{
+        } else {
             console.error(_count_error_message);
         }
-        
+
         //step Validation
-        let validator = $('#'+elm.id).validate({
+        let validator = $('#' + elm.id).validate({
             errorElement: "span",
             errorClass: "invalid",
             onfocusout: false,
@@ -852,19 +838,19 @@
         });
 
         //Step Prev
-        step_prev.querySelector('button').addEventListener("click", function(e){
+        step_prev.querySelector('button').addEventListener("click", function (e) {
             e.preventDefault();
             let validated = validator.form();
             let _index = _current_step - 1;
-            if(!validated){
+            if (!validated) {
                 // unmark as done
-                if(_step_nav){
+                if (_step_nav) {
                     nav_items[_index].classList.remove(_nav_done_class);
                 }
                 step_items[_index].classList.remove(_step_done_class);
-            }else if(validated && _step_count !== _current_step){
+            } else if (validated && _step_count !== _current_step) {
                 // mark as done
-                if(_step_nav){
+                if (_step_nav) {
                     nav_items[_index].classList.add(_nav_done_class);
                 }
                 step_items[_index].classList.add(_step_done_class);
@@ -874,13 +860,13 @@
         });
 
         //Step Next
-        step_next.querySelector('button').addEventListener("click", function(e){
+        step_next.querySelector('button').addEventListener("click", function (e) {
             e.preventDefault();
             let validated = validator.form();
-            if(validated){
+            if (validated) {
                 let _index = _current_step - 1;
                 // mark as done
-                if(_step_nav){
+                if (_step_nav) {
                     nav_items[_index].classList.add(_nav_done_class);
                 }
                 step_items[_index].classList.add(_step_done_class);
@@ -890,7 +876,7 @@
         });
 
         //Step Submit
-        step_submit.querySelector('button').addEventListener("click", function(e){
+        step_submit.querySelector('button').addEventListener("click", function (e) {
             e.preventDefault();
             validator.form();
         });
@@ -899,26 +885,26 @@
     // Stepper @v1.0
     NioApp.Stepper = function (elm, opt) {
         const element = document.querySelectorAll(elm);
-        if(element.length > 0){
+        if (element.length > 0) {
             element.forEach(function (item, index) {
                 let def = {
-                        selectors : {
-                            nav : 'stepper-nav',
-                            progress: 'stepper-progress',
-                            content : 'stepper-steps',
-                            prev : 'step-prev',
-                            next : 'step-next',
-                            submit : 'step-submit',
-                        },
-                        classes: {
-                            nav_current : 'current',
-                            nav_done : 'done',
-                            step_active : 'active',
-                            step_done : 'done',
-                            active_step : 'active',
-                        },
-                        current_step : 1,
-                    }, attr = (opt) ? extend(def, opt) : def;
+                    selectors: {
+                        nav: 'stepper-nav',
+                        progress: 'stepper-progress',
+                        content: 'stepper-steps',
+                        prev: 'step-prev',
+                        next: 'step-next',
+                        submit: 'step-submit',
+                    },
+                    classes: {
+                        nav_current: 'current',
+                        nav_done: 'done',
+                        step_active: 'active',
+                        step_done: 'done',
+                        active_step: 'active',
+                    },
+                    current_step: 1,
+                }, attr = (opt) ? extend(def, opt) : def;
 
                 NioApp.Custom.Stepper(item, attr);
                 NioApp.Validate.OnChange('.js-select2');
@@ -934,7 +920,7 @@
 
     // Tagify @v1.0.1
     NioApp.Tagify = function (elm, opt) {
-        if($(elm).exists() && typeof($.fn.tagify) === 'function'){
+        if ($(elm).exists() && typeof ($.fn.tagify) === 'function') {
             var def, attr = (opt) ? extend(def, opt) : def;
             $(elm).tagify(attr);
         }
@@ -945,10 +931,10 @@
     };
 
     //Preloader @v1.0.0
-    NioApp.Preloader = function (){
-        var $preloader 	= $('.js-preloader');
-		
-		if ($preloader.exists()) {
+    NioApp.Preloader = function () {
+        var $preloader = $('.js-preloader');
+
+        if ($preloader.exists()) {
             $body.addClass("page-loaded");
             $preloader.delay(600).fadeOut(300);
         }
@@ -1038,6 +1024,17 @@
             NioApp.Validate.init();
         });
 
+    };
+
+    // Custom Functions
+
+    NioApp.handleButtonState = function (buttonId, buttonText, isLoading) {
+        let button = $("#" + buttonId);
+        if (isLoading) {
+            button.prop("disabled", true).html('<div class="spinner-border spinner-border-sm" role="status">  <span class="visually-hidden">Loading...</span></div>');
+        } else {
+            button.prop("disabled", false).html(buttonText);
+        }
     };
 
     // Initial by default

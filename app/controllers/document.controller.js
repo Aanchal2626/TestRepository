@@ -112,7 +112,8 @@ documentController.saveDraft = async (req, res) => {
         let selectResult = await pool.query(selectQuery);
         selectResult = selectResult?.rows[0]?.count;
         let dataFromDb = await pool.query(query);
-        if (dataFromDb && selectResult > 0) {
+        console.log(selectResult, "<<<<<<<<")
+        if (dataFromDb && selectResult == 0) {
             let updateSiteRecordQuery = `
             UPDATE site_records
             SET sr_value = sr_value + 1
@@ -194,7 +195,7 @@ documentController.createDocument = async (req, res) => {
         selectResult = selectResult?.rows[0]?.count;
         let dataFromDb = await pool.query(query);
 
-        if (dataFromDb && selectResult > 0) {
+        if (dataFromDb && selectResult == 0) {
             let updateSiteRecordQuery = `
             UPDATE site_records
             SET sr_value = sr_value + 1

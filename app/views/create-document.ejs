@@ -41,7 +41,7 @@
                     </div>
                     <div class="card card-bordered">
                       <div class="card-inner">
-                        <form action="#" class="form-validate is-alter">
+                        <form id="documentForm" class="form-validate is-alter">
                           <div class="row g-gs">
                             <div class="col-md-4">
                               <div class="form-group">
@@ -322,6 +322,48 @@
           type: "POST",
           url: "/docs/save-draft",
           data: formData,
+          success: function (response) {
+            if (response.status == 1) {
+              NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
+              NioApp.Toast("<h5>Update Successfully</h5><p>Draft Saved Successfully</p>", "success");
+            } else {
+              NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while drafting document.</p>", "error");
+            }
+          },
+          error: function (xhr, status, error) {
+            NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
+            NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while drafting document.</p>", "error");
+            console.error("Error saving draft:", error);
+          },
+        });
+      });
+
+      $("#documentForm").submit(function (event) {
+        event.preventDefault();
+
+        if (!this.checkValidity()) {
+          return false;
+        }
+
+        let formData = new FormData(this);
+        let isDocNumber = false;
+        for (let pair of formData.entries()) {
+          if (pair[0] == "doc_number") {
+            isDocNumber = true;
+          }
+        }
+        if (!isDocNumber) {
+          formData.append("doc_number", document.getElementById("doc_number").value);
+        }
+        for (let pair of formData.entries()) {
+          console.log(pair[0], ",", pair[1]);
+        }
+        $.ajax({
+          type: "POST",
+          url: "/docs/create-document",
+          data: formData,
+          processData: false,
+          contentType: false,
           success: function (response) {
             if (response.status == 1) {
               NioApp.handleButtonState("saveDraftButton", "Save Draft", false);

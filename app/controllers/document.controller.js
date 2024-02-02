@@ -1,7 +1,6 @@
 const { pool } = require("../helpers/database.helpers");
 const AWS = require('aws-sdk');
 const moment = require("moment");
-const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
 const documentController = {};
@@ -75,44 +74,54 @@ documentController.saveDraft = async (req, res) => {
         }
 
         const generateInsertQuery = (data) => {
-            if (inputs.doc_reference) {
+            if (inputs.doc_reference && Array.isArray(inputs.doc_reference)) {
                 inputs.doc_reference = inputs.doc_reference.join(',');
             }
+
             if (data.doc_file) {
-                delete data.doc_file
+                delete data.doc_file;
             }
+
             const keys = Object.keys(data);
             const nonEmptyKeys = keys.filter(key => {
                 const value = data[key];
                 const isEmpty = value === '' || value === null || (Array.isArray(value) && value.length === 0) || value === '[]';
                 return !isEmpty;
             });
+
             nonEmptyKeys.push('doc_uploaded_by', 'doc_uploaded_date', 'doc_status');
+
             const currentDate = moment().format('MM/DD/YYYY');
             data['doc_uploaded_by'] = token.user_name;
             data['doc_uploaded_date'] = currentDate;
             data['doc_status'] = 'Drafted';
+
             const columns = nonEmptyKeys.join(', ');
+
             const values = nonEmptyKeys.map(key => {
-                let value = typeof data[key] === 'string' ? `'${data[key]}'` : data[key];
+                let value = data[key];
+                value = typeof value === 'string' ? (value.trim() === '' ? null : `'${value}'`) : value;
                 return value;
             }).join(', ');
+
             const updateValues = nonEmptyKeys.map(key => {
                 if (key !== 'id') {
-                    const value = typeof data[key] === 'string' ? `${key} = '${data[key]}'` : `${key} = ${data[key]}`;
-                    return value;
+                    let value = data[key];
+                    value = typeof value === 'string' ? (value.trim() === '' ? null : `'${value}'`) : value;
+                    return `${key} = ${value}`;
                 }
                 return null;
             }).filter(value => value !== null).join(', ');
+
             const query = `INSERT INTO documents (${columns}) VALUES (${values}) ON CONFLICT (doc_number) DO UPDATE SET ${updateValues};`;
             return query;
         };
+
         const query = generateInsertQuery(inputs);
         let selectQuery = `SELECT COUNT(*) FROM documents WHERE doc_number = '${inputs.doc_number}'`;
         let selectResult = await pool.query(selectQuery);
         selectResult = selectResult?.rows[0]?.count;
         let dataFromDb = await pool.query(query);
-        console.log(selectResult, "<<<<<<<<")
         if (dataFromDb && selectResult == 0) {
             let updateSiteRecordQuery = `
             UPDATE site_records
@@ -141,7 +150,7 @@ documentController.createDocument = async (req, res) => {
             return res.send({ status: 0, msg: "No file uploaded" });
         }
 
-        if (inputs.doc_reference) {
+        if (inputs.doc_reference && Array.isArray(inputs.doc_reference)) {
             inputs.doc_reference = inputs.doc_reference.join(',');
         }
 
@@ -154,40 +163,46 @@ documentController.createDocument = async (req, res) => {
             ContentType: req.file.mimetype,
         };
 
-        //const s3Response = await s3.upload(s3Params).promise();
-        //const pdfLocation = s3Response.Location;
-        const pdfLocation = "https://spsingla-docs.s3.ap-south-1.amazonaws.com/7cea7e5b-a1bd-4a9e-8844-5dc7974b5d92.pdf";
+        const s3Response = await s3.upload(s3Params).promise();
+        const pdfLocation = s3Response.Location;
 
         const generateInsertQuery = (data) => {
             const keys = Object.keys(data);
             const nonEmptyKeys = keys.filter(key => {
                 const value = data[key];
-                const isEmpty = value === '' || value === null || (Array.isArray(value) && value.length === 0) || value === '[]';
-                return !isEmpty;
+                return value !== undefined && value !== null && (Array.isArray(value) ? value.length > 1 : (typeof value === 'string' ? value.trim() !== '' : true));
             });
-            nonEmptyKeys.push('doc_uploaded_by', 'doc_uploaded_date', 'doc_status');
 
+            nonEmptyKeys.push('doc_uploaded_by', 'doc_uploaded_date', 'doc_status', 'doc_pdf_link');
             const currentDate = moment().format('MM/DD/YYYY');
             data['doc_uploaded_by'] = token.user_name;
             data['doc_uploaded_date'] = currentDate;
             data['doc_status'] = 'Processing';
             data['doc_pdf_link'] = pdfLocation;
-
             const columns = nonEmptyKeys.join(', ');
             const values = nonEmptyKeys.map(key => {
-                let value = typeof data[key] === 'string' ? `'${data[key]}'` : data[key];
+                let value = data[key];
+                if (typeof value === 'string') {
+                    value = value.trim() === '' ? null : `'${value}'`;
+                }
                 return value;
             }).join(', ');
+
             const updateValues = nonEmptyKeys.map(key => {
                 if (key !== 'id') {
-                    const value = typeof data[key] === 'string' ? `${key} = '${data[key]}'` : `${key} = ${data[key]}`;
-                    return value;
+                    let value = data[key];
+                    if (typeof value === 'string') {
+                        value = value.trim() === '' ? null : `'${value}'`;
+                    }
+                    return `${key} = ${value}`;
                 }
                 return null;
             }).filter(value => value !== null).join(', ');
+
             const query = `INSERT INTO documents (${columns}) VALUES (${values}) ON CONFLICT (doc_number) DO UPDATE SET ${updateValues};`;
             return query;
         };
+
 
         let query = generateInsertQuery(inputs);
         let selectQuery = `SELECT COUNT(*) FROM documents WHERE doc_number = '${inputs.doc_number}'`;
@@ -195,6 +210,7 @@ documentController.createDocument = async (req, res) => {
         selectResult = selectResult?.rows[0]?.count;
         let dataFromDb = await pool.query(query);
 
+        // Maintaing site record to auto generate document numbers
         if (dataFromDb && selectResult == 0) {
             let updateSiteRecordQuery = `
             UPDATE site_records
@@ -203,40 +219,73 @@ documentController.createDocument = async (req, res) => {
         `;
             await pool.query(updateSiteRecordQuery);
         }
-        // references.forEach(reference => {
-        //     const selectQuery = {
-        //         text: 'SELECT doc_replied_vide FROM documents WHERE doc_number = $1',
-        //         values: [inputs.doc_number]
-        //     };
 
-        //     pool.query(selectQuery)
-        //         .then(res => {
-        //             const oldValue = res.rows[0] ? res.rows[0].doc_replied_vide || '[]' : '[]';
+        // Replied Vide
+        let references = inputs.doc_reference?.split(',');
+        if (references?.length === 1 && references[0] !== "") {
+            references = [inputs.doc_reference];
+        }
+        const updateQuery = `
+            UPDATE documents
+            SET doc_replied_vide = CASE
+                                        WHEN doc_replied_vide IS NULL THEN $1
+                                        WHEN $1 = ANY(string_to_array(doc_replied_vide, ', ')) THEN doc_replied_vide
+                                        ELSE doc_replied_vide || ', ' || $1
+                                    END
+            WHERE doc_number = ANY($2)
+        `;
+        await pool.query(updateQuery, [inputs.doc_number, references]);
 
-        //             const updatedValue = JSON.stringify([...JSON.parse(oldValue), reference]);
-
-        //             const updateQuery = {
-        //                 text: 'UPDATE documents SET doc_replied_vide = $1 WHERE doc_number = $2',
-        //                 values: [updatedValue, inputs.doc_number]
-        //             };
-
-        //             pool.query(updateQuery)
-        //                 .then(res => {
-        //                     console.log(`Updated rows for reference ${reference}:`, res.rowCount);
-        //                 })
-        //                 .catch(err => {
-        //                     console.error(`Error updating rows for reference ${reference}:`, err);
-        //                 });
-        //         })
-        //         .catch(err => {
-        //             console.error(`Error retrieving doc_replied_vide for reference ${reference}:`, err);
-        //         });
-        // });
         res.send({ status: 1, msg: "Success" })
 
+        try {
+            const startTextractParams = {
+                DocumentLocation: {
+                    S3Object: {
+                        Bucket: process.env.BUCKET_NAME,
+                        Name: `${fileName}.pdf`,
+                    },
+                },
+                ClientRequestToken: uuidv4(),
+            };
+
+            const startTextractResponse = await textract.startDocumentTextDetection(startTextractParams).promise();
+            const jobId = startTextractResponse.JobId;
+
+            const getStatusParams = { JobId: jobId };
+            let textractResult = null;
+
+            do {
+                const statusResponse = await textract.getDocumentTextDetection(getStatusParams).promise();
+                const status = statusResponse.JobStatus;
+
+                if (status === 'SUCCEEDED') {
+                    textractResult = statusResponse.Blocks.reduce((acc, block) => {
+                        if (block.BlockType === 'LINE') {
+                            acc += block.Text + ",";
+                        }
+                        return acc;
+                    }, '');
+
+                } else if (status === 'FAILED' || status === 'PARTIAL_SUCCESS') {
+                    console.error('Textract job failed or partially succeeded. Status:', status);
+                    return res.send({ status: 0, msg: 'Textract job failed or partially succeeded', error: statusResponse });
+                } else {
+                    console.log('Textract job still in progress. Status:', status);
+                    await new Promise(resolve => setTimeout(resolve, 10000));
+                }
+            } while (textractResult === null);
+            console.log("Textract job completed successfully");
+            let ocr_content_query = `UPDATE documents SET doc_ocr_content = $1, doc_ocr_proccessed = true, doc_status = 'Uploaded' WHERE doc_number = $2`;
+            await pool.query(ocr_content_query, [textractResult, inputs.doc_number]);
+            console.log("Content Update Successfully");
+
+        } catch (error) {
+            console.error(error);
+        }
     } catch (error) {
+        res.send({ status: 0, msg: "Something Went Wrong" })
         console.error(error);
-        res.send({ status: 0, msg: "Internal Server Error" });
     }
 }
 

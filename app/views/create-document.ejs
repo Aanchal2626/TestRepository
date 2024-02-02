@@ -127,11 +127,10 @@
                                 <label class="form-label" for="doc_date">Document Date</label>
                                 <div class="form-control-wrap focused">
                                   <div class="form-icon form-icon-right"><em class="icon ni ni-calendar-alt"></em></div>
-                                  <input type="text" id="doc_date" name="doc_date" placeholder="Document Date" class="form-control date-picker" />
+                                  <input type="text" required id="doc_date" name="doc_date" placeholder="Document Date" class="form-control date-picker" />
                                 </div>
                               </div>
                             </div>
-
                             <div class="col-md-4">
                               <div class="form-group">
                                 <label class="form-label" for="doc_from"> From</label>
@@ -367,14 +366,14 @@
           success: function (response) {
             if (response.status == 1) {
               NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
-              NioApp.Toast("<h5>Update Successfully</h5><p>Draft Saved Successfully</p>", "success");
+              NioApp.Toast("<h5>Document Uploaded</h5><p>Document Uploaded Successfully</p>", "success");
             } else {
-              NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while drafting document.</p>", "error");
+              NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while uploading Document</p>", "error");
             }
           },
           error: function (xhr, status, error) {
             NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
-            NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while drafting document.</p>", "error");
+            NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while uploading Document</p>", "error");
             console.error("Error saving draft:", error);
           },
         });

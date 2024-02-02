@@ -29,9 +29,11 @@
                   <div class="nk-block nk-block-lg">
                     <div class="nk-block-head nk-block-head-sm">
                       <div class="nk-block-between g-3">
-                        <div class="nk-block-head-content">
+                        <div class="nk-block-head-content d-flex">
                           <h3 class="nk-block-title page-title">Add Document</h3>
+                          <button id="saveDraftButton" style="margin: -5px 20px 5px 20px; min-width: 88px" class="btn btn-sm btn-dim btn-outline-primary d-none text-center">Save Draft</button>
                         </div>
+
                         <div class="nk-block-head-content">
                           <a href="/documents" class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-arrow-left"></em><span>Back</span></a>
                         </div>
@@ -122,7 +124,7 @@
                             </div>
                             <div class="col-sm-4">
                               <div class="form-group">
-                                <label class="form-label" for="doc_date">Date</label>
+                                <label class="form-label" for="doc_date">Document Date</label>
                                 <div class="form-control-wrap focused">
                                   <div class="form-icon form-icon-right"><em class="icon ni ni-calendar-alt"></em></div>
                                   <input type="text" id="doc_date" name="doc_date" placeholder="Document Date" class="form-control date-picker" />
@@ -170,7 +172,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_file">Upload PDF</label>
                                 <div class="form-control-wrap">
-                                  <input type="file" class="form-control" placeholder="Upload File" id="doc_file" name="doc_file" required />
+                                  <input type="file" accept=".pdf" class="form-control" placeholder="Upload File" id="doc_file" name="doc_file" required />
                                 </div>
                               </div>
                             </div>
@@ -198,38 +200,141 @@
     <script>
       let folders = `<%- JSON.stringify(folders) %>`;
       folders = folders ? JSON.parse(folders) : [];
+
       $(document).ready(function () {
-        $("#doc_site, #doc_folder, #doc_type").on("change", function () {
-          let docSiteValue = $("#doc_site").val();
-          let docFolderValue = $("#doc_folder").val();
-          let docTypeValue = $("#doc_type").val();
-          let docNumberInput = $("#doc_number");
-          let dataSiteId = $("#doc_folder").find("option:selected").data("site-id");
-          if (docSiteValue && docFolderValue && docTypeValue == "OUTGOING") {
-            docNumberInput.prop("disabled", true).val();
-            $.ajax({
-              type: "GET",
-              url: "/docs/generate-document-number",
-              data: { site_id: dataSiteId },
-              success: function (response) {},
-              error: function (xhr, status, error) {
-                console.log(error);
-              },
-            });
-          } else {
-            docNumberInput.prop("disabled", false).val("");
-          }
-        });
+        // Rendering Dynamic Folders Based on doc_site
         $("#doc_site").on("change", function () {
+          // Clearing doc_folder so it doesnt call api with same value
+          $("#doc_folder").val("");
+          generateDocumentNumber();
+          toggleSaveDraftButton();
           var selectedSiteParentId = $(this).find("option:selected").data("parent-id");
           var folderSelect = $("#doc_folder");
+          folderSelect.val("");
           folderSelect.empty().append('<option label="empty" value=""></option>');
           folders.forEach(function (folder) {
             if (folder.site_parent_id == selectedSiteParentId) {
               folderSelect.append('<option data-site-id="' + folder.site_id + '" value="' + folder.site_name + '">' + folder.site_name + "</option>");
             }
           });
-          folderSelect.val("");
+        });
+
+        $("#doc_folder").on("change", function () {
+          generateDocumentNumber();
+          toggleSaveDraftButton();
+        });
+        $("#doc_type").on("change", function () {
+          generateDocumentNumber();
+          toggleSaveDraftButton();
+        });
+        $("#doc_number").on("change", function () {
+          generateDocumentNumber();
+          toggleSaveDraftButton();
+        });
+
+        function toggleSaveDraftButton() {
+          let docSiteValue = $("#doc_site").val();
+          let docFolderValue = $("#doc_folder").val();
+          let docTypeValue = $("#doc_type").val();
+          let docNumberValue = $("#doc_number").val();
+          if (docFolderValue && docFolderValue && docTypeValue && docNumberValue) {
+            $("#saveDraftButton").removeClass("d-none");
+          } else {
+            $("#saveDraftButton").addClass("d-none");
+          }
+        }
+
+        // Generating Document Number
+        function generateDocumentNumber() {
+          let docSiteValue = $("#doc_site").val();
+          let docFolderValue = $("#doc_folder").val();
+          let docTypeValue = $("#doc_type").val();
+          let docNumberInput = $("#doc_number");
+          let docNumberValue = "";
+          let dataSiteId = $("#doc_folder").find("option:selected").data("site-id");
+
+          if (docSiteValue && docFolderValue && docTypeValue == "OUTGOING") {
+            docNumberInput.prop("disabled", true).val();
+            $.ajax({
+              type: "GET",
+              url: "/docs/generate-document-number",
+              data: { site_id: dataSiteId },
+              success: function (response) {
+                if (response.status == 1) {
+                  docNumberValue = response.payload.sr_prefix + (parseInt(response.payload.sr_value) + 1);
+                  docNumberInput.val(docNumberValue);
+                  toggleSaveDraftButton();
+                } else {
+                  docNumberInput.prop("disabled", false).val("");
+                }
+              },
+              error: function (xhr, status, error) {
+                docNumberInput.prop("disabled", false).val("");
+              },
+            });
+          } else {
+            docNumberInput.prop("disabled", false).val("");
+          }
+        }
+
+        // Fetching Dynamic Reference Options
+        $("#doc_reference").select2({
+          ajax: {
+            url: function (params) {
+              return "/docs/get-document-reference?query=" + params.term;
+            },
+            dataType: "json",
+            delay: 250,
+            processResults: function (data) {
+              return {
+                results: data.payload.map(function (option) {
+                  return {
+                    text: option,
+                    id: option,
+                  };
+                }),
+              };
+            },
+            cache: true,
+          },
+          minimumInputLength: 1,
+          placeholder: "Select Reference",
+        });
+      });
+
+      // Saving Draft
+      $("#saveDraftButton").click(function () {
+        event.preventDefault();
+        toastr.clear();
+        NioApp.handleButtonState("saveDraftButton", "Save Draft", true);
+        let formData = {};
+        $(".form-control-wrap").each(function () {
+          let fieldName = $(this).find("input, select").attr("name");
+          let fieldValue = $(this).find("input, select").val();
+
+          // Removing keys with empty value
+          if (fieldValue != null && fieldValue != "" && fieldValue.length != 0 && fieldValue.length != []) {
+            formData[fieldName] = fieldValue;
+          }
+        });
+
+        $.ajax({
+          type: "POST",
+          url: "/docs/save-draft",
+          data: formData,
+          success: function (response) {
+            if (response.status == 1) {
+              NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
+              NioApp.Toast("<h5>Update Successfully</h5><p>Draft Saved Successfully</p>", "success");
+            } else {
+              NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while drafting document.</p>", "error");
+            }
+          },
+          error: function (xhr, status, error) {
+            NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
+            NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while drafting document.</p>", "error");
+            console.error("Error saving draft:", error);
+          },
         });
       });
     </script>

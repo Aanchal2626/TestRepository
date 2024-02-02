@@ -982,7 +982,9 @@
 
     // Picker Init @v1.0
     NioApp.Picker.init = function () {
-        NioApp.Picker.date('.date-picker');
+        NioApp.Picker.date('.date-picker', {
+            format: "dd/mm/yyyy",
+        });
         NioApp.Picker.dob('.date-picker-alt');
         NioApp.Picker.time('.time-picker');
         NioApp.Picker.date('.date-picker-range', {
@@ -1031,7 +1033,7 @@
     NioApp.handleButtonState = function (buttonId, buttonText, isLoading) {
         let button = $("#" + buttonId);
         if (isLoading) {
-            button.prop("disabled", true).html('<div class="spinner-border spinner-border-sm" role="status">  <span class="visually-hidden">Loading...</span></div>');
+            button.prop("disabled", true).html('<div class="spinner-border spinner-border-sm" role="status" style="margin : auto;">  <span class="visually-hidden">Loading...</span></div>');
         } else {
             button.prop("disabled", false).html(buttonText);
         }

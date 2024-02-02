@@ -45,7 +45,6 @@ renderController.createDocument = async (req, res) => {
         let folderFromDb = await pool.query(folderQuery);
         let sites = siteFromDb.rows;
         let folders = folderFromDb.rows;
-        console.log(sites)
         res.render("create-document.ejs", { token, sites, folders });
     } catch (error) {
         console.error(error);

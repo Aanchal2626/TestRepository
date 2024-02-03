@@ -177,7 +177,7 @@ documentController.createDocument = async (req, res) => {
             const currentDate = moment().format('MM/DD/YYYY');
             data['doc_uploaded_by'] = token.user_name;
             data['doc_uploaded_date'] = currentDate;
-            data['doc_status'] = 'Processing';
+            data['doc_status'] = 'Uploaded';
             data['doc_pdf_link'] = pdfLocation;
             const columns = nonEmptyKeys.join(', ');
             const values = nonEmptyKeys.map(key => {
@@ -276,7 +276,7 @@ documentController.createDocument = async (req, res) => {
                 }
             } while (textractResult === null);
             console.log("Textract job completed successfully");
-            let ocr_content_query = `UPDATE documents SET doc_ocr_content = $1, doc_ocr_proccessed = true, doc_status = 'Uploaded' WHERE doc_number = $2`;
+            let ocr_content_query = `UPDATE documents SET doc_ocr_content = $1, doc_ocr_proccessed = true WHERE doc_number = $2`;
             await pool.query(ocr_content_query, [textractResult, inputs.doc_number]);
             console.log("Content Update Successfully");
 
@@ -288,6 +288,5 @@ documentController.createDocument = async (req, res) => {
         console.error(error);
     }
 }
-
 
 module.exports = documentController;

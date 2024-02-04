@@ -11,7 +11,19 @@ renderController.renderDocuments = async (req, res) => {
     res.render("documents.ejs", { token });
 }
 
-renderController.createDocument = async (req, res) => {
+renderController.renderUsers = async (req, res) => {
+    let token = req.session.token;
+    try {
+        let query = `SELECT * FROM USERS`;
+        let users = await pool.query(query);
+        users = users.rows;
+        res.render("users.ejs", { token, users });
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+renderController.renderCreateDocument = async (req, res) => {
     let token = req.session.token;
 
     try {
@@ -54,17 +66,21 @@ renderController.createDocument = async (req, res) => {
 
 renderController.renderSingleDocument = async (req, res) => {
     let token = req.session.token;
-    let doc_number = req.params.id;
-    doc_number = Buffer.from(doc_number, 'base64').toString('utf-8');
     try {
         let siteQuery, folderQuery, documentQuery;
+        let doc_number = Buffer.from(req.params.id, 'base64').toString('utf-8');
         documentQuery = `SELECT * FROM documents WHERE doc_number = '${doc_number}'`;
         let documentData = await pool.query(documentQuery);
         documentData = documentData.rows[0];
         delete documentData.doc_ocr_content;
 
+
+        console.log(documentData)
         // Checking if user have permission for this document
         if (token.user_role != 0) {
+            if (documentData.doc_confidential) {
+
+            }
             let permissionQuery = `SELECT s.*
             FROM sites s
             JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
@@ -73,7 +89,7 @@ renderController.renderSingleDocument = async (req, res) => {
             permittedSites = permittedSites.rows;
             const isFolderPermitted = permittedSites.some(site => site.site_name === documentData.doc_folder);
             if (!isFolderPermitted) {
-                res.render("error-404")
+                return res.render("404")
             }
         }
         if (token.user_role === "0") {
@@ -108,7 +124,7 @@ renderController.renderSingleDocument = async (req, res) => {
         res.render("edit-document.ejs", { token, sites, folders });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Internal Server Error");
+        res.send("Internal Server Error");
     }
 }
 

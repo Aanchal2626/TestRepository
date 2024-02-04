@@ -169,7 +169,7 @@
                             </div>
                             <div class="col-md-12">
                               <div class="form-group">
-                                <button type="submit" class="btn btn-lg btn-primary">Upload</button>
+                                <button id="uploadDocumentBtn" type="submit" class="btn btn-lg btn-primary">Upload</button>
                               </div>
                             </div>
                           </div>
@@ -216,6 +216,7 @@
         $("#doc_type").on("change", function () {
           generateDocumentNumber();
           toggleSaveDraftButton();
+          $("#doc_number").val("");
         });
         $("#doc_number").on("change", function () {
           generateDocumentNumber();
@@ -334,7 +335,7 @@
         if (!this.checkValidity()) {
           return false;
         }
-
+        NioApp.handleButtonState("uploadDocumentBtn", "Upload", true);
         let formData = new FormData(this);
         let isDocNumber = false;
         for (let pair of formData.entries()) {
@@ -353,14 +354,14 @@
           contentType: false,
           success: function (response) {
             if (response.status == 1) {
-              NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
+              NioApp.handleButtonState("uploadDocumentBtn", "Upload", false);
               NioApp.Toast("<h5>Document Uploaded</h5><p>Document Uploaded Successfully</p>", "success");
             } else {
               NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while uploading Document</p>", "error");
             }
           },
           error: function (xhr, status, error) {
-            NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
+            NioApp.handleButtonState("uploadDocumentBtn", "Upload", false);
             NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while uploading Document</p>", "error");
             console.error("Error saving draft:", error);
           },

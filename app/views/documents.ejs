@@ -374,5 +374,20 @@
 
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
+    <script>
+      let filters = [];
+      $.ajax({
+        type: "POST",
+        url: "/docs/get-filtered-documents",
+        data: JSON.stringify(filters),
+        contentType: "application/json",
+        success: function (response) {
+          console.log(response.payload);
+        },
+        error: function (xhr, status, error) {
+          console.log("error");
+        },
+      });
+    </script>
   </body>
 </html>

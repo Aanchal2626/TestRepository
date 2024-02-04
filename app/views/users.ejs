@@ -207,7 +207,7 @@
         let user = users.find((u) => u.user_id === userId);
         if (user) {
           $("#user_name").val(user.user_name);
-          $("#user_email").val(user.user_email);
+          $("#user_email").val(user.user_email).prop("disabled", true);
           $("#user_password").val(user.user_password);
           $("#user_role").val(user.user_role).trigger("change");
           $("#user_status").val(user.user_status.toString()).trigger("change");
@@ -217,7 +217,7 @@
 
       $("#modalForm").on("hidden.bs.modal", function (e) {
         $("#user_name").val("");
-        $("#user_email").val("");
+        $("#user_email").val("").prop("disabled", false);
         $("#user_password").val("");
         $("#user_role").val("").trigger("change");
         $("#user_status").val("").trigger("change");

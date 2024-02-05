@@ -17,7 +17,6 @@
 
   <body class="nk-body bg-lighter npc-general has-sidebar">
     <div class="nk-app-root">
-      <!-- main @s -->
       <div class="nk-main">
         <%- include('./common/sidebar'); -%>
         <div class="nk-wrap">
@@ -47,10 +46,10 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_site">Site</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select js-select2" id="doc_site" name="doc_site" data-placeholder="Select Site" required>
+                                  <select class="form-select form-control js-select2" id="doc_site" name="doc_site" data-placeholder="Select Site" required>
                                     <option label="empty" value=""></option>
                                     <% sites.forEach(function(site) { %>
-                                    <option value="<%= site.site_name %>" data-parent-id="<%= site.site_id %>"><%= site.site_name %></option>
+                                      <option value="<%= site.site_name %>" data-parent-id="<%= site.site_id %>" <%= documentData && documentData.doc_site == site.site_name ? 'selected' : '' %>><%= site.site_name %></option>
                                     <% }); %>
                                   </select>
                                 </div>
@@ -60,8 +59,13 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_folder">Folder</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select js-select2" id="doc_folder" name="doc_folder" data-placeholder="Select Folder" required>
+                                  <select class="form-select form-control js-select2" id="doc_folder" name="doc_folder" data-placeholder="Select Folder" required>
                                     <option label="empty" value=""></option>
+                                    <% folders.forEach(function(folder) { %>
+                                      <% if (documentData && documentData.doc_site && folder.site_parent_name == documentData.doc_site) { %>
+                                        <option value="<%= folder.site_name %>" data-site-id="<%= folder.site_id %>" <%= documentData.doc_folder == folder.site_name ? 'selected' : '' %>><%= folder.site_name %></option>
+                                      <% } %>
+                                    <% }); %>
                                   </select>
                                 </div>
                               </div>
@@ -70,10 +74,10 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_type">Type</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select js-select2" id="doc_type" name="doc_type" data-placeholder="Select Type" required>
+                                  <select class="form-select form-control js-select2" id="doc_type" name="doc_type" data-placeholder="Select Type">
                                     <option label="empty" value=""></option>
-                                    <option value="INCOMING">INCOMING</option>
-                                    <option value="OUTGOING">OUTGOING</option>
+                                    <option value="INCOMING" <%= documentData && documentData.doc_type === 'INCOMING' ? 'selected' : '' %>>INCOMING</option>
+                                    <option value="OUTGOING" <%= documentData && documentData.doc_type === 'OUTGOING' ? 'selected' : '' %>>OUTGOING</option>
                                   </select>
                                 </div>
                               </div>
@@ -82,7 +86,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_number">Number</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" placeholder="Document Number" id="doc_number" name="doc_number" required />
+                                  <input type="text" class="form-control" placeholder="Document Number" id="doc_number" name="doc_number" value="<%= documentData ? documentData.doc_number : '' %>" required />
                                 </div>
                               </div>
                             </div>
@@ -90,10 +94,12 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_reference">Reference</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select js-select2" id="doc_reference" name="doc_reference" data-placeholder="Select Reference" multiple>
+                                  <select class="form-select form-control js-select2" id="doc_reference" name="doc_reference" data-placeholder="Select Reference" multiple>
                                     <option label="empty" value=""></option>
-                                    <option label="INCOMING" value="INCOMING">INCOMING</option>
-                                    <option label="OUTGOING" value="OUTGOING">OUTGOING</option>
+                                    <% var references = documentData && documentData.doc_reference ? documentData.doc_reference.split(',') : []; %>
+                                    <% references.forEach(function(reference) { %>
+                                      <option value="<%= reference.trim() %>" selected><%= reference.trim() %></option>
+                                    <% }); %>
                                   </select>
                                 </div>
                               </div>
@@ -102,7 +108,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_subject">Subject</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" placeholder="Document Subject" id="doc_subject" name="doc_subject" required />
+                                  <input type="text" class="form-control" placeholder="Document Subject" id="doc_subject" name="doc_subject" value="<%= documentData ? documentData.doc_subject : '' %>" required />
                                 </div>
                               </div>
                             </div>
@@ -110,7 +116,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_storage_location">Storage Location</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" placeholder="Storage Location" id="doc_storage_location" name="doc_storage_location" required />
+                                  <input type="text" class="form-control" placeholder="Storage Location" id="doc_storage_location" name="doc_storage_location" value="<%= documentData ? documentData.doc_storage_location : '' %>" required />
                                 </div>
                               </div>
                             </div>
@@ -118,7 +124,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_purpose">Purpose</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" placeholder="Storage Location" id="doc_purpose" name="doc_purpose" required />
+                                  <input type="text" class="form-control" placeholder="Document Purpose" id="doc_purpose" name="doc_purpose" value="<%= documentData ? documentData.doc_purpose : '' %>" required />
                                 </div>
                               </div>
                             </div>
@@ -127,7 +133,7 @@
                                 <label class="form-label" for="doc_created_at">Document Date</label>
                                 <div class="form-control-wrap focused">
                                   <div class="form-icon form-icon-right"><em class="icon ni ni-calendar-alt"></em></div>
-                                  <input type="text" required id="doc_created_at" name="doc_created_at" placeholder="Document Date" class="form-control date-picker" />
+                                  <input type="text" required id="doc_created_at" name="doc_created_at" placeholder="Document Date" class="form-control date-picker" value="<%= documentData ? documentData.doc_created_at : '' %>" />
                                 </div>
                               </div>
                             </div>
@@ -135,7 +141,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_from"> From</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" placeholder="Document From" id="doc_from" name="doc_from" required />
+                                  <input type="text" class="form-control" placeholder="From" id="doc_from" name="doc_from" value="<%= documentData ? documentData.doc_from : '' %>" required />
                                 </div>
                               </div>
                             </div>
@@ -143,7 +149,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_to"> To</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" placeholder="Document To" id="doc_to" name="doc_to" required />
+                                  <input type="text" class="form-control" placeholder="To" id="doc_to" name="doc_to" value="<%= documentData ? documentData.doc_to : '' %>" required />
                                 </div>
                               </div>
                             </div>
@@ -151,10 +157,10 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_confidential">Confidential</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select js-select2" id="doc_confidential" name="doc_confidential" data-placeholder="Select Option.." required>
+                                  <select class="form-select form-control js-select2 form-control" id="doc_confidential" name="doc_confidential" data-placeholder="Select Option.." required>
                                     <option label="empty" value=""></option>
-                                    <option value="true">Yes</option>
-                                    <option value="false">No</option>
+                                    <option value="true" <%= documentData && documentData.doc_confidential ? 'selected' : '' %>>Yes</option>
+                                    <option value="false" <%= documentData && !documentData.doc_confidential ? 'selected' : '' %>>No</option>
                                   </select>
                                 </div>
                               </div>
@@ -209,18 +215,15 @@
           });
         });
 
-        $("#doc_folder").on("change", function () {
+        $(".form-control").on("change", function () {
           generateDocumentNumber();
           toggleSaveDraftButton();
         });
+
         $("#doc_type").on("change", function () {
           generateDocumentNumber();
           toggleSaveDraftButton();
           $("#doc_number").val("");
-        });
-        $("#doc_number").on("change", function () {
-          generateDocumentNumber();
-          toggleSaveDraftButton();
         });
 
         function toggleSaveDraftButton() {

@@ -13,6 +13,20 @@
     <!-- StyleSheets  -->
     <link rel="stylesheet" href="/app/assets/css/dashlite.css" />
     <link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+    <style>
+      .nk-tb-item .nk-tb-col:first-child {
+        padding-left: 10px;
+      }
+      .nk-tb-col {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 5px 15px;
+        width: 150px;
+        min-width: 150px;
+        max-width: 150px;
+      }
+    </style>
   </head>
 
   <body class="nk-body bg-lighter npc-general has-sidebar">
@@ -117,11 +131,8 @@
                                                 <a href="#">Save Filter</a>
                                               </div>
                                             </div>
-                                            <!-- .filter-wg -->
                                           </div>
-                                          <!-- .dropdown -->
                                         </li>
-                                        <!-- li -->
                                         <li>
                                           <div class="dropdown">
                                             <a href="#" class="btn btn-trigger btn-icon dropdown-toggle" data-bs-toggle="dropdown">
@@ -141,221 +152,58 @@
                                               </ul>
                                             </div>
                                           </div>
-                                          <!-- .dropdown -->
                                         </li>
-                                        <!-- li -->
                                       </ul>
-                                      <!-- .btn-toolbar -->
                                     </div>
-                                    <!-- .toggle-content -->
                                   </div>
-                                  <!-- .toggle-wrap -->
                                 </li>
-                                <!-- li -->
                               </ul>
-                              <!-- .btn-toolbar -->
                             </div>
-                            <!-- .card-tools -->
                           </div>
-                          <!-- .card-title-group -->
                           <div class="card-search search-wrap" data-search="search">
                             <div class="card-body">
                               <div class="search-content">
                                 <a href="#" class="search-back btn btn-icon toggle-search" data-target="search"><em class="icon ni ni-arrow-left"></em></a>
-                                <input type="text" class="form-control border-transparent form-focus-none" placeholder="Search by user or email" />
-                                <button class="search-submit btn btn-icon"><em class="icon ni ni-search"></em></button>
+                                <input type="text" id="searchDocumentInput" class="form-control border-transparent form-focus-none" placeholder="Search Documents " />
+                                <button id="searchDocumentButton" class="search-submit btn btn-icon"><em class="icon ni ni-search"></em></button>
                               </div>
                             </div>
                           </div>
-                          <!-- .card-search -->
                         </div>
-                        <!-- .card-inner -->
-                        <div class="card-inner p-0">
+                        <div class="card-inner p-0 scrollable-datatable">
                           <div class="nk-tb-list nk-tb-ulist is-compact">
-                            <div class="nk-tb-item nk-tb-head">
-                              <div class="nk-tb-col"><span>User</span></div>
-                              <div class="nk-tb-col"><span>Doc Type</span></div>
-                              <div class="nk-tb-col"><span>Documents</span></div>
-                              <div class="nk-tb-col"><span>Submitted</span></div>
-                              <div class="nk-tb-col"><span>Status</span></div>
-                              <div class="nk-tb-col"><span>Checked By</span></div>
-                              <div class="nk-tb-col"><span>Checked By</span></div>
-                            </div>
-                            <div class="nk-tb-item">
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                            </div>
-                            <div class="nk-tb-item">
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                            </div>
-                            <div class="nk-tb-item">
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                            </div>
-                            <div class="nk-tb-item">
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                            </div>
-                            <div class="nk-tb-item">
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                            </div>
-                            <div class="nk-tb-item">
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                            </div>
-                            <div class="nk-tb-item">
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-lead-sub">Passport</span>
-                              </div>
+                            <div class="nk-tb-item nk-tb-head text-center" id="table-head">
+                              <div class="nk-tb-col text-start"><span>SITE/FOLDER</span></div>
+                              <div class="nk-tb-col"><span>TYPE</span></div>
+                              <div class="nk-tb-col"><span>NUMBER</span></div>
+                              <div class="nk-tb-col"><span>STATUS</span></div>
+                              <div class="nk-tb-col"><span>DATE</span></div>
+                              <div class="nk-tb-col"><span>PURPOSE</span></div>
+                              <div class="nk-tb-col"><span>SUBJECT</span></div>
+                              <div class="nk-tb-col"><span>REFERENCE</span></div>
+                              <div class="nk-tb-col"><span>REPLIED VIDE</span></div>
+                              <div class="nk-tb-col"><span>FROM</span></div>
+                              <div class="nk-tb-col"><span>TO</span></div>
+                              <div class="nk-tb-col"><span>STORAGE</span></div>
                             </div>
                           </div>
                         </div>
-                        <!-- .card-inner -->
-                        <div class="card-inner">
-                          <ul class="pagination justify-content-center justify-content-md-start">
-                            <li class="page-item"><a class="page-link" href="#">Prev</a></li>
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item">
-                              <span class="page-link"><em class="icon ni ni-more-h"></em></span>
-                            </li>
-                            <li class="page-item"><a class="page-link" href="#">6</a></li>
-                            <li class="page-item"><a class="page-link" href="#">7</a></li>
-                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                        <div id="table-status" class="card-inner text-center">
+                          <div class="text-center">
+                            <p>No Data Found</p>
+                          </div>
+                        </div>
+                        <div id="table-pagination" class="card-inner d-none">
+                          <ul class="pagination">
+                            <li class="paginate_button page-item previous disabled" id="DataTables_Table_2_previous"><a aria-controls="DataTables_Table_2" aria-disabled="true" role="link" data-dt-idx="previous" tabindex="0" class="page-link">Prev</a></li>
+                            <li class="paginate_button page-item active"><a href="#" aria-controls="DataTables_Table_2" role="link" aria-current="page" data-dt-idx="0" tabindex="0" class="page-link">1</a></li>
+                            <li class="paginate_button page-item"><a href="#" aria-controls="DataTables_Table_2" role="link" data-dt-idx="1" tabindex="0" class="page-link">2</a></li>
+                            <li class="paginate_button page-item"><a href="#" aria-controls="DataTables_Table_2" role="link" data-dt-idx="2" tabindex="0" class="page-link">3</a></li>
+                            <li class="paginate_button page-item"><a href="#" aria-controls="DataTables_Table_2" role="link" data-dt-idx="3" tabindex="0" class="page-link">4</a></li>
+                            <li class="paginate_button page-item"><a href="#" aria-controls="DataTables_Table_2" role="link" data-dt-idx="4" tabindex="0" class="page-link">5</a></li>
+                            <li class="paginate_button page-item disabled" id="DataTables_Table_2_ellipsis"><a aria-controls="DataTables_Table_2" aria-disabled="true" role="link" data-dt-idx="ellipsis" tabindex="0" class="page-link">…</a></li>
+                            <li class="paginate_button page-item"><a href="#" aria-controls="DataTables_Table_2" role="link" data-dt-idx="11" tabindex="0" class="page-link">12</a></li>
+                            <li class="paginate_button page-item next" id="DataTables_Table_2_next"><a href="#" aria-controls="DataTables_Table_2" role="link" data-dt-idx="next" tabindex="0" class="page-link">Next</a></li>
                           </ul>
                         </div>
                       </div>
@@ -375,19 +223,98 @@
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
     <script>
-      let filters = [];
-      $.ajax({
-        type: "POST",
-        url: "/docs/get-filtered-documents",
-        data: JSON.stringify(filters),
-        contentType: "application/json",
-        success: function (response) {
-          console.log(response.payload);
-        },
-        error: function (xhr, status, error) {
-          console.log("error");
-        },
+      let filters = {};
+      function fetchDocuments() {
+        $(".table-content").remove();
+        $("#table-status").html(`<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>`);
+        $.ajax({
+          type: "POST",
+          url: "/docs/get-filtered-documents",
+          data: JSON.stringify(filters),
+          contentType: "application/json",
+          success: function (response) {
+            if (response.status == 1) {
+              if (response.payload.documents && response.payload.documents.length > 0) {
+                $("#table-status").empty();
+                response.payload.documents.forEach(function (document) {
+                  let rowHtml = `<div class="nk-tb-item text-center table-content">
+                                  <div class="nk-tb-col text-start">
+                                      <span>${document.doc_folder || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span>
+                                          <div style="font-size: 10px; height: 20px; width: 20px; margin-right: 5px" class="nk-tnx-type-icon ${document.doc_type == "INCOMING" ? `text-primary bg-primary-dim` : `text-success bg-success-dim`} "><em class="icon ni ${document.doc_type == "INCOMING" ? `text-success bg-success-dim ni-arrow-down-left` : `text-primary bg-primary-dim ni-arrow-up-right`}"></em></div> 
+                                          ${document.doc_type || "-"}
+                                      </span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span><a href="/documents/${btoa(document.doc_number)}">${document.doc_number || "-"}</a></span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span${document.doc_status === "DRAFTED" ? ' class="text-warning"' : document.doc_status === "UPLOADED" ? ' class="text-primary"' : ""}>${document.doc_status || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span>${document.doc_created_at || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span title="${document.doc_purpose || "-"}">${document.doc_purpose || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span>${document.doc_subject || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span title="${document.doc_reference || "-"}">${document.doc_reference || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span title="${document.doc_replied_vide || "-"}">${document.doc_replied_vide || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span>${document.doc_from || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span>${document.doc_to || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span title="${document.doc_storage_location || "-"}">${document.doc_storage_location || "-"}</span>
+                                  </div>
+                              </div>`;
+                  $(rowHtml).insertAfter("#table-head");
+                });
+              } else {
+                $("#table-status").html(`<div class="text-center"><p>No Records Found</p></div>`);
+              }
+            } else {
+              $("#table-status").html(`<div class="text-center"><p>Something Went Wrong</p></div>`);
+            }
+          },
+          error: function (xhr, status, error) {
+            console.log(error);
+            $("#table-status").html(`<div class="text-center"><p>Something Went Wrong</p></div>`);
+          },
+        });
+      }
+      fetchDocuments();
+
+      $("#searchDocumentButton").click(function () {
+        handleSearch();
       });
+
+      $("#searchDocumentInput").keypress(function (event) {
+        if (event.which === 13) {
+          handleSearch();
+        }
+      });
+
+      function handleSearch() {
+        var searchValue = $("#searchDocumentInput").val();
+        if (searchValue) {
+          filters.dm_ocr_content = searchValue;
+          fetchDocuments();
+        } else if (!searchValue && filters.dm_ocr_content) {
+          delete filters.dm_ocr_content;
+          fetchDocuments();
+        }
+      }
     </script>
   </body>
 </html>

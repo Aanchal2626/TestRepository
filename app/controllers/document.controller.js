@@ -23,7 +23,7 @@ documentController.generateDocumentNumber = async (req, res) => {
         let inputs = req.query;
         let token = req.session.token;
         if (token.user_role == "3") {
-            return res.send({ status: 0, msg: "Access Denied. Insufficient Permissions." });
+            return res.send({ status: 0, msg: "Access Denie Insufficient Permissions." });
         }
         if (!inputs.site_id) {
             return res.send({ status: 0, msg: "Invalid Site Id" });
@@ -48,7 +48,7 @@ documentController.getDocumentReference = async (req, res) => {
         let inputs = req.query;
         let token = req.session.token;
         if (token.user_role == "3") {
-            return res.send({ status: 0, msg: "Access Denied. Insufficient Permissions." });
+            return res.send({ status: 0, msg: "Access Denie Insufficient Permissions." });
         }
         if (!inputs.query) {
             return res.send({ status: 0, msg: "Invalid Query" });
@@ -70,7 +70,7 @@ documentController.saveDraft = async (req, res) => {
         let token = req.session.token;
 
         if (token.user_role == "3") {
-            return res.send({ status: 0, msg: "Access Denied. Insufficient Permissions." });
+            return res.send({ status: 0, msg: "Access Denie Insufficient Permissions." });
         }
 
         const generateInsertQuery = (data) => {
@@ -94,7 +94,7 @@ documentController.saveDraft = async (req, res) => {
             const currentDate = moment().format('MM/DD/YYYY');
             data['doc_uploaded_by'] = token.user_name;
             data['doc_uploaded_at'] = currentDate;
-            data['doc_status'] = 'Drafted';
+            data['doc_status'] = 'DRAFTED';
 
             const columns = nonEmptyKeys.join(', ');
 
@@ -144,7 +144,7 @@ documentController.createDocument = async (req, res) => {
         let token = req.session.token;
 
         if (token.user_role == "3") {
-            return res.send({ status: 0, msg: "Access Denied. Insufficient Permissions." });
+            return res.send({ status: 0, msg: "Access Denie Insufficient Permissions." });
         }
 
         if (!req.file) {
@@ -179,7 +179,7 @@ documentController.createDocument = async (req, res) => {
             data['doc_uploaded_by'] = token.user_name;
             data['doc_uploaded_by_id'] = token.user_id;
             data['doc_uploaded_at'] = currentDate;
-            data['doc_status'] = 'Uploaded';
+            data['doc_status'] = 'UPLOADED';
             data['doc_pdf_link'] = pdfLocation;
             const columns = nonEmptyKeys.join(', ');
             const values = nonEmptyKeys.map(key => {
@@ -270,7 +270,7 @@ documentController.createDocument = async (req, res) => {
                     }, '');
 
                 } else if (status === 'FAILED' || status === 'PARTIAL_SUCCESS') {
-                    console.error('Textract job failed or partially succeeded. Status:', status);
+                    console.error('Textract job failed or partially succeede Status:', status);
                     return res.send({ status: 0, msg: 'Textract job failed or partially succeeded', error: statusResponse });
                 } else {
                     console.log('Textract job still in progress. Status:', status);
@@ -281,17 +281,17 @@ documentController.createDocument = async (req, res) => {
             console.log("Textract job completed successfully");
 
             let ocr_content_query = `
-                UPDATE documents 
-                SET doc_ocr_proccessed = true 
-                WHERE doc_number = $1;
-
                 INSERT INTO doc_metadata (dm_id, dm_ocr_content) 
                 VALUES ($1, $2) 
                 ON CONFLICT (dm_id) 
-                DO UPDATE SET dm_ocr_content = EXCLUDED.dm_ocr_content;
+                DO UPDATE SET dm_ocr_content = EXCLUDEdm_ocr_content;
             `;
 
             await pool.query(ocr_content_query, [inputs.doc_number, textractResult]);
+
+            let ocr_status_query = `UPDATE documents SET doc_ocr_proccessed = true WHERE doc_number = '${inputs.doc_number}';`
+
+            await pool.query(ocr_status_query);
 
             console.log("Content Update Successfully");
 
@@ -305,31 +305,45 @@ documentController.createDocument = async (req, res) => {
 }
 
 documentController.getFilteredDocuments = async (req, res) => {
-    let filters = req.body;
-    let token = req.token;
-
     try {
-        let query = `SELECT doc_site,doc_type,doc_number,doc_created_at,doc_uploaded_at,doc_status,doc_from,doc_to,doc_purpose,doc_subject,doc_reference,doc_replied_vide,doc_storage_location,doc_uploaded_by,doc_source FROM documents`;
+        let query = `SELECT d.doc_site, d.doc_type, d.doc_number, d.doc_created_at, d.doc_uploaded_at, d.doc_status, d.doc_from, d.doc_to, d.doc_purpose, d.doc_subject, d.doc_reference, d.doc_replied_vide, d.doc_storage_location, d.doc_uploaded_by, d.doc_folder 
+                     FROM documents d`;
 
+        let filters = req.body;
+        let filterApplied = false;
+
+        // Check if any filters are provided
         if (Object.keys(filters).length > 0) {
-            query += " WHERE ";
+            // Check if dm_ocr_content filter is present
+            if ('dm_ocr_content' in filters) {
+                query += ` JOIN doc_metadata dm ON d.doc_number = dm.dm_id`;
+            }
+            query += ' WHERE ';
             for (const key in filters) {
-                if (filters[key] !== '') {
-                    if (key === 'doc_ocr_content') {
-                        query += `${key} LIKE '%${filters[key]}%' AND `;
-                    } else {
-                        query += `${key} = '${filters[key]}' AND `;
+                if (key === 'dm_ocr_content') {
+                    query += `dm.dm_ocr_content LIKE '%${filters[key]}%'`;
+                    filterApplied = true;
+                } else {
+                    if (filters[key]) {
+                        if (filterApplied) {
+                            query += ' AND ';
+                        }
+                        query += `d.${key} = '${filters[key]}'`;
+                        filterApplied = true;
                     }
                 }
             }
-            query = query.slice(0, -5);
         }
-
-        let dataFromDb = await pool.query(query);
-        res.json({ status: 1, msg: 'Success', payload: dataFromDb.rows });
+        console.log(query)
+        let { rows: documents } = await pool.query(query);
+        res.json({ status: 1, msg: 'Success', payload: { documents } });
     } catch (err) {
-        console.log(err)
+        console.error('Error fetching filtered documents:', err);
         res.json({ status: 0, msg: 'Internal Server Error' });
     }
 }
+
+
+
+
 module.exports = documentController;

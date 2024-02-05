@@ -57,7 +57,8 @@ renderController.renderCreateDocument = async (req, res) => {
         let folderFromDb = await pool.query(folderQuery);
         let sites = siteFromDb.rows;
         let folders = folderFromDb.rows;
-        res.render("create-document.ejs", { token, sites, folders });
+        let documentData = [];
+        res.render("create-document.ejs", { token, sites, folders, documentData });
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
@@ -72,10 +73,7 @@ renderController.renderSingleDocument = async (req, res) => {
         documentQuery = `SELECT * FROM documents WHERE doc_number = '${doc_number}'`;
         let documentData = await pool.query(documentQuery);
         documentData = documentData.rows[0];
-        delete documentData.doc_ocr_content;
 
-
-        console.log(documentData)
         // Checking if user have permission for this document
         if (token.user_role != 0) {
             if (documentData.doc_confidential) {
@@ -121,7 +119,8 @@ renderController.renderSingleDocument = async (req, res) => {
         let folderFromDb = await pool.query(folderQuery);
         let sites = siteFromDb.rows;
         let folders = folderFromDb.rows;
-        res.render("edit-document.ejs", { token, sites, folders });
+
+        res.render("create-document.ejs", { token, sites, folders, documentData });
     } catch (error) {
         console.error(error);
         res.send("Internal Server Error");

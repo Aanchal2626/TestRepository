@@ -174,13 +174,14 @@ documentController.createDocument = async (req, res) => {
                 return value !== undefined && value !== null && (Array.isArray(value) ? value.length > 1 : (typeof value === 'string' ? value.trim() !== '' : true));
             });
 
-            nonEmptyKeys.push('doc_uploaded_by', 'doc_uploaded_at', 'doc_status', 'doc_pdf_link', 'doc_uploaded_by_id');
+            nonEmptyKeys.push('doc_uploaded_by', 'doc_uploaded_at', 'doc_status', 'doc_pdf_link', 'doc_uploaded_by_id', 'doc_source');
             const currentDate = moment().format('MM/DD/YYYY');
             data['doc_uploaded_by'] = token.user_name;
             data['doc_uploaded_by_id'] = token.user_id;
             data['doc_uploaded_at'] = currentDate;
             data['doc_status'] = 'UPLOADED';
             data['doc_pdf_link'] = pdfLocation;
+            data['doc_source'] = "FORM"
             const columns = nonEmptyKeys.join(', ');
             const values = nonEmptyKeys.map(key => {
                 let value = data[key];

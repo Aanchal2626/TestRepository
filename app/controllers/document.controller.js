@@ -130,7 +130,7 @@ documentController.saveDraft = async (req, res) => {
         `;
             await pool.query(updateSiteRecordQuery);
         }
-        res.send({ status: 1, msg: "Success" })
+        res.send({ status: 1, msg: "Success", payload: inputs.doc_number })
     } catch (error) {
         console.error(error);
         res.send({ status: 0, msg: "Internal Server Error" });
@@ -238,7 +238,7 @@ documentController.createDocument = async (req, res) => {
         `;
         await pool.query(updateQuery, [inputs.doc_number, references]);
 
-        res.send({ status: 1, msg: "Success" })
+        res.send({ status: 1, msg: "Success", payload: inputs.doc_number })
 
         try {
             const startTextractParams = {
@@ -284,7 +284,7 @@ documentController.createDocument = async (req, res) => {
                 INSERT INTO doc_metadata (dm_id, dm_ocr_content) 
                 VALUES ($1, $2) 
                 ON CONFLICT (dm_id) 
-                DO UPDATE SET dm_ocr_content = EXCLUDEdm_ocr_content;
+                DO UPDATE SET dm_ocr_content = EXCLUDED.dm_ocr_content;
             `;
 
             await pool.query(ocr_content_query, [inputs.doc_number, textractResult]);

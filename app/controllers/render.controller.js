@@ -90,37 +90,72 @@ renderController.renderSingleDocument = async (req, res) => {
                 return res.render("404")
             }
         }
-        if (token.user_role === "0") {
-            siteQuery = `SELECT * FROM sites WHERE site_parent_id = 0`;
-            folderQuery = `
-                SELECT s.*, sp.site_name as site_parent_name
-                FROM sites s
-                LEFT JOIN sites sp ON s.site_parent_id = sp.site_id
-                WHERE s.site_parent_id != 0
-                ORDER BY s.site_name`;
+
+        if (documentData.doc_status == "UPLOADED") {
+            if (token.user_role === "0") {
+                siteQuery = `SELECT * FROM sites WHERE site_parent_id = 0`;
+                folderQuery = `
+                    SELECT s.*, sp.site_name as site_parent_name
+                    FROM sites s
+                    LEFT JOIN sites sp ON s.site_parent_id = sp.site_id
+                    WHERE s.site_parent_id != 0
+                    ORDER BY s.site_name`;
+            } else {
+                siteQuery = `
+                    SELECT s.*
+                    FROM sites s
+                    JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
+                    WHERE usj.usj_user_id = ${token.user_id} AND site_parent_id = 0
+                `;
+                folderQuery = `
+                    SELECT s.*, sp.site_name as site_parent_name
+                    FROM sites s
+                    JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
+                    LEFT JOIN sites sp ON s.site_parent_id = sp.site_id
+                    WHERE usj.usj_user_id = ${token.user_id} AND s.site_parent_id != 0
+                    ORDER BY s.site_name
+                `;
+            }
+
+            let siteFromDb = await pool.query(siteQuery);
+            let folderFromDb = await pool.query(folderQuery);
+            let sites = siteFromDb.rows;
+            let folders = folderFromDb.rows;
+
+            res.render("view-document.ejs", { token, sites, folders, documentData });
         } else {
-            siteQuery = `
-                SELECT s.*
-                FROM sites s
-                JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
-                WHERE usj.usj_user_id = ${token.user_id} AND site_parent_id = 0
-            `;
-            folderQuery = `
-                SELECT s.*, sp.site_name as site_parent_name
-                FROM sites s
-                JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
-                LEFT JOIN sites sp ON s.site_parent_id = sp.site_id
-                WHERE usj.usj_user_id = ${token.user_id} AND s.site_parent_id != 0
-                ORDER BY s.site_name
-            `;
+            if (token.user_role === "0") {
+                siteQuery = `SELECT * FROM sites WHERE site_parent_id = 0`;
+                folderQuery = `
+                    SELECT s.*, sp.site_name as site_parent_name
+                    FROM sites s
+                    LEFT JOIN sites sp ON s.site_parent_id = sp.site_id
+                    WHERE s.site_parent_id != 0
+                    ORDER BY s.site_name`;
+            } else {
+                siteQuery = `
+                    SELECT s.*
+                    FROM sites s
+                    JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
+                    WHERE usj.usj_user_id = ${token.user_id} AND site_parent_id = 0
+                `;
+                folderQuery = `
+                    SELECT s.*, sp.site_name as site_parent_name
+                    FROM sites s
+                    JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
+                    LEFT JOIN sites sp ON s.site_parent_id = sp.site_id
+                    WHERE usj.usj_user_id = ${token.user_id} AND s.site_parent_id != 0
+                    ORDER BY s.site_name
+                `;
+            }
+
+            let siteFromDb = await pool.query(siteQuery);
+            let folderFromDb = await pool.query(folderQuery);
+            let sites = siteFromDb.rows;
+            let folders = folderFromDb.rows;
+
+            res.render("create-document.ejs", { token, sites, folders, documentData });
         }
-
-        let siteFromDb = await pool.query(siteQuery);
-        let folderFromDb = await pool.query(folderQuery);
-        let sites = siteFromDb.rows;
-        let folders = folderFromDb.rows;
-
-        res.render("create-document.ejs", { token, sites, folders, documentData });
     } catch (error) {
         console.error(error);
         res.send("Internal Server Error");

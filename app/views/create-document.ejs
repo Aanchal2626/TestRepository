@@ -362,6 +362,7 @@
             } else {
               NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while uploading Document</p>", "error");
             }
+            window.location.href = `/documents/${btoa(response.payload)}`;
           },
           error: function (xhr, status, error) {
             NioApp.handleButtonState("uploadDocumentBtn", "Upload", false);

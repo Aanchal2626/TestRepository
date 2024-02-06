@@ -46,7 +46,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_site">Site</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select form-control js-select2" id="doc_site" name="doc_site" data-placeholder="Select Site" required>
+                                  <select class="form-select form-control js-select2" id="doc_site" name="doc_site" data-placeholder="Select Site" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %>>
                                     <option label="empty" value=""></option>
                                     <% sites.forEach(function(site) { %>
                                       <option value="<%= site.site_name %>" data-parent-id="<%= site.site_id %>" <%= documentData && documentData.doc_site == site.site_name ? 'selected' : '' %>><%= site.site_name %></option>
@@ -59,14 +59,14 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_folder">Folder</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select form-control js-select2" id="doc_folder" name="doc_folder" data-placeholder="Select Folder" required>
+                                  <select class="form-select form-control js-select2" id="doc_folder" name="doc_folder" data-placeholder="Select Folder" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %> >
                                     <option label="empty" value=""></option>
                                     <% folders.forEach(function(folder) { %>
-                                      <% if (documentData && documentData.doc_site && folder.site_parent_name == documentData.doc_site) { %>
-                                        <option value="<%= folder.site_name %>" data-site-id="<%= folder.site_id %>" <%= documentData.doc_folder == folder.site_name ? 'selected' : '' %>><%= folder.site_name %></option>
-                                      <% } %>
+                                        <% if (documentData && documentData.doc_site && folder.site_parent_name == documentData.doc_site) { %>
+                                            <option value="<%= folder.site_name %>" data-site-id="<%= folder.site_id %>" <%= documentData.doc_folder == folder.site_name ? 'selected' : '' %>><%= folder.site_name %></option>
+                                        <% } %>
                                     <% }); %>
-                                  </select>
+                                </select>
                                 </div>
                               </div>
                             </div>
@@ -74,7 +74,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_type">Type</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select form-control js-select2" id="doc_type" name="doc_type" data-placeholder="Select Type">
+                                  <select class="form-select form-control js-select2" id="doc_type" name="doc_type" data-placeholder="Select Type" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %>>
                                     <option label="empty" value=""></option>
                                     <option value="INCOMING" <%= documentData && documentData.doc_type === 'INCOMING' ? 'selected' : '' %>>INCOMING</option>
                                     <option value="OUTGOING" <%= documentData && documentData.doc_type === 'OUTGOING' ? 'selected' : '' %>>OUTGOING</option>
@@ -86,7 +86,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_number">Number</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" placeholder="Document Number" id="doc_number" name="doc_number" value="<%= documentData ? documentData.doc_number : '' %>" required />
+                                  <input type="text" class="form-control" placeholder="Document Number" id="doc_number" name="doc_number" value="<%= documentData ? documentData.doc_number : '' %>" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %>/>
                                 </div>
                               </div>
                             </div>
@@ -191,7 +191,7 @@
         </div>
       </div>
     </div>
-
+    <input type="hidden" id="doc_status" value="<%=documentData.doc_status%>">
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
     <script>
@@ -240,6 +240,8 @@
 
         // Generating Document Number
         function generateDocumentNumber() {
+          let docStatus = $("#doc_status").val()
+          if(docStatus == "DRAFTED") return
           let docSiteValue = $("#doc_site").val();
           let docFolderValue = $("#doc_folder").val();
           let docTypeValue = $("#doc_type").val();
@@ -302,16 +304,14 @@
         toastr.clear();
         NioApp.handleButtonState("saveDraftButton", "Save Draft", true);
         let formData = {};
-        $(".form-control-wrap").each(function () {
-          let fieldName = $(this).find("input, select").attr("name");
-          let fieldValue = $(this).find("input, select").val();
-
-          // Removing keys with empty value
-          if (fieldValue != null && fieldValue != "" && fieldValue.length != 0 && fieldValue.length != []) {
-            formData[fieldName] = fieldValue;
-          }
+        $(".form-control").each(function () {
+          let fieldName = $(this).attr('id');
+          let fieldValue = $(this).val();
+          if(fieldValue == "" || fieldValue.length == 0 || fieldValue.length == []){
+            fieldValue = null;
+          } 
+          formData[fieldName] = fieldValue;
         });
-
         $.ajax({
           type: "POST",
           url: "/docs/save-draft",
@@ -321,6 +321,7 @@
               NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
               NioApp.Toast("<h5>Update Successfully</h5><p>Draft Saved Successfully</p>", "success");
             } else {
+              NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
               NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while drafting document.</p>", "error");
             }
           },

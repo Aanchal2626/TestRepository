@@ -172,7 +172,7 @@
                         </div>
                         <div class="card-inner p-0 scrollable-datatable">
                           <div class="nk-tb-list nk-tb-ulist is-compact">
-                            <div class="nk-tb-item nk-tb-head text-center" id="table-head">
+                            <div class="nk-tb-item nk-tb-head" id="table-head">
                               <div class="nk-tb-col text-start"><span>SITE/FOLDER</span></div>
                               <div class="nk-tb-col"><span>TYPE</span></div>
                               <div class="nk-tb-col"><span>NUMBER</span></div>
@@ -237,7 +237,7 @@
               if (response.payload.documents && response.payload.documents.length > 0) {
                 $("#table-status").empty();
                 response.payload.documents.forEach(function (document) {
-                  let rowHtml = `<div class="nk-tb-item text-center table-content">
+                  let rowHtml = `<div class="nk-tb-item text-left table-content">
                                   <div class="nk-tb-col text-start">
                                       <span>${document.doc_folder || "-"}</span>
                                   </div>

@@ -70,49 +70,53 @@ documentController.saveDraft = async (req, res) => {
         let token = req.session.token;
 
         if (token.user_role == "3") {
-            return res.send({ status: 0, msg: "Access Denie Insufficient Permissions." });
+            return res.send({ status: 0, msg: "Access Denied Insufficient Permissions." });
         }
 
         const generateInsertQuery = (data) => {
             if (inputs.doc_reference && Array.isArray(inputs.doc_reference)) {
                 inputs.doc_reference = inputs.doc_reference.join(',');
             }
-
-            if (data.doc_file) {
-                delete data.doc_file;
-            }
-
-            const keys = Object.keys(data);
-            const nonEmptyKeys = keys.filter(key => {
-                const value = data[key];
-                const isEmpty = value === '' || value === null || (Array.isArray(value) && value.length === 0) || value === '[]';
-                return !isEmpty;
-            });
-
-            nonEmptyKeys.push('doc_uploaded_by', 'doc_uploaded_at', 'doc_status');
-
-            const currentDate = moment().format('MM/DD/YYYY');
+            delete data.doc_file
             data['doc_uploaded_by'] = token.user_name;
-            data['doc_uploaded_at'] = currentDate;
+            data['doc_uploaded_at'] = moment().format('MM/DD/YYYY');
             data['doc_status'] = 'DRAFTED';
 
-            const columns = nonEmptyKeys.join(', ');
+            const keys = Object.keys(data);
+            const columns = keys.join(', ');
+            let values = '', updateValues = '';
 
-            const values = nonEmptyKeys.map(key => {
+            for (let i = 0; i < keys.length; i++) {
+                let key = keys[i];
                 let value = data[key];
-                value = typeof value === 'string' ? (value.trim() === '' ? null : `'${value}'`) : value;
-                return value;
-            }).join(', ');
-
-            const updateValues = nonEmptyKeys.map(key => {
-                if (key !== 'id') {
-                    let value = data[key];
-                    value = typeof value === 'string' ? (value.trim() === '' ? null : `'${value}'`) : value;
-                    return `${key} = ${value}`;
+                if (value == "") {
+                    value = null;
                 }
-                return null;
-            }).filter(value => value !== null).join(', ');
+                if (typeof value == 'string') {
+                    value = `'${value}'`;
+                }
+                values += (i > 0 ? ', ' : '') + value;
+            }
 
+            for (let i = 0; i < keys.length; i++) {
+                let key = keys[i];
+                if (key !== 'doc_number') {
+                    let value = data[key];
+
+                    if (value == "") {
+                        value = null;
+                    }
+                    if (typeof value == 'string') {
+                        value = `'${value}'`;
+                    }
+                    console.log(key, "=", value);
+                    let updatePart = `${key} = ${value}`;
+                    if (updateValues.length > 0) {
+                        updateValues += ', ';
+                    }
+                    updateValues += updatePart;
+                }
+            }
             const query = `INSERT INTO documents (${columns}) VALUES (${values}) ON CONFLICT (doc_number) DO UPDATE SET ${updateValues};`;
             return query;
         };
@@ -252,49 +256,52 @@ documentController.createDocument = async (req, res) => {
                 ClientRequestToken: uuidv4(),
             };
 
-            const startTextractResponse = await textract.startDocumentTextDetection(startTextractParams).promise();
-            const jobId = startTextractResponse.JobId;
+            async function processTextractJob(jobId, nextToken = null, textractResult = '') {
+                const getStatusParams = {
+                    JobId: jobId,
+                    NextToken: nextToken
+                };
 
-            const getStatusParams = { JobId: jobId };
-            let textractResult = null;
-
-            do {
                 const statusResponse = await textract.getDocumentTextDetection(getStatusParams).promise();
                 const status = statusResponse.JobStatus;
 
                 if (status === 'SUCCEEDED') {
-                    textractResult = statusResponse.Blocks.reduce((acc, block) => {
+                    textractResult += statusResponse.Blocks.reduce((acc, block) => {
                         if (block.BlockType === 'LINE') {
                             acc += block.Text + ",";
                         }
                         return acc;
                     }, '');
 
+                    if (statusResponse.NextToken) {
+                        return processTextractJob(jobId, statusResponse.NextToken, textractResult);
+                    } else {
+                        console.log("Textract job completed successfully");
+                        return textractResult;
+                    }
                 } else if (status === 'FAILED' || status === 'PARTIAL_SUCCESS') {
-                    console.error('Textract job failed or partially succeede Status:', status);
-                    return res.send({ status: 0, msg: 'Textract job failed or partially succeeded', error: statusResponse });
+                    console.error('Textract job failed or partially succeeded. Status:', status);
+                    throw new Error('Textract job failed or partially succeeded');
                 } else {
                     console.log('Textract job still in progress. Status:', status);
                     await new Promise(resolve => setTimeout(resolve, 10000));
+                    return processTextractJob(jobId, nextToken, textractResult);
                 }
-            } while (textractResult === null);
+            }
 
-            console.log("Textract job completed successfully");
+            try {
+                const startTextractResponse = await textract.startDocumentTextDetection(startTextractParams).promise();
+                const jobId = startTextractResponse.JobId;
 
-            let ocr_content_query = `
-                INSERT INTO doc_metadata (dm_id, dm_ocr_content) 
-                VALUES ($1, $2) 
-                ON CONFLICT (dm_id) 
-                DO UPDATE SET dm_ocr_content = EXCLUDED.dm_ocr_content;
-            `;
+                const textractResult = await processTextractJob(jobId);
 
-            await pool.query(ocr_content_query, [inputs.doc_number, textractResult]);
+                await pool.query(`INSERT INTO doc_metadata (dm_id, dm_ocr_content) VALUES ($1, $2) ON CONFLICT (dm_id) DO UPDATE SET dm_ocr_content = EXCLUDED.dm_ocr_content;`, [inputs.doc_number, textractResult]);
+                await pool.query(`UPDATE documents SET doc_ocr_proccessed = true WHERE doc_number = '${inputs.doc_number}';`);
 
-            let ocr_status_query = `UPDATE documents SET doc_ocr_proccessed = true WHERE doc_number = '${inputs.doc_number}';`
-
-            await pool.query(ocr_status_query);
-
-            console.log("Content Update Successfully");
+                console.log("Content Update Successfully");
+            } catch (error) {
+                console.error("An error occurred:", error);
+            }
 
         } catch (error) {
             console.error(error);
@@ -313,9 +320,7 @@ documentController.getFilteredDocuments = async (req, res) => {
         let filters = req.body;
         let filterApplied = false;
 
-        // Check if any filters are provided
         if (Object.keys(filters).length > 0) {
-            // Check if dm_ocr_content filter is present
             if ('dm_ocr_content' in filters) {
                 query += ` JOIN doc_metadata dm ON d.doc_number = dm.dm_id`;
             }

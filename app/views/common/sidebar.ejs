@@ -5,7 +5,7 @@
       <a href="#" class="nk-nav-compact nk-quick-nav-icon d-none d-xl-inline-flex" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
     </div>
     <div class="nk-sidebar-brand">
-      <a href="html/index.html" class="logo-link nk-sidebar-logo">
+      <a href="/" class="logo-link nk-sidebar-logo">
         <img class="logo-light logo-img" src="/app/assets/images/logo.png" srcset="/app/assets/images/logo2x.png 2x" alt="logo" />
         <img class="logo-dark logo-img" src="/app/assets/images/logo.png" srcset="/app/assets/images/logo-dark2x.png 2x" alt="logo-dark" />
       </a>
@@ -19,25 +19,25 @@
           <li class="nk-menu-heading">
             <h6 class="overline-title text-primary-alt">Dashboard</h6>
           </li>
-          <li class="nk-menu-item">
+          <li class="nk-menu-item <%= typeof active !== 'undefined' && active == 'Dashboard' ? 'active current-page' : '' %>"">
             <a href="/" class="nk-menu-link">
               <span class="nk-menu-icon"><em class="icon ni ni-growth"></em></span>
               <span class="nk-menu-text">Dashboard</span>
             </a>
           </li>
-          <li class="nk-menu-item">
+          <li class="nk-menu-item <%= typeof active !== 'undefined' && active == 'Documents' ? 'active current-page' : '' %>">
             <a href="/documents" class="nk-menu-link">
               <span class="nk-menu-icon"><em class="icon ni ni-file-docs"></em></span>
               <span class="nk-menu-text">Documents</span>
             </a>
           </li>
-          <li class="nk-menu-item">
+          <li class="nk-menu-item <%= typeof active !== 'undefined' && active == 'User' ? 'active current-page' : '' %>">
             <a href="/users" class="nk-menu-link">
               <span class="nk-menu-icon"><em class="icon ni ni-users"></em></span>
               <span class="nk-menu-text">Users</span>
             </a>
           </li>
-          <li class="nk-menu-item">
+          <li class="nk-menu-item <%= typeof active !== 'undefined' && active == 'Sites' ? 'active current-page' : '' %>"">
             <a href="/sites" class="nk-menu-link">
               <span class="nk-menu-icon"><em class="icon ni ni-puzzle"></em></span>
               <span class="nk-menu-text">Sites</span>

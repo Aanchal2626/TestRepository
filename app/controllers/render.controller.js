@@ -14,10 +14,23 @@ renderController.renderDocuments = async (req, res) => {
 renderController.renderUsers = async (req, res) => {
     let token = req.session.token;
     try {
-        let query = `SELECT * FROM USERS`;
+        let query = `SELECT * FROM users`;
         let users = await pool.query(query);
         users = users.rows;
         res.render("users.ejs", { token, users });
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+renderController.renderSites = async (req, res) => {
+    let token = req.session.token;
+    try {
+        let query = `SELECT * FROM sites ORDER BY site_name ASC `;
+        let users = await pool.query(query);
+        sites = users.rows;
+        console.log(sites)
+        res.render("sites.ejs", { token, sites });
     } catch (err) {
         console.log(err)
     }

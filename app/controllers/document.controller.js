@@ -340,7 +340,6 @@ documentController.getFilteredDocuments = async (req, res) => {
                 }
             }
         }
-        console.log(query)
         let { rows: documents } = await pool.query(query);
         res.json({ status: 1, msg: 'Success', payload: { documents } });
     } catch (err) {

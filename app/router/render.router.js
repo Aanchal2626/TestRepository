@@ -5,6 +5,7 @@ let authMiddleware = require("../middlewares/auth.middleware");
 router.get("/", authMiddleware.checkLoginStatus, renderController.renderDashboard);
 router.get("/documents", authMiddleware.checkLoginStatus, renderController.renderDocuments);
 router.get("/users", authMiddleware.checkLoginStatus, renderController.renderUsers);
+router.get("/sites", authMiddleware.checkLoginStatus, renderController.renderSites);
 router.get("/documents/create-document", authMiddleware.checkLoginStatus, renderController.renderCreateDocument);
 router.get("/documents/:id", authMiddleware.checkLoginStatus, renderController.renderSingleDocument);
 

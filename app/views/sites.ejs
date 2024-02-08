@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+  <head>
+    <base href="../" />
+    <meta charset="utf-8" />
+    <meta name="author" content="Softnio" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers." />
+    <!-- Fav Icon  -->
+    <link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+    <!-- Page Title  -->
+    <title>Sites | Document Controller</title>
+    <!-- StyleSheets  -->
+    <link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+    <link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+    <style>
+      .is-alter .js-select2 ~ .invalid {
+        bottom: 40px;
+      }
+      @keyframes slideAndFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideAndFadeOut {
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(100%);
+        }
+      }
+
+      .slide-in {
+        animation: slideAndFadeIn 0.3s ease-in-out forwards;
+      }
+
+      .slide-out {
+        animation: slideAndFadeOut 0.3s ease-in-out forwards;
+      }
+      .child-header {
+        background-color: #ededed;
+      }
+      .child-content {
+        background-color: #ededed;
+      }
+      .nk-tb-col {
+        width: 20%;
+      }
+      .nk-tb-item {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body class="nk-body bg-lighter npc-general has-sidebar">
+    <div class="nk-app-root">
+      <div class="nk-main">
+        <%- include('./common/sidebar' , {active : "Sites"}); -%>
+        <div class="nk-wrap">
+          <%- include('./common/navbar'); -%>
+          <div class="nk-content">
+            <div class="container-fluid">
+              <div class="nk-content-inner">
+                <div class="nk-content-body">
+                  <div class="nk-block-head nk-block-head-sm">
+                    <div class="nk-block-between">
+                      <div class="nk-block-head-content">
+                        <h3 class="nk-block-title page-title">Sites Lists</h3>
+                        <% let filteredSites = sites.filter(site => site.site_parent_id === '0'); %>
+                        <div class="nk-block-des text-soft">
+                          <p>You have a total of <%= filteredSites.length %> sites.</p>
+                        </div>
+                      </div>
+                      <!-- .nk-block-head-content -->
+                      <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                          <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
+                          <div class="toggle-expand-content" data-content="pageMenu">
+                            <ul class="nk-block-tools g-3">
+                              <li class="nk-block-tools-opt">
+                                <div class="drodown">
+                                  <li class="nk-block-tools-opt">
+                                    <a class="preview-item"
+                                      ><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add Site</button></a
+                                    >
+                                  </li>
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="nk-block">
+                    <div class="card card-bordered card-stretch">
+                      <div class="card-inner-group">
+                        <div class="card-inner p-0">
+                          <div class="nk-tb-list nk-tb-ulist is-compact text-left">
+                            <div class="nk-tb-item nk-tb-head">
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE CODE</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE NAME</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE MASTER ID</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE FOLDERS</span></div>
+                              <div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
+                            </div>
+                            <% sites.forEach(function(site) { %> <% var childSitesCount = sites.filter(childSite => childSite.site_parent_id === site.site_id).length; %>
+                            <div class="nk-tb-item parent-row <%= site.site_parent_id !== '0' ? 'd-none' : '' %>" data-parent="<%= site.site_id %>">
+                              <div class="nk-tb-col tb-col-sm parent-content">
+                                <span><%= site.site_code %></span>
+                              </div>
+                              <div class="nk-tb-col tb-col-sm parent-content">
+                                <span><%= site.site_name %></span>
+                              </div>
+                              <div class="nk-tb-col tb-col-sm parent-content">
+                                <span><%= site.site_id %></span>
+                              </div>
+                              <div class="nk-tb-col tb-col-sm parent-content">
+                                <span><%= childSitesCount %></span>
+                              </div>
+                              <div class="nk-tb-col text-end">
+                                <a style="margin-right: 20px !important; font-size: 18px; cursor: pointer" class="link-cross me-sm-n1 action-dropdown more-dropdown-<%= site.site_id %>"><em class="icon ni ni-edit-fill"></em> </a>
+                                <a style="margin-right: 20px !important; font-size: 18px; cursor: pointer; display: none" class="link-cross me-sm-n1 action-dropdown down-arrow-<%= site.site_id %>"><em class="icon ni ni-chevron-down"></em> </a>
+                              </div>
+                            </div>
+                            <% var headerRendered = false; %> <% sites.forEach(function(childSite) { if (childSite.site_parent_id === site.site_id) { %> <% if (!headerRendered) { %>
+                            <div class="nk-tb-item child-row nk-tb-head d-none child-header" data-parent="<%= site.site_id %>" style="background: #ededed">
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE CODE</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE NAME</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE PREFIX</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE RECORDS</span></div>
+                              <div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
+                            </div>
+                            <% headerRendered = true; %> <% } %>
+                            <div class="nk-tb-item child-row d-none" data-parent="<%= site.site_id %>">
+                              <div class="nk-tb-col tb-col-sm child-content">
+                                <span><%= childSite.site_code%></span>
+                              </div>
+                              <div class="nk-tb-col tb-col-sm child-content">
+                                <span><%= childSite.site_name%></span>
+                              </div>
+                              <div class="nk-tb-col tb-col-sm child-content">
+                                <span><%= childSite.site_prefix%></span>
+                              </div>
+                              <div class="nk-tb-col tb-col-sm child-content">
+                                <span><%= childSite.site_record_value%></span>
+                              </div>
+                              <div class="nk-tb-col text-end child-content">
+                                <a style="margin-right: 20px !important; font-size: 18px; cursor: pointer" class="link-cross me-sm-n1 action-dropdown more-dropdown-<%= site.site_id %>"><em class="icon ni ni-edit-fill"></em> </a>
+                                <a style="margin-right: 20px !important; font-size: 18px; cursor: pointer; display: none" class="link-cross me-sm-n1 action-dropdown down-arrow-<%= site.site_id %>"><em class="icon ni ni-chevron-down"></em> </a>
+                              </div>
+                            </div>
+                            <% } }); %> <% }); %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <%- include('./common/footer'); -%>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/app/assets/js/bundle.js"></script>
+    <script src="/app/assets/js/scripts.js"></script>
+    <script>
+      $(document).ready(function () {
+        $(".action-dropdown").click(function (event) {
+          event.stopPropagation();
+        });
+        $(".parent-row").click(function () {
+          var parentId = $(this).data("parent");
+          var $childRows = $('.child-row[data-parent="' + parentId + '"]');
+          var $otherParentRows = $(".parent-row").not('[data-parent="' + parentId + '"]');
+          var $otherChildRows = $(".child-row").not('[data-parent="' + parentId + '"]');
+          $otherChildRows.addClass("d-none").removeClass("slide-in");
+          $childRows.toggleClass("d-none");
+          if (!$childRows.hasClass("d-none")) {
+            $childRows.removeClass("slide-out").addClass("slide-in");
+            $(this)
+              .find(".more-dropdown-" + parentId)
+              .hide();
+            $(this)
+              .find(".down-arrow-" + parentId)
+              .show();
+            // Hide arrow icon for other parent rows
+            $otherParentRows.each(function () {
+              var otherParentId = $(this).data("parent");
+              $(this)
+                .find(".more-dropdown-" + otherParentId)
+                .show();
+              $(this)
+                .find(".down-arrow-" + otherParentId)
+                .hide();
+            });
+          } else {
+            $childRows.removeClass("slide-in").addClass("slide-out");
+            $(this)
+              .find(".more-dropdown-" + parentId)
+              .show();
+            $(this)
+              .find(".down-arrow-" + parentId)
+              .hide();
+          }
+        });
+
+        function handleEditClicked(siteId) {
+          // Handle edit action
+        }
+      });
+    </script>
+  </body>
+</html>

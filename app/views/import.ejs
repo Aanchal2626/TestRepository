@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+  <head>
+    <base href="../" />
+    <meta charset="utf-8" />
+    <meta name="author" content="Softnio" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers." />
+    <!-- Fav Icon  -->
+    <link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+    <!-- Page Title  -->
+    <title>Import | Document Controller</title>
+    <!-- StyleSheets  -->
+    <link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+    <link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+    <style>
+      .is-alter .js-select2 ~ .invalid {
+        bottom: 40px;
+      }
+    </style>
+  </head>
+
+  <body class="nk-body bg-lighter npc-general has-sidebar">
+    <div class="nk-app-root">
+      <div class="nk-main">
+        <%- include('./common/sidebar' , {active : "Documents"}); -%>
+        <div class="nk-wrap">
+          <%- include('./common/navbar'); -%>
+          <div class="nk-content">
+            <div class="container-fluid">
+              <div class="nk-content-inner">
+                <div class="nk-content-body">
+                  <div class="nk-block-head nk-block-head-sm">
+                    <div class="nk-block-between">
+                      <div class="nk-block-head-content">
+                        <h3 class="nk-block-title page-title">Import List</h3>
+                        <div class="nk-block-des text-soft">
+                          <p>You have total users.</p>
+                        </div>
+                      </div>
+                      <!-- .nk-block-head-content -->
+                      <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                          <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
+                          <div class="toggle-expand-content" data-content="pageMenu">
+                            <ul class="nk-block-tools g-3">
+                              <li class="nk-block-tools-opt">
+                                <div class="drodown">
+                                  <li class="nk-block-tools-opt">
+                                    <a class="preview-item"
+                                      ><button id="importButton" disabled type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><em class="icon ni ni-download-cloud" style="font-size: 13px"></em> &nbsp; Import</button></a
+                                    >
+                                  </li>
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="nk-block">
+                    <div class="card card-bordered card-stretch">
+                      <div class="card-inner-group">
+                        <!-- .card-inner -->
+                        <div class="card-inner p-0">
+                          <div class="nk-tb-list nk-tb-ulist is-compact">
+                            <div class="nk-tb-item nk-tb-head">
+                              <div class="nk-tb-col tb-col-sm"><span class="sub-text">SELECT</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FROM</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SUBJECT</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">DATE</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">ROLE</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">STATUS</span></div>
+                              <div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- .card-inner -->
+                      </div>
+                      <!-- .card-inner-group -->
+                    </div>
+                    <!-- .card -->
+                  </div>
+                  <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct" data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar>
+                    <div class="nk-block-head">
+                      <div class="nk-block-head-content">
+                        <h5 class="nk-block-title">New User</h5>
+                        <div class="nk-block-des">
+                          <p>Add information and add new user.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <%- include('./common/footer'); -%>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/app/assets/js/bundle.js"></script>
+    <script src="/app/assets/js/scripts.js"></script>
+    <script></script>
+  </body>
+</html>

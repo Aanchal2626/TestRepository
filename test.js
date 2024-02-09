@@ -1,6 +1,6 @@
 const Imap = require('imap');
 const { simpleParser } = require('mailparser');
-const fs = require('fs'); // Import the 'fs' module
+const fs = require('fs');
 const dotenv = require("dotenv").config();
 
 const imap = new Imap({

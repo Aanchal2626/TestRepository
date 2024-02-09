@@ -29,13 +29,14 @@ documentController.generateDocumentNumber = async (req, res) => {
             return res.send({ status: 0, msg: "Invalid Site Id" });
         }
 
-        let query = `SELECT * FROM site_records WHERE sr_id = ${inputs.site_id}`;
+        let query = `SELECT * FROM sites WHERE site_id = ${inputs.site_id}`;
 
         let dataFromDb = await pool.query(query);
 
         if (dataFromDb.rows.length == 0) {
             return res.send({ status: 0, msg: "Site record not found" });
         }
+        console.log(dataFromDb, "<<<<<<")
         res.send({ status: 1, msg: "Success", payload: dataFromDb.rows[0] });
     } catch (error) {
         console.error(error);
@@ -128,9 +129,9 @@ documentController.saveDraft = async (req, res) => {
         let dataFromDb = await pool.query(query);
         if (dataFromDb && selectResult == 0) {
             let updateSiteRecordQuery = `
-            UPDATE site_records
-            SET sr_value = sr_value + 1
-            WHERE sr_id = (SELECT site_id FROM sites WHERE site_name = '${inputs.doc_folder}');
+            UPDATE sites
+            SET site_record_value = site_record_value + 1
+            WHERE site_name = '${inputs.doc_folder}';
         `;
             await pool.query(updateSiteRecordQuery);
         }
@@ -220,9 +221,9 @@ documentController.createDocument = async (req, res) => {
         // Maintaing site record to auto generate document numbers
         if (dataFromDb && selectResult == 0) {
             let updateSiteRecordQuery = `
-            UPDATE site_records
-            SET sr_value = sr_value + 1
-            WHERE sr_id = (SELECT site_id FROM sites WHERE site_name = '${inputs.doc_folder}');
+            UPDATE sites
+            SET site_record_value = site_record_value + 1
+            WHERE site_name = '${inputs.doc_folder}';
         `;
             await pool.query(updateSiteRecordQuery);
         }

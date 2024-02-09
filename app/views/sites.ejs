@@ -55,9 +55,6 @@
       .nk-tb-col {
         width: 20%;
       }
-      .nk-tb-item {
-        cursor: pointer;
-      }
     </style>
   </head>
 
@@ -114,7 +111,7 @@
                               <div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
                             </div>
                             <% sites.forEach(function(site) { %> <% var childSitesCount = sites.filter(childSite => childSite.site_parent_id === site.site_id).length; %>
-                            <div class="nk-tb-item parent-row <%= site.site_parent_id !== '0' ? 'd-none' : '' %>" data-parent="<%= site.site_id %>">
+                            <div class="nk-tb-item parent-row <%= site.site_parent_id !== '0' ? 'd-none' : '' %>" data-parent="<%= site.site_id %>" style="cursor: pointer">
                               <div class="nk-tb-col tb-col-sm parent-content">
                                 <span><%= site.site_code %></span>
                               </div>
@@ -134,10 +131,10 @@
                             </div>
                             <% var headerRendered = false; %> <% sites.forEach(function(childSite) { if (childSite.site_parent_id === site.site_id) { %> <% if (!headerRendered) { %>
                             <div class="nk-tb-item child-row nk-tb-head d-none child-header" data-parent="<%= site.site_id %>" style="background: #ededed">
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE CODE</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE NAME</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE PREFIX</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE RECORDS</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER CODE</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER NAME</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER PREFIX</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER RECORDS</span></div>
                               <div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
                             </div>
                             <% headerRendered = true; %> <% } %>

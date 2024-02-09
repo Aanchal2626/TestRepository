@@ -7,6 +7,7 @@ router.get("/documents", authMiddleware.checkLoginStatus, renderController.rende
 router.get("/users", authMiddleware.checkLoginStatus, renderController.renderUsers);
 router.get("/sites", authMiddleware.checkLoginStatus, renderController.renderSites);
 router.get("/documents/create-document", authMiddleware.checkLoginStatus, renderController.renderCreateDocument);
+router.get("/documents/import/document", authMiddleware.checkLoginStatus, renderController.renderImportDocument);
 router.get("/documents/:id", authMiddleware.checkLoginStatus, renderController.renderSingleDocument);
 
 module.exports = router;

@@ -175,5 +175,12 @@ renderController.renderSingleDocument = async (req, res) => {
     }
 }
 
+renderController.renderImportDocument = async (req, res) => {
+    let token = req.session.token;
+    let query = `SELECT user_password FROM users WHERE user_id = '${token.user_id}'`;
+    let dataFromDb = await pool.query(query);
+    token.password = dataFromDb.rows[0].user_password;
+    res.render("import.ejs", { token })
+}
 
 module.exports = renderController;

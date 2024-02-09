@@ -257,7 +257,7 @@
               data: { site_id: dataSiteId },
               success: function (response) {
                 if (response.status == 1) {
-                  docNumberValue = response.payload.sr_prefix + (parseInt(response.payload.sr_value) + 1);
+                  docNumberValue = response.payload.site_prefix + (parseInt(response.payload.site_record_value) + 1);
                   docNumberInput.val(docNumberValue);
                   toggleSaveDraftButton();
                 } else {

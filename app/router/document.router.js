@@ -11,5 +11,5 @@ router.get("/get-document-reference", documentController.getDocumentReference);
 router.post("/save-draft", documentController.saveDraft);
 router.post("/create-document", upload.single('doc_file'), documentController.createDocument);
 router.post("/get-filtered-documents", documentController.getFilteredDocuments);
-
+router.post("/get-import-documents", documentController.getImportDocuments);
 module.exports = router;

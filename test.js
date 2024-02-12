@@ -18,29 +18,46 @@ function openInbox(cb) {
 imap.once('ready', function () {
     openInbox(function (err, box) {
         if (err) throw err;
-        const f = imap.seq.fetch('1:*', {
-            envelope: true
-        });
-        let emails = [];
-        f.on('message', function (msg, seqno) {
 
-            msg.once('attributes', function (attrs) {
-                emails.push(attrs.envelope)
+        const pageSize = 10; // Number of emails per page
+        let currentPage = 1; // Current page number
+        let totalEmails = 0; // Total number of emails fetched
+        let totalPages = Math.ceil(box.messages.total / pageSize); // Total number of pages
+
+        fetchPage(currentPage);
+
+        function fetchPage(page) {
+            const start = (page - 1) * pageSize + 1;
+            const end = start + pageSize - 1;
+            console.log(`Fetching page ${page}/${totalPages}`);
+
+            const f = imap.seq.fetch(`${start}:${end}`, {
+                envelope: true
             });
-            msg.once('end', function () {
-                fs.writeFileSync("test.txt", JSON.stringify(emails))
-                console.log(emails.length)
+
+            f.on('message', function (msg, seqno) {
+                msg.once('attributes', function (attrs) {
+                    console.log(attrs.envelope);
+                });
             });
-        });
 
-        f.once('error', function (err) {
-            console.log('Fetch error: ' + err);
-        });
+            f.once('error', function (err) {
+                console.log('Fetch error: ' + err);
+            });
 
-        f.once('end', function () {
-            console.log('Done fetching all messages!');
-            imap.end();
-        });
+            f.once('end', function () {
+                totalEmails += pageSize;
+                console.log(`Fetched ${pageSize} emails. Total: ${totalEmails}/${box.messages.total}`);
+
+                if (page < totalPages) {
+                    currentPage++;
+                    fetchPage(currentPage);
+                } else {
+                    console.log('Done fetching all messages!');
+                    imap.end();
+                }
+            });
+        }
     });
 });
 

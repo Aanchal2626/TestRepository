@@ -6,16 +6,32 @@
     <meta name="author" content="Softnio" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers." />
-    <!-- Fav Icon  -->
     <link rel="shortcut icon" href="/app/assets/images/favicon.png" />
-    <!-- Page Title  -->
     <title>Import | Document Controller</title>
-    <!-- StyleSheets  -->
     <link rel="stylesheet" href="/app/assets/css/dashlite.css" />
     <link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
     <style>
-      .is-alter .js-select2 ~ .invalid {
-        bottom: 40px;
+      .nk-tb-item .nk-tb-col:first-child {
+        padding-left: 10px;
+      }
+      .nk-tb-col:first-child {
+        width: 30px;
+        min-width: 30px;
+        max-width: 30px;
+      }
+      .nk-tb-col:nth-child(2) {
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
+      }
+      .nk-tb-col {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 5px 15px;
+        width: 170px;
+        min-width: 170px;
+        max-width: 170px;
       }
     </style>
   </head>
@@ -38,7 +54,6 @@
                           <p>You have total users.</p>
                         </div>
                       </div>
-                      <!-- .nk-block-head-content -->
                       <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
                           <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
@@ -60,34 +75,241 @@
                     </div>
                   </div>
                   <div class="nk-block">
-                    <div class="card card-bordered card-stretch">
+                    <div class="card card-stretch">
                       <div class="card-inner-group">
-                        <!-- .card-inner -->
-                        <div class="card-inner p-0">
-                          <div class="nk-tb-list nk-tb-ulist is-compact">
-                            <div class="nk-tb-item nk-tb-head">
-                              <div class="nk-tb-col tb-col-sm"><span class="sub-text">SELECT</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FROM</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SUBJECT</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">DATE</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">ROLE</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">STATUS</span></div>
-                              <div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
+                        <div class="card-inner position-relative card-tools-toggle">
+                          <div class="card-title-group">
+                            <div class="card-tools"></div>
+                            <div class="card-tools me-n1">
+                              <ul class="btn-toolbar gx-1">
+                                <li>
+                                  <a href="#" class="btn btn-icon search-toggle toggle-search" data-target="search"><em class="icon ni ni-search"></em></a>
+                                </li>
+                                <li class="btn-toolbar-sep"></li>
+                                <li>
+                                  <div class="toggle-wrap">
+                                    <a href="#" class="btn btn-icon btn-trigger toggle" data-target="cardTools"><em class="icon ni ni-menu-right"></em></a>
+                                    <div class="toggle-content" data-content="cardTools">
+                                      <ul class="btn-toolbar gx-1">
+                                        <li class="toggle-close">
+                                          <a href="#" class="btn btn-icon btn-trigger toggle" data-target="cardTools"><em class="icon ni ni-arrow-left"></em></a>
+                                        </li>
+                                        <li>
+                                          <div class="dropdown">
+                                            <a href="#" class="btn btn-trigger btn-icon dropdown-toggle" data-bs-toggle="dropdown">
+                                              <div class="dot dot-primary"></div>
+                                              <em class="icon ni ni-filter-alt"></em>
+                                            </a>
+                                            <div class="filter-wg dropdown-menu dropdown-menu-xl dropdown-menu-end">
+                                              <div class="dropdown-head">
+                                                <span class="sub-title dropdown-title">Filter Users</span>
+                                                <div class="dropdown">
+                                                  <a href="#" class="btn btn-sm btn-icon">
+                                                    <em class="icon ni ni-more-h"></em>
+                                                  </a>
+                                                </div>
+                                              </div>
+                                              <div class="dropdown-body dropdown-body-rg">
+                                                <div class="row gx-6 gy-3">
+                                                  <div class="col-6">
+                                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                                      <input type="checkbox" class="custom-control-input" id="hasBalance" />
+                                                      <label class="custom-control-label" for="hasBalance"> Have Balance</label>
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-6">
+                                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                                      <input type="checkbox" class="custom-control-input" id="hasKYC" />
+                                                      <label class="custom-control-label" for="hasKYC"> KYC Verified</label>
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-6">
+                                                    <div class="form-group">
+                                                      <label class="overline-title overline-title-alt">Role</label>
+                                                      <select class="form-select js-select2">
+                                                        <option value="any">Any Role</option>
+                                                        <option value="investor">Investor</option>
+                                                        <option value="seller">Seller</option>
+                                                        <option value="buyer">Buyer</option>
+                                                      </select>
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-6">
+                                                    <div class="form-group">
+                                                      <label class="overline-title overline-title-alt">Status</label>
+                                                      <select class="form-select js-select2">
+                                                        <option value="any">Any Status</option>
+                                                        <option value="active">Active</option>
+                                                        <option value="pending">Pending</option>
+                                                        <option value="suspend">Suspend</option>
+                                                        <option value="deleted">Deleted</option>
+                                                      </select>
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-12 d-flex">
+                                                    <div class="form-group">
+                                                      <button type="button" class="btn btn-secondary">Filter</button>
+                                                    </div>
+                                                    <a class="clickable" href="#">Reset Filter</a>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                        <li>
+                                          <div class="dropdown">
+                                            <a href="#" class="btn btn-trigger btn-icon dropdown-toggle" data-bs-toggle="dropdown">
+                                              <em class="icon ni ni-setting"></em>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-xs dropdown-menu-end">
+                                              <ul class="link-check">
+                                                <li><span>Show</span></li>
+                                                <li class="active"><a href="#">10</a></li>
+                                                <li><a href="#">20</a></li>
+                                                <li><a href="#">50</a></li>
+                                              </ul>
+                                              <ul class="link-check">
+                                                <li><span>Order</span></li>
+                                                <li class="active"><a href="#">DESC</a></li>
+                                                <li><a href="#">ASC</a></li>
+                                              </ul>
+                                            </div>
+                                          </div>
+                                        </li>
+                                      </ul>
+                                    </div>
+                                  </div>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                          <div class="card-search search-wrap" data-search="search">
+                            <div class="card-body">
+                              <div class="search-content">
+                                <a href="#" class="search-back btn btn-icon toggle-search" data-target="search"><em class="icon ni ni-arrow-left"></em></a>
+                                <input type="text" id="searchDocumentInput" class="form-control border-transparent form-focus-none" placeholder="Search Subject " />
+                                <button id="searchDocumentButton" class="search-submit btn btn-icon"><em class="icon ni ni-search"></em></button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                        <!-- .card-inner -->
-                      </div>
-                      <!-- .card-inner-group -->
-                    </div>
-                    <!-- .card -->
-                  </div>
-                  <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addProduct" data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar>
-                    <div class="nk-block-head">
-                      <div class="nk-block-head-content">
-                        <h5 class="nk-block-title">New User</h5>
-                        <div class="nk-block-des">
-                          <p>Add information and add new user.</p>
+                        <div class="card-inner p-0 scrollable-datatable">
+                          <div class="nk-tb-list nk-tb-ulist is-compact">
+                            <div class="nk-tb-item nk-tb-head" id="table-head">
+                              <div class="nk-tb-col nk-tb-col-check"></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SUBJECT</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">DATE</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FROM</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">TO</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FLAGS</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SEEN</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">ATTACHMENTS</span></div>
+                            </div>
+                            <!-- <div class="nk-tb-item">
+                              <div class="nk-tb-col nk-tb-col-check">
+                                <div class="custom-control custom-control-sm custom-checkbox notext">
+                                  <input type="checkbox" class="custom-control-input" id="uid1" />
+                                  <label class="custom-control-label" for="uid1"></label>
+                                </div>
+                              </div>
+                              <div class="nk-tb-col">
+                                <div class="user-card">
+                                  <div class="user-avatar xs bg-primary">
+                                    <span>AB</span>
+                                  </div>
+                                  <div class="user-name">
+                                    <span class="tb-lead">Abu Bin Ishtiyak</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="nk-tb-col tb-col-md">
+                                <span>Customer</span>
+                              </div>
+                              <div class="nk-tb-col tb-col-sm">
+                                <span>info@softnio.com</span>
+                              </div>
+                              <div class="nk-tb-col tb-col-md">
+                                <span>+811 847-4958</span>
+                              </div>
+                              <div class="nk-tb-col tb-col-xxl">
+                                <span>Bangladesh</span>
+                              </div>
+                              <div class="nk-tb-col tb-col-lg">
+                                <ul class="list-status">
+                                  <li><em class="icon text-success ni ni-check-circle"></em> <span>Email</span></li>
+                                </ul>
+                              </div>
+                              <div class="nk-tb-col tb-col-xxl">
+                                <span>10 Feb 2020</span>
+                              </div>
+                              <div class="nk-tb-col">
+                                <span class="tb-status text-success">Active</span>
+                              </div>
+                              <div class="nk-tb-col nk-tb-col-tools">
+                                <ul class="nk-tb-actions gx-2">
+                                  <li class="nk-tb-action-hidden">
+                                    <a href="#" class="btn btn-sm btn-icon btn-trigger" data-bs-toggle="tooltip" data-bs-placement="top" title="Wallet">
+                                      <em class="icon ni ni-wallet-fill"></em>
+                                    </a>
+                                  </li>
+                                  <li class="nk-tb-action-hidden">
+                                    <a href="#" class="btn btn-sm btn-icon btn-trigger" data-bs-toggle="tooltip" data-bs-placement="top" title="Send Email">
+                                      <em class="icon ni ni-mail-fill"></em>
+                                    </a>
+                                  </li>
+                                  <li class="nk-tb-action-hidden">
+                                    <a href="#" class="btn btn-sm btn-icon btn-trigger" data-bs-toggle="tooltip" data-bs-placement="top" title="Suspend">
+                                      <em class="icon ni ni-user-cross-fill"></em>
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <div class="drodown">
+                                      <a href="#" class="btn btn-sm btn-icon btn-trigger dropdown-toggle" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+                                      <div class="dropdown-menu dropdown-menu-end">
+                                        <ul class="link-list-opt no-bdr">
+                                          <li>
+                                            <a href="#"><em class="icon ni ni-eye"></em><span>View Details</span></a>
+                                          </li>
+                                          <li>
+                                            <a href="#"><em class="icon ni ni-repeat"></em><span>Orders</span></a>
+                                          </li>
+                                          <li class="divider"></li>
+                                          <li>
+                                            <a href="#"><em class="icon ni ni-shield-star"></em><span>Reset Pass</span></a>
+                                          </li>
+                                          <li>
+                                            <a href="#"><em class="icon ni ni-shield-off"></em><span>Reset 2FA</span></a>
+                                          </li>
+                                          <li>
+                                            <a href="#"><em class="icon ni ni-na"></em><span>Suspend User</span></a>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </div>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div> -->
+                          </div>
+                        </div>
+                        <div id="table-status" class="card-inner text-center">
+                          <div class="text-center">
+                            <p>No Data Found</p>
+                          </div>
+                        </div>
+                        <div class="card-inner">
+                          <ul class="pagination justify-content-center justify-content-md-start">
+                            <li class="page-item"><a class="page-link" href="#">Prev</a></li>
+                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item">
+                              <span class="page-link"><em class="icon ni ni-more-h"></em></span>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">6</a></li>
+                            <li class="page-item"><a class="page-link" href="#">7</a></li>
+                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                          </ul>
                         </div>
                       </div>
                     </div>
@@ -102,6 +324,106 @@
     </div>
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
-    <script></script>
+    <script>
+      let filters = {
+        currentPage: 1,
+        pageSize: 10,
+      };
+      function fetchDocuments() {
+        $(".table-content").remove();
+        $("#table-status").html(`<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>`);
+        $.ajax({
+          type: "POST",
+          url: "/docs/get-import-documents",
+          data: JSON.stringify(filters),
+          contentType: "application/json",
+          success: function (response) {
+            if (response.status == 1) {
+              if (response.payload.documents && response.payload.documents.length > 0) {
+                $("#table-status").empty();
+                response.payload.documents.forEach(function (document) {
+                  let rowHtml = `<div class="nk-tb-item text-left table-content">
+                                  <div class="nk-tb-col text-start">
+                                      <span>${document.doc_folder || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span>
+                                          <div style="font-size: 10px; height: 20px; width: 20px; margin-right: 5px" class="nk-tnx-type-icon ${document.doc_type == "INCOMING" ? `text-primary bg-primary-dim` : `text-success bg-success-dim`} "><em class="icon ni ${document.doc_type == "INCOMING" ? `text-success bg-success-dim ni-arrow-down-left` : `text-primary bg-primary-dim ni-arrow-up-right`}"></em></div> 
+                                          ${document.doc_type || "-"}
+                                      </span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span><a href="/documents/${btoa(document.doc_number)}">${document.doc_number || "-"}</a></span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span${document.doc_status === "DRAFTED" ? ' class="text-warning"' : document.doc_status === "UPLOADED" ? ' class="text-primary"' : ""}>${document.doc_status || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span>${document.doc_created_at || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                    <span title="${document.doc_purpose || "-"}">${document.doc_purpose || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                    <span title="${document.doc_subject || "-"}">${document.doc_subject || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span title="${document.doc_reference || "-"}">${document.doc_reference || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span title="${document.doc_replied_vide || "-"}">${document.doc_replied_vide || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                    <span title="${document.doc_from || "-"}">${document.doc_from || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                    <span title="${document.doc_to || "-"}">${document.doc_to || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      <span title="${document.doc_storage_location || "-"}">${document.doc_storage_location || "-"}</span>
+                                  </div>
+                              </div>`;
+                  $(rowHtml).insertAfter("#table-head");
+                });
+              } else {
+                $("#table-status").html(`<div class="text-center"><p>No Records Found</p></div>`);
+              }
+            } else {
+              if (response.msg == "Invalid Credentials") {
+                $("#table-status").html(`<div class="text-center"><p style='color:red;'>Invalid Credentials</p></div>`);
+              } else {
+                $("#table-status").html(`<div class="text-center"><p>Something Went Wrong</p></div>`);
+              }
+            }
+          },
+          error: function (xhr, status, error) {
+            console.log(error);
+            $("#table-status").html(`<div class="text-center"><p>Something Went Wrong</p></div>`);
+          },
+        });
+      }
+      fetchDocuments();
+
+      $("#searchDocumentButton").click(function () {
+        handleSearch();
+      });
+
+      $("#searchDocumentInput").keypress(function (event) {
+        if (event.which === 13) {
+          handleSearch();
+        }
+      });
+
+      function handleSearch() {
+        var searchValue = $("#searchDocumentInput").val();
+        if (searchValue) {
+          filters.subject = searchValue;
+          fetchDocuments();
+        } else if (!searchValue && filters.subject) {
+          delete filters.subject;
+          fetchDocuments();
+        }
+      }
+    </script>
   </body>
 </html>

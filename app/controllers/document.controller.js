@@ -2,6 +2,8 @@ const { pool } = require("../helpers/database.helpers");
 const AWS = require('aws-sdk');
 const moment = require("moment");
 const { v4: uuidv4 } = require('uuid');
+const { simpleParser } = require('mailparser');
+const Imap = require('imap');
 
 const documentController = {};
 
@@ -349,6 +351,120 @@ documentController.getFilteredDocuments = async (req, res) => {
     }
 }
 
+documentController.getImportDocuments = async (req, res) => {
+    try {
+        let token = req.session.token;
+        let inputs = req.body;
+        console.log(inputs, "<<<<<")
+        let query = `SELECT * FROM users WHERE user_id = ${token.user_id}`;
+        const { rows: [dataFromDb] } = await pool.query(query);
+
+        const payload = await fetchEmails(dataFromDb.user_email, dataFromDb.user_password, inputs.pageSize, inputs.currentPage);
+        res.json({ status: 1, payload });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ status: 0, msg: "Internal Server Error" });
+    }
+}
+
+async function fetchEmails(userEmail, userPassword, pageSize = 10, page = 1) {
+    return new Promise((resolve, reject) => {
+        const imap = new Imap({
+            user: userEmail,
+            password: userPassword,
+            host: process.env.HOST,
+            port: 993,
+            tls: true,
+        });
+
+        function openInbox(cb) {
+            imap.openBox('INBOX', true, cb);
+        }
+
+        imap.once('error', function (err) {
+            console.log(err);
+            if (err.source == "timeout-auth") {
+                reject("Invalid Credentials");
+            }
+        });
+
+        imap.once('ready', function () {
+            openInbox(function (err, box) {
+                if (err) reject(err);
+
+                const totalEmails = box.messages.total;
+                const totalPages = Math.ceil(totalEmails / pageSize);
+
+                const start = (page - 1) * pageSize + 1;
+                const end = Math.min(start + pageSize - 1, totalEmails); // Ensure end doesn't exceed total emails
+
+                if (totalEmails === 0) {
+                    resolve({ emails: [], totalRecords: 0, totalPages: 0 });
+                    return;
+                }
+
+                const f = imap.seq.fetch(`${start}:${end}`, {
+                    envelope: true,
+                    bodies: ''
+                });
+
+                const emails = [];
+
+                f.on('message', function (msg, seqno) {
+                    const attributes = {};
+                    let message = '';
+
+                    msg.on('body', function (stream, info) {
+                        simpleParser(stream, {}, function (err, parsed) {
+                            if (err) reject(err);
+                            message = parsed;
+                        });
+                    });
+
+                    msg.once('attributes', function (attrs) {
+                        const flagsWithoutPrefix = attrs.flags.filter(flag => !flag.startsWith('\\') && !flag.startsWith('$'));
+                        attributes.subject = attrs.envelope.subject;
+                        attributes.date = attrs.envelope.date;
+                        attributes.from = attrs.envelope.from[0].mailbox + "@" + attrs.envelope.from[0].host;
+                        attributes.to = attrs.envelope.to[0].mailbox + "@" + attrs.envelope.to[0].host;
+                        attributes.flags = flagsWithoutPrefix;
+                        attributes.seen = attrs.flags.includes('\\Seen');
+                        attributes.messageId = attrs.envelope.messageId;
+                        console.log(attrs)
+                    });
+
+                    msg.once('end', function () {
+                        const email = {
+                            subject: attributes.subject,
+                            date: attributes.date,
+                            from: attributes.from,
+                            to: attributes.to,
+                            messageId: attributes.messageId,
+                            flags: attributes.flags,
+                            seen: attributes.seen,
+                            attachments: message.attachments ? message.attachments.length : 0
+                        };
+                        emails.push(email);
+                    });
+                });
+
+                f.once('error', function (err) {
+                    reject(err);
+                });
+
+                f.once('end', function () {
+                    resolve({ emails, totalRecords: totalEmails, totalPages });
+                });
+            });
+        });
+
+        imap.once('end', function () {
+            console.log('Connection ended');
+        });
+
+        imap.connect();
+    });
+}
 
 
 

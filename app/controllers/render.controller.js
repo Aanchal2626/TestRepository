@@ -9,7 +9,7 @@ renderController.renderDashboard = async (req, res) => {
 renderController.renderDocuments = async (req, res) => {
     let token = req.session.token;
     res.render("documents.ejs", { token });
-}
+};
 
 renderController.renderUsers = async (req, res) => {
     let token = req.session.token;
@@ -21,7 +21,7 @@ renderController.renderUsers = async (req, res) => {
     } catch (err) {
         console.log(err)
     }
-}
+};
 
 renderController.renderSites = async (req, res) => {
     let token = req.session.token;
@@ -34,7 +34,7 @@ renderController.renderSites = async (req, res) => {
     } catch (err) {
         console.log(err)
     }
-}
+};
 
 renderController.renderCreateDocument = async (req, res) => {
     let token = req.session.token;
@@ -76,7 +76,7 @@ renderController.renderCreateDocument = async (req, res) => {
         console.error(error);
         res.status(500).send("Internal Server Error");
     }
-}
+};
 
 renderController.renderSingleDocument = async (req, res) => {
     let token = req.session.token;
@@ -173,14 +173,11 @@ renderController.renderSingleDocument = async (req, res) => {
         console.error(error);
         res.send("Internal Server Error");
     }
-}
+};
 
 renderController.renderImportDocument = async (req, res) => {
     let token = req.session.token;
-    let query = `SELECT user_password FROM users WHERE user_id = '${token.user_id}'`;
-    let dataFromDb = await pool.query(query);
-    token.password = dataFromDb.rows[0].user_password;
     res.render("import.ejs", { token })
-}
+};
 
 module.exports = renderController;

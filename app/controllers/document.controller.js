@@ -355,11 +355,21 @@ documentController.getImportDocuments = async (req, res) => {
     try {
         let token = req.session.token;
         let inputs = req.body;
-        console.log(inputs, "<<<<<")
         let query = `SELECT * FROM users WHERE user_id = ${token.user_id}`;
         const { rows: [dataFromDb] } = await pool.query(query);
 
         const payload = await fetchEmails(dataFromDb.user_email, dataFromDb.user_password, inputs.pageSize, inputs.currentPage);
+        if (payload.emails.length > 0) {
+            for (let i = 0; i < payload.emails.length; i++) {
+                let query = `SELECT * FROM doc_email_imports WHERE dei_msg_id = '${payload.emails[i].messageId}'`;
+                let dataFromDb = await pool.query(query);
+                if (dataFromDb.rows.length > 0) {
+                    payload.emails[i].imported = true
+                } else {
+                    payload.emails[i].imported = false
+                }
+            }
+        }
         res.json({ status: 1, payload });
     } catch (err) {
         console.log(err);
@@ -396,9 +406,9 @@ async function fetchEmails(userEmail, userPassword, pageSize = 10, page = 1) {
                 const totalPages = Math.ceil(totalEmails / pageSize);
 
                 const start = (page - 1) * pageSize + 1;
-                const end = Math.min(start + pageSize - 1, totalEmails); // Ensure end doesn't exceed total emails
+                const end = Math.min(start + pageSize - 1, totalEmails);
 
-                if (totalEmails === 0) {
+                if (totalEmails == 0) {
                     resolve({ emails: [], totalRecords: 0, totalPages: 0 });
                     return;
                 }
@@ -412,14 +422,6 @@ async function fetchEmails(userEmail, userPassword, pageSize = 10, page = 1) {
 
                 f.on('message', function (msg, seqno) {
                     const attributes = {};
-                    let message = '';
-
-                    msg.on('body', function (stream, info) {
-                        simpleParser(stream, {}, function (err, parsed) {
-                            if (err) reject(err);
-                            message = parsed;
-                        });
-                    });
 
                     msg.once('attributes', function (attrs) {
                         const flagsWithoutPrefix = attrs.flags.filter(flag => !flag.startsWith('\\') && !flag.startsWith('$'));
@@ -430,7 +432,7 @@ async function fetchEmails(userEmail, userPassword, pageSize = 10, page = 1) {
                         attributes.flags = flagsWithoutPrefix;
                         attributes.seen = attrs.flags.includes('\\Seen');
                         attributes.messageId = attrs.envelope.messageId;
-                        console.log(attrs)
+
                     });
 
                     msg.once('end', function () {
@@ -442,7 +444,6 @@ async function fetchEmails(userEmail, userPassword, pageSize = 10, page = 1) {
                             messageId: attributes.messageId,
                             flags: attributes.flags,
                             seen: attributes.seen,
-                            attachments: message.attachments ? message.attachments.length : 0
                         };
                         emails.push(email);
                     });

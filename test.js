@@ -1,149 +1,85 @@
-const Imap = require('imap');
-const { simpleParser } = require('mailparser');
-const fs = require('fs');
 const dotenv = require("dotenv").config();
 
-const imap = new Imap({
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    host: process.env.HOST,
-    port: 993,
-    tls: true,
-});
+const { ImapFlow } = require('imapflow');
 
-function openInbox(cb) {
-    imap.openBox('INBOX', true, cb);
-}
-
-imap.once('ready', function () {
-    openInbox(function (err, box) {
-        if (err) throw err;
-
-        const pageSize = 10; // Number of emails per page
-        let currentPage = 1; // Current page number
-        let totalEmails = 0; // Total number of emails fetched
-        let totalPages = Math.ceil(box.messages.total / pageSize); // Total number of pages
-
-        fetchPage(currentPage);
-
-        function fetchPage(page) {
-            const start = (page - 1) * pageSize + 1;
-            const end = start + pageSize - 1;
-            console.log(`Fetching page ${page}/${totalPages}`);
-
-            const f = imap.seq.fetch(`${start}:${end}`, {
-                envelope: true
-            });
-
-            f.on('message', function (msg, seqno) {
-                msg.once('attributes', function (attrs) {
-                    console.log(attrs.envelope);
-                });
-            });
-
-            f.once('error', function (err) {
-                console.log('Fetch error: ' + err);
-            });
-
-            f.once('end', function () {
-                totalEmails += pageSize;
-                console.log(`Fetched ${pageSize} emails. Total: ${totalEmails}/${box.messages.total}`);
-
-                if (page < totalPages) {
-                    currentPage++;
-                    fetchPage(currentPage);
-                } else {
-                    console.log('Done fetching all messages!');
-                    imap.end();
-                }
-            });
-        }
+const fetchEmails = async (filter = {}, pageSize = 10, offset = 0) => {
+    const client = new ImapFlow({
+        host: process.env.HOST,
+        port: 993,
+        secure: true,
+        auth: {
+            user: process.env.USER,
+            pass: process.env.PASSWORD
+        },
+        logger: false
     });
-});
 
-const emailIdToFetch = '<ab1edc28-8725-4d67-a9bd-cd49c78474db@spsingla.com>';
+    await client.connect();
+    await client.mailboxOpen('INBOX');
 
-// imap.once('ready', function () {
-//     openInbox(function (err, box) {
-//         if (err) throw err;
+    let emails = [];
 
-//         // Search for the email with the given message ID
-//         imap.seq.search([['HEADER', 'Message-ID', emailIdToFetch]], function (err, uids) {
-//             if (err) throw err;
-//             if (!uids || uids.length === 0) {
-//                 console.log('Email with message ID ' + emailIdToFetch + ' not found.');
-//                 imap.end();
-//                 return;
-//             }
+    try {
+        let searchCriteria = {};
 
-//             // Fetch the email using the UID
-//             const f = imap.seq.fetch(uids, {
-//                 bodies: '', // Fetch the entire email including attachments
-//                 struct: true
-//             });
-//             f.on('message', function (msg, seqno) {
-//                 //console.log('Message #%d', seqno);
-//                 const prefix = '(#' + seqno + ') ';
+        if (filter.subject) {
+            searchCriteria.subject = filter.subject;
+        }
 
-//                 // Event handler for when the message attributes are received
-//                 msg.once('attributes', function (attrs) {
-//                     //console.log(attrs)
-//                 });
+        if (filter.seen == 'false') {
+            searchCriteria.seen = false;
+        } else if (filter.seen == 'true') {
+            searchCriteria.seen = true;
+        }
+        if (filter.keyword) {
+            searchCriteria.keyword = filter.keyword;
+        }
+        if (filter.from) {
+            searchCriteria.from = filter.from;
+        }
+        if (filter.to) {
+            searchCriteria.to = filter.to;
+        }
+        if (filter.on) {
+            searchCriteria.on = filter.on;
+        }
 
-//                 // Event handler for when the message body is received
-//                 msg.once('body', function (stream, info) {
-//                     let buffer = '';
-//                     stream.on('data', function (chunk) {
-//                         buffer += chunk.toString('utf8');
-//                     });
-//                     stream.once('end', function () {
-//                         // Parse the email body using mailparser
-//                         simpleParser(buffer, (err, parsed) => {
-//                             if (err) {
-//                                 console.log('Error parsing email:', err);
-//                                 return;
-//                             }
-//                             // Extract attachment URLs from parsed email
-//                             if (parsed.attachments && parsed.attachments.length > 0) {
-//                                 parsed.attachments.forEach(attachment => {
-//                                     console.log('Filename:', attachment.filename);
-//                                     console.log('URL:', attachment.contentDisposition);
-//                                     console.log(attachment)
-//                                     fs.writeFileSync("./text.pdf", attachment.content);
-//                                 });
-//                             } else {
-//                                 console.log('No attachments found in the email.');
-//                             }
-//                         });
-//                     });
-//                 });
+        if (filter.sentOn) {
+            searchCriteria.sentOn = filter.sentOn;
+        }
 
-//                 msg.on('attachment', function (attachment) {
-//                     console.log('Attachment:', attachment);
-//                 });
 
-//                 msg.once('end', function () {
-//                     console.log(prefix + 'Finished');
-//                 });
-//             });
+        offset = offset * pageSize;
+        const allUids = await client.search(searchCriteria);
+        console.log(searchCriteria, "<<<<<<<<")
+        const startIndex = Math.max(0, Math.min(allUids.length - 1, allUids.length - offset - pageSize));
+        const endIndex = Math.min(allUids.length, startIndex + pageSize);
 
-//             f.once('error', function (err) {
-//                 console.log('Fetch error: ' + err);
-//             });
+        const pageUids = allUids.slice(startIndex, endIndex).reverse();
+        for await (let message of client.fetch(pageUids, { envelope: true, flags: true })) {
+            emails.push(message);
+        }
+    } catch (err) {
+        console.error(err, "<<<<<<<<<< ERR");
+    }
+    await client.logout();
 
-//             f.once('end', function () {
-//                 console.log('Done fetching the message!');
-//                 imap.end();
-//             });
-//         });
-//     });
-// });
-imap.once('error', function (err) {
-    console.log(err);
-});
+    return emails;
+};
 
-imap.once('end', function () {
-    console.log('Connection ended');
-});
+const filter = {
+    //subject: "",
+    //seen: 'false'
+    //from: "",
+    //to: "jimmydhingra.ac@spsingla.com"
+    //keyword: "Test",
+    //on: "2024-02-01",
+    //sentOn: ""
+};
 
-imap.connect();
+fetchEmails(filter, 10, 0)
+    .then(emails => {
+        console.log(emails);
+    })
+    .catch(err => console.error(err));
+

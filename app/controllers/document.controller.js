@@ -405,8 +405,8 @@ async function fetchEmails(userEmail, userPassword, pageSize = 10, page = 1) {
                 const totalEmails = box.messages.total;
                 const totalPages = Math.ceil(totalEmails / pageSize);
 
-                const start = (page - 1) * pageSize + 1;
-                const end = Math.min(start + pageSize - 1, totalEmails);
+                const start = totalEmails - (pageSize * page) + 1;
+                const end = totalEmails - (pageSize * (page - 1));
 
                 if (totalEmails == 0) {
                     resolve({ emails: [], totalRecords: 0, totalPages: 0 });
@@ -415,7 +415,7 @@ async function fetchEmails(userEmail, userPassword, pageSize = 10, page = 1) {
 
                 const f = imap.seq.fetch(`${start}:${end}`, {
                     envelope: true,
-                    bodies: ''
+                    bodies: '',
                 });
 
                 const emails = [];
@@ -425,10 +425,12 @@ async function fetchEmails(userEmail, userPassword, pageSize = 10, page = 1) {
 
                     msg.once('attributes', function (attrs) {
                         const flagsWithoutPrefix = attrs.flags.filter(flag => !flag.startsWith('\\') && !flag.startsWith('$'));
+                        const formattedDate = moment(attrs.envelope.date).format('DD/MM/YYYY');
                         attributes.subject = attrs.envelope.subject;
-                        attributes.date = attrs.envelope.date;
-                        attributes.from = attrs.envelope.from[0].mailbox + "@" + attrs.envelope.from[0].host;
-                        attributes.to = attrs.envelope.to[0].mailbox + "@" + attrs.envelope.to[0].host;
+                        attributes.date = formattedDate;
+                        console.log(attrs.envelope.from)
+                        attributes.from = attrs.envelope.from.map(item => item.mailbox + "@" + item.host).join(", ");
+                        attributes.to = attrs.envelope.to.map(item => item.mailbox + "@" + item.host).join(", ");
                         attributes.flags = flagsWithoutPrefix;
                         attributes.seen = attrs.flags.includes('\\Seen');
                         attributes.messageId = attrs.envelope.messageId;
@@ -454,6 +456,7 @@ async function fetchEmails(userEmail, userPassword, pageSize = 10, page = 1) {
                 });
 
                 f.once('end', function () {
+                    emails.reverse();
                     resolve({ emails, totalRecords: totalEmails, totalPages });
                 });
             });

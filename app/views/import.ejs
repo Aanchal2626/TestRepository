@@ -20,9 +20,19 @@
         max-width: 30px;
       }
       .nk-tb-col:nth-child(2) {
-        width: 200px;
-        min-width: 200px;
-        max-width: 200px;
+        width: 350px;
+        min-width: 350px;
+        max-width: 350px;
+      }
+      .nk-tb-col:nth-child(4) {
+        width: 300px;
+        min-width: 300px;
+        max-width: 300px;
+      }
+      .nk-tb-col:nth-child(5) {
+        width: 350px;
+        min-width: 350px;
+        max-width: 350px;
       }
       .nk-tb-col {
         white-space: nowrap;
@@ -50,9 +60,6 @@
                     <div class="nk-block-between">
                       <div class="nk-block-head-content">
                         <h3 class="nk-block-title page-title">Import List</h3>
-                        <div class="nk-block-des text-soft">
-                          <p>You have total users.</p>
-                        </div>
                       </div>
                       <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
@@ -169,11 +176,6 @@
                                                 <li><a href="#">20</a></li>
                                                 <li><a href="#">50</a></li>
                                               </ul>
-                                              <ul class="link-check">
-                                                <li><span>Order</span></li>
-                                                <li class="active"><a href="#">DESC</a></li>
-                                                <li><a href="#">ASC</a></li>
-                                              </ul>
                                             </div>
                                           </div>
                                         </li>
@@ -206,91 +208,6 @@
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">SEEN</span></div>
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">ATTACHMENTS</span></div>
                             </div>
-                            <!-- <div class="nk-tb-item">
-                              <div class="nk-tb-col nk-tb-col-check">
-                                <div class="custom-control custom-control-sm custom-checkbox notext">
-                                  <input type="checkbox" class="custom-control-input" id="uid1" />
-                                  <label class="custom-control-label" for="uid1"></label>
-                                </div>
-                              </div>
-                              <div class="nk-tb-col">
-                                <div class="user-card">
-                                  <div class="user-avatar xs bg-primary">
-                                    <span>AB</span>
-                                  </div>
-                                  <div class="user-name">
-                                    <span class="tb-lead">Abu Bin Ishtiyak</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="nk-tb-col tb-col-md">
-                                <span>Customer</span>
-                              </div>
-                              <div class="nk-tb-col tb-col-sm">
-                                <span>info@softnio.com</span>
-                              </div>
-                              <div class="nk-tb-col tb-col-md">
-                                <span>+811 847-4958</span>
-                              </div>
-                              <div class="nk-tb-col tb-col-xxl">
-                                <span>Bangladesh</span>
-                              </div>
-                              <div class="nk-tb-col tb-col-lg">
-                                <ul class="list-status">
-                                  <li><em class="icon text-success ni ni-check-circle"></em> <span>Email</span></li>
-                                </ul>
-                              </div>
-                              <div class="nk-tb-col tb-col-xxl">
-                                <span>10 Feb 2020</span>
-                              </div>
-                              <div class="nk-tb-col">
-                                <span class="tb-status text-success">Active</span>
-                              </div>
-                              <div class="nk-tb-col nk-tb-col-tools">
-                                <ul class="nk-tb-actions gx-2">
-                                  <li class="nk-tb-action-hidden">
-                                    <a href="#" class="btn btn-sm btn-icon btn-trigger" data-bs-toggle="tooltip" data-bs-placement="top" title="Wallet">
-                                      <em class="icon ni ni-wallet-fill"></em>
-                                    </a>
-                                  </li>
-                                  <li class="nk-tb-action-hidden">
-                                    <a href="#" class="btn btn-sm btn-icon btn-trigger" data-bs-toggle="tooltip" data-bs-placement="top" title="Send Email">
-                                      <em class="icon ni ni-mail-fill"></em>
-                                    </a>
-                                  </li>
-                                  <li class="nk-tb-action-hidden">
-                                    <a href="#" class="btn btn-sm btn-icon btn-trigger" data-bs-toggle="tooltip" data-bs-placement="top" title="Suspend">
-                                      <em class="icon ni ni-user-cross-fill"></em>
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <div class="drodown">
-                                      <a href="#" class="btn btn-sm btn-icon btn-trigger dropdown-toggle" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-                                      <div class="dropdown-menu dropdown-menu-end">
-                                        <ul class="link-list-opt no-bdr">
-                                          <li>
-                                            <a href="#"><em class="icon ni ni-eye"></em><span>View Details</span></a>
-                                          </li>
-                                          <li>
-                                            <a href="#"><em class="icon ni ni-repeat"></em><span>Orders</span></a>
-                                          </li>
-                                          <li class="divider"></li>
-                                          <li>
-                                            <a href="#"><em class="icon ni ni-shield-star"></em><span>Reset Pass</span></a>
-                                          </li>
-                                          <li>
-                                            <a href="#"><em class="icon ni ni-shield-off"></em><span>Reset 2FA</span></a>
-                                          </li>
-                                          <li>
-                                            <a href="#"><em class="icon ni ni-na"></em><span>Suspend User</span></a>
-                                          </li>
-                                        </ul>
-                                      </div>
-                                    </div>
-                                  </li>
-                                </ul>
-                              </div>
-                            </div> -->
                           </div>
                         </div>
                         <div id="table-status" class="card-inner text-center">
@@ -339,27 +256,29 @@
           contentType: "application/json",
           success: function (response) {
             if (response.status == 1) {
-              if (response.payload.documents && response.payload.documents.length > 0) {
+              if (response.payload.emails && response.payload.emails.length > 0) {
+                console.log(response);
                 $("#table-status").empty();
-                response.payload.documents.forEach(function (document) {
-                  let rowHtml = `<div class="nk-tb-item text-left table-content">
-                                  <div class="nk-tb-col text-start">
-                                      <span>${document.doc_folder || "-"}</span>
+                let rowHtml = ``;
+                response.payload.emails.forEach(function (email) {
+                  rowHtml += `<div class="nk-tb-item text-left table-content">
+                                  <div class="nk-tb-col nk-tb-col-check">
+                                      <div class="custom-control custom-control-sm custom-checkbox notext">
+                                          <input type="checkbox" class="custom-control-input" ${email.imported ? "disabled checked" : ""} name="${email.messageId}" id="${email.messageId}">
+                                          <label class="custom-control-label" for="${email.messageId}"></label>
+                                      </div>
                                   </div>
                                   <div class="nk-tb-col">
-                                      <span>
-                                          <div style="font-size: 10px; height: 20px; width: 20px; margin-right: 5px" class="nk-tnx-type-icon ${document.doc_type == "INCOMING" ? `text-primary bg-primary-dim` : `text-success bg-success-dim`} "><em class="icon ni ${document.doc_type == "INCOMING" ? `text-success bg-success-dim ni-arrow-down-left` : `text-primary bg-primary-dim ni-arrow-up-right`}"></em></div> 
-                                          ${document.doc_type || "-"}
-                                      </span>
+                                      <span title="${email.subject || "-"}">${email.subject || "-"}</span>
                                   </div>
                                   <div class="nk-tb-col">
-                                      <span><a href="/documents/${btoa(document.doc_number)}">${document.doc_number || "-"}</a></span>
+                                      <span>${email.date || "-"}</span>
                                   </div>
                                   <div class="nk-tb-col">
-                                      <span${document.doc_status === "DRAFTED" ? ' class="text-warning"' : document.doc_status === "UPLOADED" ? ' class="text-primary"' : ""}>${document.doc_status || "-"}</span>
+                                      <span>${email.from || "-"}</span>
                                   </div>
                                   <div class="nk-tb-col">
-                                      <span>${document.doc_created_at || "-"}</span>
+                                      <span>${email.to || "-"}</span>
                                   </div>
                                   <div class="nk-tb-col">
                                     <span title="${document.doc_purpose || "-"}">${document.doc_purpose || "-"}</span>
@@ -383,8 +302,8 @@
                                       <span title="${document.doc_storage_location || "-"}">${document.doc_storage_location || "-"}</span>
                                   </div>
                               </div>`;
-                  $(rowHtml).insertAfter("#table-head");
                 });
+                $(rowHtml).insertAfter("#table-head");
               } else {
                 $("#table-status").html(`<div class="text-center"><p>No Records Found</p></div>`);
               }

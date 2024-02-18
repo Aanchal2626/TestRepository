@@ -202,6 +202,7 @@
         $("#doc_site").on("change", function () {
           // Clearing doc_folder so it doesnt call api with same value
           $("#doc_folder").val("");
+          $("#doc_number").val("");
           generateDocumentNumber();
           toggleSaveDraftButton();
           var selectedSiteParentId = $(this).find("option:selected").data("parent-id");
@@ -257,7 +258,8 @@
               data: { site_id: dataSiteId },
               success: function (response) {
                 if (response.status == 1) {
-                  docNumberValue = response.payload.site_prefix + (parseInt(response.payload.site_record_value) + 1);
+                  console.log(response, "<<<<<<")
+                  docNumberValue = response.payload.site_prefix + (parseInt(response.payload.site_record_value, 10) + 1);
                   docNumberInput.val(docNumberValue);
                   toggleSaveDraftButton();
                 } else {

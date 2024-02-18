@@ -30,7 +30,7 @@ userController.saveSite = async (req, res) => {
         if (updatedSite) {
             if (!site) {
                 let folderQuery = `INSERT INTO sites (site_name, site_parent_id, site_code, site_prefix, site_record_value) 
-                VALUES ('${updatedSite.site_name + ` - MAIN`}', ${updatedSite.site_id}, '${updatedSite.site_code}1', 'SPS/${updatedSite.site_code}/1' , 0)`;
+                VALUES ('${updatedSite.site_name + ` - MAIN`}', ${updatedSite.site_id}, '${updatedSite.site_code}1', 'SPS/${updatedSite.site_code}/' , 0)`;
                 console.log(folderQuery, "<<<<<<")
                 await pool.query(folderQuery);
             }

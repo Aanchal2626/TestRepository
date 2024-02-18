@@ -26,7 +26,7 @@ renderController.renderUsers = async (req, res) => {
 renderController.renderSites = async (req, res) => {
     let token = req.session.token;
     try {
-        let query = `SELECT * FROM sites ORDER BY site_name ASC `;
+        let query = `SELECT * FROM sites ORDER BY site_id ASC `;
         let users = await pool.query(query);
         sites = users.rows;
         console.log(sites)

@@ -86,9 +86,8 @@
                               <li class="nk-block-tools-opt">
                                 <div class="drodown">
                                   <li class="nk-block-tools-opt">
-                                    <a class="preview-item"
-                                      ><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add Site</button></a
-                                    >
+                                    <a class="preview-item"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add Site</button></a>
+                                    <a class="preview-item"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm2"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add Folder</button></a>
                                   </li>
                                 </div>
                               </li>
@@ -176,7 +175,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Add Site</h5>
+            <h5 class="modal-title"><span class="modal_title">Add</span> Site</h5>
             <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
               <em class="icon ni ni-cross"></em>
             </a>
@@ -196,7 +195,7 @@
                 </div>
               </div>
               <div class="form-group" style="display: flex; justify-content: space-between">
-                <button data-bs-dismiss="modal" aria-label="Close" class="btn btn-light">Cancel</button>
+                <button data-bs-dismiss="modal" type="button" aria-label="Close" class="btn btn-light">Cancel</button>
                 <button id="saveUserButton" class="btn btn-primary">Save Site</button>
               </div>
             </form>
@@ -212,7 +211,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Edit Folder <span id="folder_parent"></span></h5>
+            <h5 class="modal-title"><spna class="modal_title">Add</spna> Folder <span id="folder_parent"></span></h5>
             <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
               <em class="icon ni ni-cross"></em>
             </a>
@@ -244,7 +243,7 @@
                 </div>
               </div>
               <div class="form-group" style="display: flex; justify-content: space-between">
-                <button data-bs-dismiss="modal" aria-label="Close" class="btn btn-light">Cancel</button>
+                <button data-bs-dismiss="modal" type="button" aria-label="Close" class="btn btn-light">Cancel</button>
                 <button id="saveUserButton2" class="btn btn-primary">Update Folder</button>
               </div>
             </form>
@@ -309,12 +308,14 @@
           $("#site_code").val(site.site_code);
           $("#site_name").val(site.site_name);
           $("#modalForm").modal("show");
+          $(".modal_title").text('Edit');
         }
       }
 
       $("#modalForm").on("hidden.bs.modal", function (e) {
         $("#site_code").val("");
         $("#site_name").val("");
+        $(".modal_title").text('Add');
       });
 
 
@@ -331,10 +332,19 @@
             $("#folder_prefix").val(parse_data.site_prefix);
             $("#folder_records").val(parse_data.site_record_value);
             $("#folder_code").val(parse_data.site_code);
+            $(".modal_title").text('Edit');
             $("#modalForm2").modal("show");
           }
         }
       }
+
+      $("#modalForm2").on("hidden.bs.modal", function (e) {
+        $("#folder_name").val("");
+        $("#folder_prefix").val("");
+        $("#folder_records").val("");
+        $("#folder_code").val("");
+        $(".modal_title").text('Add');
+      });
 
       //save site data
       $("#siteForm").submit(function (event) {

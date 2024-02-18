@@ -47,9 +47,7 @@
                               <li class="nk-block-tools-opt">
                                 <div class="drodown">
                                   <li class="nk-block-tools-opt">
-                                    <a class="preview-item"
-                                      ><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add User</button></a
-                                    >
+                                    <a class="preview-item"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add User</button></a>
                                   </li>
                                 </div>
                               </li>
@@ -136,11 +134,12 @@
         </div>
       </div>
     </div>
+
     <div class="modal fade" id="modalForm">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Add User</h5>
+            <h5 class="modal-title"><spna class="modal_title">Add</spna> User</h5>
             <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
               <em class="icon ni ni-cross"></em>
             </a>
@@ -187,7 +186,7 @@
                 </select>
               </div>
               <div class="form-group" style="display: flex; justify-content: space-between">
-                <button data-bs-dismiss="modal" aria-label="Close" class="btn btn-light">Cancel</button>
+                <button data-bs-dismiss="modal" type="button" aria-label="Close" class="btn btn-light">Cancel</button>
                 <button id="saveUserButton" class="btn btn-primary">Save User</button>
               </div>
             </form>
@@ -196,6 +195,7 @@
       </div>
       <input type="hidden" id="hidden_input_user" value="<%=JSON.stringify(users)%>" />
     </div>
+
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
     <script src="/app/assets/js/charts/gd-default.js"></script>
@@ -211,6 +211,7 @@
           $("#user_password").val(user.user_password);
           $("#user_role").val(user.user_role).trigger("change");
           $("#user_status").val(user.user_status.toString()).trigger("change");
+          $(".modal_title").text('Edit');
           $("#modalForm").modal("show");
         }
       }
@@ -221,6 +222,7 @@
         $("#user_password").val("");
         $("#user_role").val("").trigger("change");
         $("#user_status").val("").trigger("change");
+        $(".modal_title").text('Add');
       });
 
       $("#userForm").submit(function (event) {

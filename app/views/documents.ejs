@@ -81,45 +81,84 @@
                                             </a>
                                             <div class="filter-wg dropdown-menu dropdown-menu-xl dropdown-menu-end">
                                               <div class="dropdown-head">
-                                                <span class="sub-title dropdown-title">Filter Users</span>
+                                                <span class="sub-title dropdown-title">Filter Documents</span>
                                               </div>
                                               <div class="dropdown-body dropdown-body-rg">
                                                 <div class="row gx-6 gy-3">
                                                   <div class="col-6">
-                                                    <div class="custom-control custom-control-sm custom-checkbox">
-                                                      <input type="checkbox" class="custom-control-input" id="hasBalance" />
-                                                      <label class="custom-control-label" for="hasBalance"> Have Balance</label>
-                                                    </div>
-                                                  </div>
-                                                  <div class="col-6">
-                                                    <div class="custom-control custom-control-sm custom-checkbox">
-                                                      <input type="checkbox" class="custom-control-input" id="hasKYC" />
-                                                      <label class="custom-control-label" for="hasKYC"> KYC Verified</label>
+                                                    <div class="form-group">
+                                                      <label class="overline-title overline-title-alt">Site/Foldes</label>
+                                                      <select class="form-select js-select2">
+                                                        <option value="all">All</option>
+                                                        <option value="1">TEESTA RIVER BRIDGE WEST BENGAL - MAIN </option>
+                                                        <option value="2">HEAD OFFICE - MAIN</option>
+                                                        <option value="3">KAPURTHALA - MAIN</option>
+                                                      </select>
                                                     </div>
                                                   </div>
                                                   <div class="col-6">
                                                     <div class="form-group">
-                                                      <label class="overline-title overline-title-alt">Role</label>
+                                                      <label class="overline-title overline-title-alt">Type</label>
                                                       <select class="form-select js-select2">
-                                                        <option value="any">Any Role</option>
-                                                        <option value="investor">Investor</option>
-                                                        <option value="seller">Seller</option>
-                                                        <option value="buyer">Buyer</option>
+                                                        <option value="any">All</option>
+                                                        <option value="active">Outgoing</option>
+                                                        <option value="pending">Incomming</option>
                                                       </select>
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-6">
+                                                    <div class="form-group">
+                                                      <label class="overline-title overline-title-alt">Number</label>
+                                                      <input type="text" name="number" id="number" class="form-control">
                                                     </div>
                                                   </div>
                                                   <div class="col-6">
                                                     <div class="form-group">
                                                       <label class="overline-title overline-title-alt">Status</label>
                                                       <select class="form-select js-select2">
-                                                        <option value="any">Any Status</option>
-                                                        <option value="active">Active</option>
-                                                        <option value="pending">Pending</option>
-                                                        <option value="suspend">Suspend</option>
-                                                        <option value="deleted">Deleted</option>
+                                                        <option value="any">All</option>
+                                                        <option value="active">Drafted</option>
+                                                        <option value="pending">Uploaded</option>
                                                       </select>
                                                     </div>
                                                   </div>
+                                                  <div class="col-6">
+                                                    <div class="form-group">
+                                                      <label class="overline-title overline-title-alt">Purpose</label>
+                                                      <input type="text" name="purpose" id="purpose" class="form-control">
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-6">
+                                                    <div class="form-group">
+                                                      <label class="overline-title overline-title-alt">Subject</label>
+                                                      <input type="text" name="subject" id="subject" class="form-control">
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-6">
+                                                    <div class="form-group">
+                                                      <label class="overline-title overline-title-alt">Reference</label>
+                                                      <input type="text" name="reference" id="reference" class="form-control">
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-6">
+                                                    <div class="form-group">
+                                                      <label class="overline-title overline-title-alt">From</label>
+                                                      <input type="date" name="from" id="from" class="form-control">
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-6">
+                                                    <div class="form-group">
+                                                      <label class="overline-title overline-title-alt">To</label>
+                                                      <input type="date" name="to" id="to" class="form-control">
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-6">
+                                                    <div class="form-group">
+                                                      <label class="overline-title overline-title-alt">Storage</label>
+                                                      <input type="text" name="storage" id="storage" class="form-control">
+                                                    </div>
+                                                  </div>
+
                                                   <div class="col-12">
                                                     <div class="form-group">
                                                       <button type="button" class="btn btn-secondary">Filter</button>

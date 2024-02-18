@@ -125,7 +125,7 @@
                                 <span><%= childSitesCount %></span>
                               </div>
                               <div class="nk-tb-col text-end">
-                                <a style="margin-right: 20px !important; font-size: 18px; cursor: pointer" class="link-cross me-sm-n1 action-dropdown more-dropdown-<%= site.site_id %>"><em class="icon ni ni-edit-fill"></em> </a>
+                                <a onclick="handleEditClicked(`<%= site.site_id %>`)" style="margin-right: 20px !important; font-size: 18px; cursor: pointer" class="link-cross me-sm-n1 action-dropdown more-dropdown-<%= site.site_id %>"><em class="icon ni ni-edit-fill"></em> </a>
                                 <a style="margin-right: 20px !important; font-size: 18px; cursor: pointer; display: none" class="link-cross me-sm-n1 action-dropdown down-arrow-<%= site.site_id %>"><em class="icon ni ni-chevron-down"></em> </a>
                               </div>
                             </div>
@@ -152,7 +152,7 @@
                                 <span><%= childSite.site_record_value%></span>
                               </div>
                               <div class="nk-tb-col text-end child-content">
-                                <a style="margin-right: 20px !important; font-size: 18px; cursor: pointer" class="link-cross me-sm-n1 action-dropdown more-dropdown-<%= site.site_id %>"><em class="icon ni ni-edit-fill"></em> </a>
+                                <a onclick="handleChildEditClicked(`<%= JSON.stringify(childSite) %>`)" style="margin-right: 20px !important; font-size: 18px; cursor: pointer" class="link-cross me-sm-n1 action-dropdown more-dropdown-<%= site.site_id %>"><em class="icon ni ni-edit-fill"></em> </a>
                                 <a style="margin-right: 20px !important; font-size: 18px; cursor: pointer; display: none" class="link-cross me-sm-n1 action-dropdown down-arrow-<%= site.site_id %>"><em class="icon ni ni-chevron-down"></em> </a>
                               </div>
                             </div>
@@ -170,6 +170,90 @@
         </div>
       </div>
     </div>
+
+    <!-- parent modal start -->
+    <div class="modal fade" id="modalForm">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Site</h5>
+            <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+              <em class="icon ni ni-cross"></em>
+            </a>
+          </div>
+          <div class="modal-body" style="padding: 1.25rem">
+            <form id="siteForm" class="form-validate is-alter">
+              <div class="form-group">
+                <label class="form-label" for="site_code">Site Code</label>
+                <div class="form-control-wrap">
+                  <input type="number" placeholder="Enter Site Code" class="form-control" name="site_code" id="site_code" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="site_name">Site Name </label>
+                <div class="form-control-wrap">
+                  <input type="text" placeholder="Enter Site Name" class="form-control" name="site_name" id="site_name" required />
+                </div>
+              </div>
+              <div class="form-group" style="display: flex; justify-content: space-between">
+                <button data-bs-dismiss="modal" aria-label="Close" class="btn btn-light">Cancel</button>
+                <button id="saveUserButton" class="btn btn-primary">Save Site</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <input type="hidden" id="hidden_input_user" value="<%=JSON.stringify(sites)%>" />
+    </div>
+    <!-- parent modal end -->
+
+    <!-- child modal start -->
+    <div class="modal fade" id="modalForm2">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Folder <span id="folder_parent"></span></h5>
+            <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+              <em class="icon ni ni-cross"></em>
+            </a>
+          </div>
+          <div class="modal-body" style="padding: 1.25rem">
+            <form id="userForm2" class="form-validate is-alter">
+              <div class="form-group">
+                <label class="form-label" for="folder_name">Folder Name</label>
+                <div class="form-control-wrap">
+                  <input type="text" placeholder="Enter Folder Name" class="form-control" name="folder_name" id="folder_name" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="folder_prefix">Folder Prefix</label>
+                <div class="form-control-wrap">
+                  <input type="text" placeholder="Enter Folder Prefix" class="form-control" name="folder_prefix" id="folder_prefix" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="folder_records">Folder Records</label>
+                <div class="form-control-wrap">
+                  <input type="number" placeholder="Enter Folder Records" class="form-control" name="folder_records" id="folder_records" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="folder_code">Folder Code</label>
+                <div class="form-control-wrap">
+                  <input type="number" placeholder="Enter Folder Code" class="form-control" name="folder_code" id="folder_code" required />
+                </div>
+              </div>
+              <div class="form-group" style="display: flex; justify-content: space-between">
+                <button data-bs-dismiss="modal" aria-label="Close" class="btn btn-light">Cancel</button>
+                <button id="saveUserButton2" class="btn btn-primary">Update Folder</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- child modal end -->
+    
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
     <script>
@@ -212,11 +296,89 @@
               .hide();
           }
         });
-
-        function handleEditClicked(siteId) {
-          // Handle edit action
-        }
       });
+
+      let sites = $("#hidden_input_user").val();
+      if (sites) sites = JSON.parse(sites);
+
+
+      //handling parent modal
+      function handleEditClicked(siteId) {
+        let site = sites.find((u) => u.site_id === siteId);
+        if (site) {
+          $("#site_code").val(site.site_code);
+          $("#site_name").val(site.site_name);
+          $("#modalForm").modal("show");
+        }
+      }
+
+      $("#modalForm").on("hidden.bs.modal", function (e) {
+        $("#site_code").val("");
+        $("#site_name").val("");
+      });
+
+
+      //handling child modal
+      function handleChildEditClicked(data) {
+        if(data){
+          let parse_data = JSON.parse(data);
+          if(parse_data){
+            let site = sites.find((u) => u.site_id === parse_data.site_parent_id);
+            if(site){
+              $("#folder_parent").text(' (' + site.site_name + ')');
+            }
+            $("#folder_name").val(parse_data.site_name);
+            $("#folder_prefix").val(parse_data.site_prefix);
+            $("#folder_records").val(parse_data.site_record_value);
+            $("#folder_code").val(parse_data.site_code);
+            $("#modalForm2").modal("show");
+          }
+        }
+      }
+
+      //save site data
+      $("#siteForm").submit(function (event) {
+        event.preventDefault();
+        if (!this.checkValidity()) {
+          return false;
+        }
+        NioApp.handleButtonState("saveUserButton", "Save Site", true);
+
+        let site_code = $("#site_code").val();
+        let site_name = $("#site_name").val();
+
+        let formData = {
+          site_code: $("#site_code").val(),
+          site_name: $("#site_name").val(),
+        };
+
+        // console.log('pratap',formData);
+
+        $.ajax({
+          type: "POST",
+          url: "/sites/save-site",
+          data: JSON.stringify(formData),
+          contentType: "application/json",
+          success: function (response) {
+            if (response.status == 1) {
+              NioApp.handleButtonState("saveUserButton", "Save Site", false);
+              NioApp.Toast("<h5>Site Saved</h5><p>User Saved Successfully.</p>", "success");
+              window.location.reload();
+            } else {
+              NioApp.handleButtonState("saveUserButton", "Save Site", false);
+              NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while saving site.</p>", "error");
+            }
+          },
+          error: function (xhr, status, error) {
+            NioApp.handleButtonState("saveUserButton", "Save Site", false);
+            NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while saving site.</p>", "error");
+            console.error("Error saving draft:", error);
+          },
+        });
+      });
+
+      
     </script>
   </body>
 </html>
+

@@ -367,7 +367,7 @@
             }
             $("#user_permissions").select2();
             $("#user_permissions").trigger("change");
-            $("#folder_name").val(parse_data.site_name);
+            $("#folder_name").val(parse_data.site_name.substring(parse_data.site_name.lastIndexOf("-") + 2));
             $("#folder_prefix").val(parse_data.site_prefix);
             $("#folder_records").val(parse_data.site_record_value);
             $("#folder_code").val(parse_data.site_code).prop("disabled", true);
@@ -432,6 +432,7 @@
 
         let formData = {
           folder_site: $("#folder_site option:selected").val(),
+          folder_site_name: $("#folder_site option:selected").text(),
           folder_name: $("#folder_name").val(),
           folder_prefix: $("#folder_prefix").val(),
           folder_records: $("#folder_records").val(),

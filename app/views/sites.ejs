@@ -55,6 +55,11 @@
       .nk-tb-col {
         width: 20%;
       }
+      .nk-tb-col:nth-child(2) {
+        width: 400px;
+        min-width: 400px;
+        max-width: 400px;
+      }
     </style>
   </head>
 
@@ -174,7 +179,6 @@
       </div>
     </div>
 
-    <!-- parent modal start -->
     <div class="modal fade" id="modalForm">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -208,9 +212,7 @@
       </div>
       <input type="hidden" id="hidden_input_user" value="<%=JSON.stringify(sites)%>" />
     </div>
-    <!-- parent modal end -->
 
-    <!-- child modal start -->
     <div class="modal fade" id="modalForm2">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -342,7 +344,6 @@
         $(".modal_title").text("Add");
       });
 
-      //handling child modal
       function handleChildEditClicked(data, users, permissions) {
         if (data) {
           if (permissions) permissions = JSON.parse(permissions);

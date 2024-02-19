@@ -7,6 +7,7 @@ const upload = multer({ storage: storage });
 
 router.get("/generate-document-number", documentController.generateDocumentNumber);
 router.get("/get-document-reference", documentController.getDocumentReference);
+router.get("/download/format", documentController.getDownloadLink);
 router.post("/save-draft", documentController.saveDraft);
 router.post("/create-document", upload.single('doc_file'), documentController.createDocument);
 router.post("/get-filtered-documents", documentController.getFilteredDocuments);

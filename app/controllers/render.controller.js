@@ -179,9 +179,14 @@ renderController.renderSingleDocument = async (req, res) => {
     }
 };
 
-renderController.renderImportDocument = async (req, res) => {
+renderController.renderEmailImport = async (req, res) => {
     let token = req.session.token;
-    res.render("import.ejs", { token })
+    res.render("email-import.ejs", { token })
+};
+
+renderController.renderExcelImport = async (req, res) => {
+    let token = req.session.token;
+    res.render("excel-import.ejs", { token })
 };
 
 module.exports = renderController;

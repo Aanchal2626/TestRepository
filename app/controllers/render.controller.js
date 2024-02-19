@@ -26,11 +26,16 @@ renderController.renderUsers = async (req, res) => {
 renderController.renderSites = async (req, res) => {
     let token = req.session.token;
     try {
-        let query = `SELECT * FROM sites ORDER BY site_id ASC `;
-        let users = await pool.query(query);
-        sites = users.rows;
-        console.log(sites)
-        res.render("sites.ejs", { token, sites });
+        let query = `SELECT * FROM sites ORDER BY site_id ASC;`;
+        let permissionsQuery = `
+        SELECT users_sites_junction.*, users.user_name
+        FROM users_sites_junction
+        LEFT JOIN users ON users_sites_junction.usj_user_id = users.user_id;`
+        let usersQuery = `SELECT user_id,user_name FROM users WHERE user_role != 0`;
+        let { rows: sites } = await pool.query(query);
+        let { rows: permissions } = await pool.query(permissionsQuery);
+        let { rows: users } = await pool.query(usersQuery);
+        res.render("sites.ejs", { token, sites, permissions, users });
     } catch (err) {
         console.log(err)
     }

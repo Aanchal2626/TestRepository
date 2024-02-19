@@ -47,7 +47,9 @@
                               <li class="nk-block-tools-opt">
                                 <div class="drodown">
                                   <li class="nk-block-tools-opt">
-                                    <a class="preview-item"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add User</button></a>
+                                    <a class="preview-item"
+                                      ><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><em class="icon ni ni-plus" style="font-size: 13px"></em> &nbsp; Add User</button></a
+                                    >
                                   </li>
                                 </div>
                               </li>
@@ -211,7 +213,7 @@
           $("#user_password").val(user.user_password);
           $("#user_role").val(user.user_role).trigger("change");
           $("#user_status").val(user.user_status.toString()).trigger("change");
-          $(".modal_title").text('Edit');
+          $(".modal_title").text("Edit");
           $("#modalForm").modal("show");
         }
       }
@@ -222,7 +224,7 @@
         $("#user_password").val("");
         $("#user_role").val("").trigger("change");
         $("#user_status").val("").trigger("change");
-        $(".modal_title").text('Add');
+        $(".modal_title").text("Add");
       });
 
       $("#userForm").submit(function (event) {

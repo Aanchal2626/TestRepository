@@ -92,7 +92,7 @@ renderController.renderSingleDocument = async (req, res) => {
         let documentData = await pool.query(documentQuery);
         documentData = documentData.rows[0];
 
-        // Checking if user have permission for this document
+        if (!documentData) return res.render("404")
         if (token.user_role != 0) {
             if (documentData.doc_confidential) {
 
@@ -139,7 +139,6 @@ renderController.renderSingleDocument = async (req, res) => {
             let folderFromDb = await pool.query(folderQuery);
             let sites = siteFromDb.rows;
             let folders = folderFromDb.rows;
-
             res.render("view-document.ejs", { token, sites, folders, documentData });
         } else {
             if (token.user_role === "0") {

@@ -70,8 +70,6 @@ userController.saveFolder = async (req, res) => {
         let updatedSite = await pool.query(query, [inputs.folder_name, inputs.folder_site, inputs.folder_code, inputs.folder_prefix, inputs.folder_records]);
         updatedSite = updatedSite?.rows[0];
 
-        console.log(inputs);
-
         if (updatedSite) {
             await pool.query('DELETE FROM users_sites_junction WHERE usj_site_id = $1', [updatedSite.site_id]);
             for (let userId of inputs.user_permissions) {

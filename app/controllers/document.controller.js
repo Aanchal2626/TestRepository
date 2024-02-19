@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 const moment = require("moment");
 const { v4: uuidv4 } = require('uuid');
 const { simpleParser } = require('mailparser');
-const Imap = require('imap');
+const { ImapFlow } = require('imapflow');
 
 const documentController = {};
 
@@ -357,11 +357,11 @@ documentController.getImportDocuments = async (req, res) => {
         let inputs = req.body;
         let query = `SELECT * FROM users WHERE user_id = ${token.user_id}`;
         const { rows: [dataFromDb] } = await pool.query(query);
-
-        const payload = await fetchEmails(dataFromDb.user_email, dataFromDb.user_password, inputs.pageSize, inputs.currentPage);
+        const filter = inputs.filter;
+        const payload = await fetchEmails(filter, inputs.pageSize, inputs.offset, dataFromDb.user_email, dataFromDb.user_email_password);
         if (payload.emails.length > 0) {
             for (let i = 0; i < payload.emails.length; i++) {
-                let query = `SELECT * FROM doc_email_imports WHERE dei_msg_id = '${payload.emails[i].messageId}'`;
+                let query = `SELECT * FROM doc_email_imports WHERE dei_msg_id = '${payload.emails[i].uid}'`;
                 let dataFromDb = await pool.query(query);
                 if (dataFromDb.rows.length > 0) {
                     payload.emails[i].imported = true
@@ -377,98 +377,85 @@ documentController.getImportDocuments = async (req, res) => {
     }
 }
 
-async function fetchEmails(userEmail, userPassword, pageSize = 10, page = 1) {
-    return new Promise((resolve, reject) => {
-        const imap = new Imap({
-            user: userEmail,
-            password: userPassword,
-            host: process.env.HOST,
-            port: 993,
-            tls: true,
-        });
+const fetchEmails = async (filter = {}, pageSize = 10, offset = 0, user, password) => {
+    const client = new ImapFlow({
+        host: process.env.HOST,
+        port: 993,
+        secure: true,
+        auth: {
+            user: user,
+            pass: password
+        },
+        logger: false
+    });
 
-        function openInbox(cb) {
-            imap.openBox('INBOX', true, cb);
+    await client.connect();
+    await client.mailboxOpen('INBOX');
+    let payload = {
+        emails: [],
+        totalRecords: 0,
+        totalPages: 0
+    };
+    let emails = [];
+    try {
+        let searchCriteria = {};
+
+        if (filter.subject) {
+            searchCriteria.subject = filter.subject;
         }
 
-        imap.once('error', function (err) {
-            console.log(err);
-            if (err.source == "timeout-auth") {
-                reject("Invalid Credentials");
+        if (filter.seen == 'false') {
+            searchCriteria.seen = false;
+        } else if (filter.seen == 'true') {
+            searchCriteria.seen = true;
+        }
+        if (filter.keyword) {
+            searchCriteria.keyword = filter.keyword;
+        }
+        if (filter.from) {
+            searchCriteria.from = filter.from;
+        }
+        if (filter.to) {
+            searchCriteria.to = filter.to;
+        }
+        if (filter.on) {
+            searchCriteria.on = filter.on;
+        }
+
+        if (filter.sentOn) {
+            searchCriteria.sentOn = filter.sentOn;
+        }
+
+
+        offset = offset * pageSize;
+        const allUids = await client.search(searchCriteria);
+        const startIndex = Math.max(0, Math.min(allUids.length - 1, allUids.length - offset - pageSize));
+        const endIndex = Math.min(allUids.length, startIndex + pageSize);
+        const pageUids = allUids.slice(startIndex, endIndex);
+        for await (let message of client.fetch(pageUids, { envelope: true, flags: true })) {
+
+            //console.log(message)
+            let email = {
+                subject: message.envelope.subject,
+                date: moment(message.envelope.date).format('DD/MM/YYYY'),
+                from: message.envelope.from.map(address => address.address).join(', '),
+                to: message.envelope.to.map(address => address.address).join(', '),
+                uid: message.uid,
+                seen: message.flags.has('\\Seen'),
+                flags: [...message.flags].filter(flag => !flag.startsWith('$') && flag !== '\\Seen')
             }
-        });
+            //console.log(email)
+            payload.emails.push(email);
+        }
+        payload.totalRecords = allUids.length;
+        payload.totalPages = Math.ceil(payload.totalRecords / pageSize);
+    } catch (err) {
+        console.error(err, "<<<<<< ERR");
+    }
+    await client.logout();
 
-        imap.once('ready', function () {
-            openInbox(function (err, box) {
-                if (err) reject(err);
-
-                const totalEmails = box.messages.total;
-                const totalPages = Math.ceil(totalEmails / pageSize);
-
-                const start = totalEmails - (pageSize * page) + 1;
-                const end = totalEmails - (pageSize * (page - 1));
-
-                if (totalEmails == 0) {
-                    resolve({ emails: [], totalRecords: 0, totalPages: 0 });
-                    return;
-                }
-
-                const f = imap.seq.fetch(`${start}:${end}`, {
-                    envelope: true,
-                    bodies: '',
-                });
-
-                const emails = [];
-
-                f.on('message', function (msg, seqno) {
-                    const attributes = {};
-
-                    msg.once('attributes', function (attrs) {
-                        const flagsWithoutPrefix = attrs.flags.filter(flag => !flag.startsWith('\\') && !flag.startsWith('$'));
-                        const formattedDate = moment(attrs.envelope.date).format('DD/MM/YYYY');
-                        attributes.subject = attrs.envelope.subject;
-                        attributes.date = formattedDate;
-                        console.log(attrs.envelope.from)
-                        attributes.from = attrs.envelope.from.map(item => item.mailbox + "@" + item.host).join(", ");
-                        attributes.to = attrs.envelope.to.map(item => item.mailbox + "@" + item.host).join(", ");
-                        attributes.flags = flagsWithoutPrefix;
-                        attributes.seen = attrs.flags.includes('\\Seen');
-                        attributes.messageId = attrs.envelope.messageId;
-
-                    });
-
-                    msg.once('end', function () {
-                        const email = {
-                            subject: attributes.subject,
-                            date: attributes.date,
-                            from: attributes.from,
-                            to: attributes.to,
-                            messageId: attributes.messageId,
-                            flags: attributes.flags,
-                            seen: attributes.seen,
-                        };
-                        emails.push(email);
-                    });
-                });
-
-                f.once('error', function (err) {
-                    reject(err);
-                });
-
-                f.once('end', function () {
-                    emails.reverse();
-                    resolve({ emails, totalRecords: totalEmails, totalPages });
-                });
-            });
-        });
-
-        imap.once('end', function () {
-            console.log('Connection ended');
-        });
-
-        imap.connect();
-    });
-}
+    return payload;
+};
 
 
 

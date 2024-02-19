@@ -90,7 +90,21 @@
                                 </div>
                               </div>
                             </div>
-                            <div class="col-md-8">
+                            <% if (documentData && (documentData.doc_status == null || documentData.doc_status == "DRAFTED")) { %>
+                              <div class="col-md-2">
+                                <div class="form-group">
+                                  <label class="form-label" for="doc_number">Override Prefix</label>
+                                  <div class="form-control-wrap">
+                                    <button disabled type="button" class="btn btn-primary" id="editPrefixBtn">Overide Prefix</button>
+                                  </div>
+                                </div>
+                              </div>
+                            <% } %>
+                            <% if (documentData && (documentData.doc_status == null || documentData.doc_status == "DRAFTED")) { %>
+                              <div class="col-md-6">
+                            <% } else { %>
+                              <div class="col-md-8">
+                            <% } %>
                               <div class="form-group">
                                 <label class="form-label" for="doc_reference">Reference</label>
                                 <div class="form-control-wrap">
@@ -191,6 +205,39 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="editPrefixModal" tabindex="-1" aria-labelledby="editPrefixModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="editPrefixModalLabel">Edit Prefix</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="newPrefix" class="form-label">New Prefix</label>
+                      <input type="text" style="display: block;
+                      width: 100%;
+                      padding: 0.4375rem 1rem;
+                      font-size: 0.8125rem;
+                      font-weight: 400;
+                      line-height: 1.25rem;
+                      color: #3c4d62;
+                      appearance: none;
+                      background-color: #fff;
+                      background-clip: padding-box;
+                      border: 1px solid #dbdfea;
+                      border-radius: 4px;
+                      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;" id="newPrefix" placeholder="Enter new prefix">
+                      <span id="newPrefixError" style="margin-left: 8px;" class="text-danger"></span>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" id="savePrefixBtn">Save changes</button>
+              </div>
+          </div>
+      </div>
+    </div>
     <input type="hidden" id="doc_status" value="<%=documentData.doc_status%>">
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
@@ -251,6 +298,7 @@
           let dataSiteId = $("#doc_folder").find("option:selected").data("site-id");
 
           if (docSiteValue && docFolderValue && docTypeValue == "OUTGOING") {
+            checkDisabledButton();
             docNumberInput.prop("disabled", true).val();
             $.ajax({
               type: "GET",
@@ -258,7 +306,6 @@
               data: { site_id: dataSiteId },
               success: function (response) {
                 if (response.status == 1) {
-                  console.log(response, "<<<<<<")
                   docNumberValue = response.payload.site_prefix + (parseInt(response.payload.site_record_value, 10) + 1);
                   docNumberInput.val(docNumberValue);
                   toggleSaveDraftButton();
@@ -275,7 +322,6 @@
           }
         }
 
-        // Fetching Dynamic Reference Options
         $("#doc_reference").select2({
           ajax: {
             url: function (params) {
@@ -298,6 +344,44 @@
           minimumInputLength: 1,
           placeholder: "Select Reference",
         });
+        function checkDisabledButton(){
+        if ($('#doc_number').prop('disabled')) {
+          $('#editPrefixBtn').prop('disabled', false);
+        } else {
+          $('#editPrefixBtn').prop('disabled', true);
+        }
+      }
+      if ($('#doc_number').prop('disabled')) {
+          $('#editPrefixBtn').prop('disabled', false);
+        } else {
+          $('#editPrefixBtn').prop('disabled', true);
+        }
+      $("#editPrefixBtn").click(function () {
+        let docNumber = $("#doc_number").val();
+        let parts = docNumber.split("/");
+        let prefix = parts.slice(0, 2).join("/");
+        let site_record_value = parts[parts.length - 1];
+        $("#newPrefix").val(prefix);
+        $("#editPrefixModal").modal("show");
+      });
+
+      $("#savePrefixBtn").click(function () {
+        toggleSaveDraftButton();
+        let newPrefix = $("#newPrefix").val().trim();
+        let regex = /^[^\s\/]+\/[^\s\/]+$/;
+        if (!regex.test(newPrefix)) {
+            $("#newPrefixError").text("Invalid Format");
+            return;
+        }
+
+        let docNumber = $("#doc_number").val();
+        let parts = docNumber.split("/");
+        let prefix = parts.slice(0, 2).join("/");
+        let site_record_value = parts[parts.length - 1];
+        let newDocNumber = newPrefix + "/" + site_record_value;
+        $("#doc_number").val(newDocNumber);
+        $("#editPrefixModal").modal("hide");
+      });
       });
 
       // Saving Draft
@@ -311,7 +395,7 @@
           let fieldValue = $(this).val();
           if(fieldValue == "" || fieldValue.length == 0 || fieldValue.length == []){
             fieldValue = null;
-          } 
+          }
           formData[fieldName] = fieldValue;
         });
         $.ajax({
@@ -374,6 +458,7 @@
           },
         });
       });
+    
     </script>
   </body>
 </html>

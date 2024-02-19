@@ -60,6 +60,9 @@
                     <div class="nk-block-between">
                       <div class="nk-block-head-content">
                         <h3 class="nk-block-title page-title">Import List</h3>
+                        <div class="nk-block-des text-soft">
+                          <p id="totalEmails">Fetching Total Emails...</p>
+                        </div>
                       </div>
                       <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
@@ -204,9 +207,8 @@
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">DATE</span></div>
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">FROM</span></div>
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">TO</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FLAGS</span></div>
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">SEEN</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">ATTACHMENTS</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FLAGS</span></div>
                             </div>
                           </div>
                         </div>
@@ -242,9 +244,19 @@
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
     <script>
-      let filters = {
-        currentPage: 1,
+      // const filter = {
+      //subject: "",
+      //seen: 'false'
+      //from: "",
+      //to: "jimmydhingra.ac@spsingla.com"
+      //keyword: "Test",
+      //on: "2024-02-01",
+      //sentOn: ""
+      // };
+      let payload = {
+        filter: {},
         pageSize: 10,
+        offset: 0,
       };
       function fetchDocuments() {
         $(".table-content").remove();
@@ -252,20 +264,22 @@
         $.ajax({
           type: "POST",
           url: "/docs/get-import-documents",
-          data: JSON.stringify(filters),
+          data: JSON.stringify(payload),
           contentType: "application/json",
           success: function (response) {
+            console.log(response);
             if (response.status == 1) {
               if (response.payload.emails && response.payload.emails.length > 0) {
                 console.log(response);
+                $("#totalEmails").html(`You have total of ${response.payload.totalRecords} emails`);
                 $("#table-status").empty();
                 let rowHtml = ``;
                 response.payload.emails.forEach(function (email) {
                   rowHtml += `<div class="nk-tb-item text-left table-content">
                                   <div class="nk-tb-col nk-tb-col-check">
                                       <div class="custom-control custom-control-sm custom-checkbox notext">
-                                          <input type="checkbox" class="custom-control-input" ${email.imported ? "disabled checked" : ""} name="${email.messageId}" id="${email.messageId}">
-                                          <label class="custom-control-label" for="${email.messageId}"></label>
+                                          <input type="checkbox" class="custom-control-input" ${email.imported ? "disabled checked" : ""} name="${email.uid}" id="${email.uid}">
+                                          <label class="custom-control-label" for="${email.uid}"></label>
                                       </div>
                                   </div>
                                   <div class="nk-tb-col">
@@ -281,25 +295,10 @@
                                       <span>${email.to || "-"}</span>
                                   </div>
                                   <div class="nk-tb-col">
-                                    <span title="${document.doc_purpose || "-"}">${document.doc_purpose || "-"}</span>
+                                      <span>${email.seen || "false"}</span>
                                   </div>
                                   <div class="nk-tb-col">
-                                    <span title="${document.doc_subject || "-"}">${document.doc_subject || "-"}</span>
-                                  </div>
-                                  <div class="nk-tb-col">
-                                      <span title="${document.doc_reference || "-"}">${document.doc_reference || "-"}</span>
-                                  </div>
-                                  <div class="nk-tb-col">
-                                      <span title="${document.doc_replied_vide || "-"}">${document.doc_replied_vide || "-"}</span>
-                                  </div>
-                                  <div class="nk-tb-col">
-                                    <span title="${document.doc_from || "-"}">${document.doc_from || "-"}</span>
-                                  </div>
-                                  <div class="nk-tb-col">
-                                    <span title="${document.doc_to || "-"}">${document.doc_to || "-"}</span>
-                                  </div>
-                                  <div class="nk-tb-col">
-                                      <span title="${document.doc_storage_location || "-"}">${document.doc_storage_location || "-"}</span>
+                                      <span>${email.flags.length > 0 ? email.flags.join(", ") : "-"}</span>
                                   </div>
                               </div>`;
                 });

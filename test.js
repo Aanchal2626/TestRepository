@@ -74,7 +74,7 @@ const filter = {
     //to: "jimmydhingra.ac@spsingla.com"
     //keyword: "Test",
     //on: "2024-02-01",
-    sentOn: ""
+    //sentOn: ""
 };
 
 fetchEmails(filter, 10, 0)

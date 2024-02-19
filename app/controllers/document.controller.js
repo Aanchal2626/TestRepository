@@ -377,6 +377,10 @@ documentController.getImportDocuments = async (req, res) => {
     }
 }
 
+documentController.importExcelDocuments = async (req, res) => {
+
+}
+
 const fetchEmails = async (filter = {}, pageSize = 10, offset = 0, user, password) => {
     const client = new ImapFlow({
         host: process.env.HOST,

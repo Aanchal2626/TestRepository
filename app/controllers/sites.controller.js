@@ -12,20 +12,24 @@ userController.saveSite = async (req, res) => {
         if (!inputs.site_code || inputs.site_code == "") {
             return res.send({ status: 0, msg: "Invalid Site Code" });
         }
+        if (!inputs.site_record_value || inputs.site_record_value == "") {
+            return res.send({ status: 0, msg: "Invalid Site Record" });
+        }
 
         let site = await pool.query(`SELECT * FROM sites WHERE site_code = '${inputs.site_code}'`);
         site = site.rows[0];
 
         const query = `
-        INSERT INTO sites (site_name, site_parent_id, site_code)
-        VALUES ($1, $2, $3)
+        INSERT INTO sites (site_name, site_parent_id, site_code, site_record_value)
+        VALUES ($1, $2, $3, $4)
         ON CONFLICT (site_code)
         DO UPDATE SET
-          site_name = EXCLUDED.site_name
+          site_name = EXCLUDED.site_name,
+          site_record_value = EXCLUDED.site_record_value
         RETURNING *;
       `;
 
-        let updatedSite = await pool.query(query, [inputs.site_name, 0, inputs.site_code]);
+        let updatedSite = await pool.query(query, [inputs.site_name, 0, inputs.site_code, inputs.site_record_value]);
         updatedSite = updatedSite?.rows[0];
         if (updatedSite) {
             if (!site) {
@@ -58,16 +62,15 @@ userController.saveFolder = async (req, res) => {
         inputs.folder_name = inputs.folder_site_name + " - " + inputs.folder_name;
 
         const query = `
-        INSERT INTO sites (site_name, site_parent_id, site_code, site_prefix, site_record_value)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO sites (site_name, site_parent_id, site_code, site_prefix)
+        VALUES ($1, $2, $3, $4)
         ON CONFLICT (site_code)
         DO UPDATE SET
           site_name = EXCLUDED.site_name,
-          site_prefix = EXCLUDED.site_prefix,
-          site_record_value = EXCLUDED.site_record_value
+          site_prefix = EXCLUDED.site_prefix
         RETURNING *;`;
 
-        let updatedSite = await pool.query(query, [inputs.folder_name, inputs.folder_site, inputs.folder_code, inputs.folder_prefix, inputs.folder_records]);
+        let updatedSite = await pool.query(query, [inputs.folder_name, inputs.folder_site, inputs.folder_code, inputs.folder_prefix]);
         updatedSite = updatedSite?.rows[0];
 
         if (updatedSite) {

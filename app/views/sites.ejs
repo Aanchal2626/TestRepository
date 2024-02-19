@@ -114,7 +114,7 @@
                             <div class="nk-tb-item nk-tb-head">
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE CODE</span></div>
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE NAME</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE MASTER ID</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE RECORD NUMBER</span></div>
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">SITE FOLDERS</span></div>
                               <div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
                             </div>
@@ -127,7 +127,7 @@
                                 <span><%= site.site_name %></span>
                               </div>
                               <div class="nk-tb-col tb-col-sm parent-content">
-                                <span><%= site.site_id %></span>
+                                <span><%= site.site_record_value %></span>
                               </div>
                               <div class="nk-tb-col tb-col-sm parent-content">
                                 <span><%= childSitesCount %></span>
@@ -141,8 +141,8 @@
                             <div class="nk-tb-item child-row nk-tb-head d-none child-header" data-parent="<%= site.site_id %>" style="background: #ededed">
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER CODE</span></div>
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER NAME</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER PARENT CODE</span></div>
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER PREFIX</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER RECORDS</span></div>
                               <div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
                             </div>
                             <% headerRendered = true; %> <% } %>
@@ -154,10 +154,10 @@
                                 <span><%= childSite.site_name%></span>
                               </div>
                               <div class="nk-tb-col tb-col-sm child-content">
-                                <span><%= childSite.site_prefix%></span>
+                                <span><%= site.site_code%></span>
                               </div>
                               <div class="nk-tb-col tb-col-sm child-content">
-                                <span><%= childSite.site_record_value%></span>
+                                <span><%= childSite.site_prefix%></span>
                               </div>
                               <div class="nk-tb-col text-end child-content">
                                 <a onclick="handleChildEditClicked(`<%= JSON.stringify(childSite) %> `, `<%= JSON.stringify(users) %>`, `<%= JSON.stringify(permissions) %>`)" style="margin-right: 20px !important; font-size: 18px; cursor: pointer" class="link-cross me-sm-n1 action-dropdown more-dropdown-<%= site.site_id %>"><em class="icon ni ni-edit-fill"></em> </a>
@@ -200,6 +200,12 @@
                 <label class="form-label" for="site_name">Site Name </label>
                 <div class="form-control-wrap">
                   <input type="text" placeholder="Enter Site Name" class="form-control" name="site_name" id="site_name" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="site_record_value">Site Records Number </label>
+                <div class="form-control-wrap">
+                  <input type="text" placeholder="Enter Record Number" class="form-control" name="site_record_value" id="site_record_value" required />
                 </div>
               </div>
               <div class="form-group" style="display: flex; justify-content: space-between">
@@ -248,12 +254,6 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label" for="folder_records">Folder Records</label>
-                <div class="form-control-wrap">
-                  <input type="number" placeholder="Enter Folder Records" class="form-control" name="folder_records" id="folder_records" required />
-                </div>
-              </div>
-              <div class="form-group">
                 <label class="form-label" for="folder_code">Folder Code</label>
                 <div class="form-control-wrap">
                   <input type="number" placeholder="Enter Folder Code" class="form-control" name="folder_code" id="folder_code" required />
@@ -282,6 +282,11 @@
     <script src="/app/assets/js/scripts.js"></script>
     <script>
       $(document).ready(function () {
+        $("#folder_name,#site_name").on("input", function () {
+          $(this).val(function (_, val) {
+            return val.replace(/-/g, "");
+          });
+        });
         $("#user_permissions").select2({ placeholder: "Select Reference" });
         $(".select2-search__field").css("width", "100%");
         $(".action-dropdown").click(function (event) {
@@ -328,11 +333,11 @@
 
       //handling parent modal
       function handleEditClicked(siteId) {
-        console.log("test");
         let site = sites.find((u) => u.site_id === siteId);
         if (site) {
           $("#site_code").val(site.site_code).prop("disabled", true);
           $("#site_name").val(site.site_name);
+          $("#site_record_value").val(site.site_record_value);
           $("#modalForm").modal("show");
           $(".modal_title").text("Edit");
         }
@@ -341,6 +346,7 @@
       $("#modalForm").on("hidden.bs.modal", function (e) {
         $("#site_code").val("").prop("disabled", false);
         $("#site_name").val("");
+        $("#site_record_value").val("");
         $(".modal_title").text("Add");
       });
 
@@ -365,11 +371,9 @@
               }
               $("#user_permissions").append(`<option value="${users[i].user_id}" ${isUserSelected ? "selected" : ""}>${users[i].user_name}</option>`);
             }
-            $("#user_permissions").select2();
             $("#user_permissions").trigger("change");
             $("#folder_name").val(parse_data.site_name.substring(parse_data.site_name.lastIndexOf("-") + 2));
             $("#folder_prefix").val(parse_data.site_prefix);
-            $("#folder_records").val(parse_data.site_record_value);
             $("#folder_code").val(parse_data.site_code).prop("disabled", true);
             $("#folder_site").val(parse_data.site_parent_id).prop("disabled", true).trigger("change");
             $(".modal_title").text("Edit");
@@ -379,12 +383,11 @@
       }
 
       $("#modalForm2").on("hidden.bs.modal", function (e) {
-        $("#folder_site").val("").trigger("change");
+        $("#folder_site").val("").trigger("change").prop("disabled", false);
         $("#folder_name").val("");
         $("#folder_prefix").val("");
-        $("#folder_records").val("");
         $("#folder_code").val("").prop("disabled", false);
-        $("#user_permissions").empty();
+        $("#user_permissions").val("").trigger("change");
         $(".modal_title").text("Add");
       });
 
@@ -398,6 +401,7 @@
         let formData = {
           site_code: $("#site_code").val(),
           site_name: $("#site_name").val(),
+          site_record_value: $("#site_record_value").val(),
         };
 
         $.ajax({
@@ -435,7 +439,6 @@
           folder_site_name: $("#folder_site option:selected").text(),
           folder_name: $("#folder_name").val(),
           folder_prefix: $("#folder_prefix").val(),
-          folder_records: $("#folder_records").val(),
           folder_code: $("#folder_code").val(),
           user_permissions: $("#user_permissions").val(),
         };

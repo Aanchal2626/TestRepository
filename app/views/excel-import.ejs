@@ -86,93 +86,54 @@
                         <div class="card-head">
                           <h5 class="card-title">Upload Form</h5>
                         </div>
-                        <form action="#">
+                        <form id="excelForm" class="form-validate is-alter">
                           <div class="row g-4">
-                            <div class="col-lg-6">
+                            <div class="col-lg-4">
                               <div class="form-group">
-                                <label class="form-label" for="full-name-1">Full Name</label>
+                                <label class="form-label" for="doc_site">Site</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" id="full-name-1" />
+                                  <select class="form-select form-control js-select2" id="doc_site" name="doc_site" data-placeholder="Select Site" required>
+                                    <option label="empty" value=""></option>
+                                    <% sites.forEach(function(site) { %>
+                                    <option value="<%= site.site_name %>" data-parent-id="<%= site.site_id %>"><%= site.site_name %></option>
+                                    <% }); %>
+                                  </select>
                                 </div>
                               </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-md-4">
                               <div class="form-group">
-                                <label class="form-label" for="email-address-1">Email address</label>
+                                <label class="form-label" for="doc_folder">Folder</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" id="email-address-1" />
+                                  <select class="form-select form-control js-select2" id="doc_folder" name="doc_folder" data-placeholder="Select Folder" required>
+                                    <option label="empty" value=""></option>
+                                  </select>
                                 </div>
                               </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-md-4">
                               <div class="form-group">
-                                <label class="form-label" for="phone-no-1">Phone No</label>
+                                <label class="form-label" for="doc_type">Type</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" id="phone-no-1" />
+                                  <select class="form-select form-control js-select2" id="doc_type" name="doc_type" data-placeholder="Select Type" required>
+                                    <option label="empty" value=""></option>
+                                    <option value="INCOMING">INCOMING</option>
+                                    <option value="OUTGOING">OUTGOING</option>
+                                  </select>
                                 </div>
                               </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-md-4">
                               <div class="form-group">
-                                <label class="form-label" for="pay-amount-1">Amount</label>
+                                <label class="form-label" for="doc_file">Upload Excel</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" id="pay-amount-1" />
+                                  <input type="file" accept=".xlsx" class="form-control" placeholder="Upload File" id="doc_file" name="doc_file" required />
                                 </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-6">
-                              <div class="form-group">
-                                <label class="form-label">Communication</label>
-                                <ul class="custom-control-group g-3 align-center">
-                                  <li>
-                                    <div class="custom-control custom-control-sm custom-checkbox">
-                                      <input type="checkbox" class="custom-control-input" id="com-email-1" />
-                                      <label class="custom-control-label" for="com-email-1">Email</label>
-                                    </div>
-                                  </li>
-                                  <li>
-                                    <div class="custom-control custom-control-sm custom-checkbox">
-                                      <input type="checkbox" class="custom-control-input" id="com-sms-1" />
-                                      <label class="custom-control-label" for="com-sms-1">SMS</label>
-                                    </div>
-                                  </li>
-                                  <li>
-                                    <div class="custom-control custom-control-sm custom-checkbox">
-                                      <input type="checkbox" class="custom-control-input" id="com-phone-1" />
-                                      <label class="custom-control-label" for="com-phone-1">Phone</label>
-                                    </div>
-                                  </li>
-                                </ul>
-                              </div>
-                            </div>
-                            <div class="col-lg-6">
-                              <div class="form-group">
-                                <label class="form-label">Payment Methods</label>
-                                <ul class="custom-control-group g-3 align-center">
-                                  <li>
-                                    <div class="custom-control custom-control-sm custom-checkbox">
-                                      <input type="checkbox" class="custom-control-input" id="pay-card-1" />
-                                      <label class="custom-control-label" for="pay-card-1">Card</label>
-                                    </div>
-                                  </li>
-                                  <li>
-                                    <div class="custom-control custom-control-sm custom-checkbox">
-                                      <input type="checkbox" class="custom-control-input" id="pay-bitcoin-1" />
-                                      <label class="custom-control-label" for="pay-bitcoin-1">Bitcoin</label>
-                                    </div>
-                                  </li>
-                                  <li>
-                                    <div class="custom-control custom-control-sm custom-checkbox">
-                                      <input type="checkbox" class="custom-control-input" id="pay-cash-1" />
-                                      <label class="custom-control-label" for="pay-cash-1">Cash</label>
-                                    </div>
-                                  </li>
-                                </ul>
                               </div>
                             </div>
                             <div class="col-12">
                               <div class="form-group">
-                                <button type="submit" class="btn btn-lg btn-primary">Save Informations</button>
+                                <button id="uploadExcelButton" type="submit" class="btn btn-primary">Upload Excel</button>
                               </div>
                             </div>
                           </div>
@@ -190,5 +151,54 @@
     </div>
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
+    <script>
+      let folders = `<%- JSON.stringify(folders) %>`;
+      folders = folders ? JSON.parse(folders) : [];
+
+      $("#doc_site").on("change", function () {
+        $("#doc_folder").val("");
+        var selectedSiteParentId = $(this).find("option:selected").data("parent-id");
+        var folderSelect = $("#doc_folder");
+        folderSelect.val("");
+        folderSelect.empty().append('<option label="empty" value=""></option>');
+        folders.forEach(function (folder) {
+          if (folder.site_parent_id == selectedSiteParentId) {
+            folderSelect.append('<option data-site-id="' + folder.site_id + '" value="' + folder.site_name + '">' + folder.site_name + "</option>");
+          }
+        });
+      });
+
+      $("#excelForm").submit(function (event) {
+        event.preventDefault();
+
+        if (!this.checkValidity()) {
+          return false;
+        }
+        NioApp.handleButtonState("uploadExcelButton", "Upload Excel", true);
+        let formData = new FormData(this);
+
+        $.ajax({
+          type: "POST",
+          url: "/docs/import-excel-document",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            if (response.status == 1) {
+              NioApp.handleButtonState("uploadExcelButton", "Upload Excel", false);
+              NioApp.Toast("<h5>Document Uploaded</h5><p>Excel Uploaded Successfully</p>", "success");
+            } else {
+              NioApp.handleButtonState("uploadExcelButton", "Upload Excel", false);
+              NioApp.Toast(`<h5>Something Went Wrong</h5><p>${response.msg}</p>`, "error");
+            }
+          },
+          error: function (xhr, status, error) {
+            NioApp.handleButtonState("uploadExcelButton", "Upload Excel", false);
+            NioApp.Toast("<h5>Something Went Wrong</h5><p>Error while uploading Document</p>", "error");
+            console.error("Error saving draft:", error);
+          },
+        });
+      });
+    </script>
   </body>
 </html>

@@ -4,7 +4,8 @@ const moment = require("moment");
 const { v4: uuidv4 } = require('uuid');
 const { simpleParser } = require('mailparser');
 const { ImapFlow } = require('imapflow');
-
+const ExcelJS = require('exceljs');
+const axios = require('axios');
 const documentController = {};
 
 // AWS Config 
@@ -460,6 +461,51 @@ const fetchEmails = async (filter = {}, pageSize = 10, offset = 0, user, passwor
     await client.logout();
 
     return payload;
+};
+
+documentController.importExcelDocument = async (req, res) => {
+    try {
+        let inputs = req.body;
+        let token = req.session.token;
+
+        if (!req.file) {
+            return res.status(400).send({ status: 0, msg: "No file uploaded" });
+        }
+
+        // Fetching latest excel format
+        let formatExcelLink = await pool.query(`SELECT misc_format_link FROM misc WHERE misc_id = 1`);
+        formatExcelLink = formatExcelLink.rows[0].misc_format_link;
+
+        // Download the format Excel file into a buffer
+        const formatExcelResponse = await axios.get(formatExcelLink, { responseType: 'arraybuffer' });
+
+        // Parse the format Excel file from memory
+        const formatWorkbook = new ExcelJS.Workbook();
+        await formatWorkbook.xlsx.load(formatExcelResponse.data);
+        const formatSheet = formatWorkbook.getWorksheet(1); // Assuming the format is in the first sheet
+        const formatHeaders = formatSheet.getRow(1).values;
+
+        // Read the uploaded Excel file from memory
+        const uploadedWorkbook = new ExcelJS.Workbook();
+        await uploadedWorkbook.xlsx.load(req.file.buffer);
+        const uploadedSheet = uploadedWorkbook.getWorksheet(1); // Assuming the data is in the first sheet
+
+        // Extract hyperlinks from the doc_pdf_link column in uploadedSheet
+        const links = [];
+        uploadedSheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
+            const hyperlink = row.getCell(8).hyperlink;
+            if (hyperlink && hyperlink.target) {
+                links.push(hyperlink.target);
+            }
+        });
+
+        console.log(links);
+
+        res.send({ status: 1, msg: "Success" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ status: 0, msg: "Something Went Wrong" });
+    }
 };
 
 

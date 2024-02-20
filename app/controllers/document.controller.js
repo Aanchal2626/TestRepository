@@ -4,6 +4,8 @@ const moment = require("moment");
 const { v4: uuidv4 } = require('uuid');
 const { simpleParser } = require('mailparser');
 const { ImapFlow } = require('imapflow');
+const xlsx = require('xlsx');
+const axios = require('axios');
 
 const documentController = {};
 
@@ -458,6 +460,45 @@ const fetchEmails = async (filter = {}, pageSize = 10, offset = 0, user, passwor
     return payload;
 };
 
+documentController.importExcelDocument = async (req, res) => {
+    try {
+        let inputs = req.body;
+        let token = req.session.token;
+
+        if (!req.file) {
+            return res.status(400).send({ status: 0, msg: "No file uploaded" });
+        }
+
+        // Fetching latest excel format
+        let formatExcelLink = await pool.query(`SELECT misc_format_link FROM misc WHERE misc_id = 1`);
+        formatExcelLink = formatExcelLink.rows[0].misc_format_link;
+
+        // Download the format Excel file into a buffer
+        const formatExcelResponse = await axios.get(formatExcelLink, { responseType: 'arraybuffer' });
+
+        // Parse the format Excel file from memory
+        const formatWorkbook = xlsx.read(formatExcelResponse.data, { type: 'buffer' });
+        const formatSheet = formatWorkbook.Sheets[formatWorkbook.SheetNames[0]];
+        const formatHeaders = xlsx.utils.sheet_to_json(formatSheet, { header: 1 })[0];
+
+        // Read the uploaded Excel file from memory
+        const uploadedWorkbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+        const uploadedSheet = uploadedWorkbook.Sheets[uploadedWorkbook.SheetNames[0]];
+        const uploadedHeaders = xlsx.utils.sheet_to_json(uploadedSheet, { header: 1 })[0];
+
+        // Check if headers match
+        if (JSON.stringify(formatHeaders) !== JSON.stringify(uploadedHeaders)) {
+            return res.send({ stauts: 0, msg: "Uploaded file do not match the expected format" });
+        }
+
+        let data = xlsx.utils.sheet_to_json(uploadedSheet, { header: uploadedHeaders });
+        data = data.slice(1);
+        res.send({ status: 1, msg: "Success", data });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ status: 0, msg: "Something Went Wrong" });
+    }
+};
 
 
 module.exports = documentController;

@@ -11,5 +11,5 @@ router.post("/save-draft", documentController.saveDraft);
 router.post("/create-document", upload.single('doc_file'), documentController.createDocument);
 router.post("/get-filtered-documents", documentController.getFilteredDocuments);
 router.post("/get-import-documents", documentController.getImportDocuments);
-
+router.post("/import-excel-document", upload.single('doc_file'), documentController.importExcelDocument);
 module.exports = router;

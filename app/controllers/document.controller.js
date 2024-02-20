@@ -67,17 +67,7 @@ documentController.getDocumentReference = async (req, res) => {
     }
 }
 
-documentController.getDownloadLink = async (req, res) => {
-    try {
-        let query = `SELECT misc_format_link FROM misc WHERE misc_id = 1`;
-        let dataFromDb = await pool.query(query);
-        dataFromDb = dataFromDb.rows[0];
-        res.send({ status: 1, msg: "Success", payload: dataFromDb })
-    } catch (err) {
-        console.log(err);
-        res.send({ status: 0, msg: "Something Went Wrong" })
-    }
-}
+
 documentController.saveDraft = async (req, res) => {
     try {
         let inputs = req.body;

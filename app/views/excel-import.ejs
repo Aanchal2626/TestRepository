@@ -176,7 +176,7 @@
         }
         NioApp.handleButtonState("uploadExcelButton", "Upload Excel", true);
         let formData = new FormData(this);
-        console.log(formData);
+
         $.ajax({
           type: "POST",
           url: "/docs/import-excel-document",

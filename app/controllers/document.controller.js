@@ -4,9 +4,8 @@ const moment = require("moment");
 const { v4: uuidv4 } = require('uuid');
 const { simpleParser } = require('mailparser');
 const { ImapFlow } = require('imapflow');
-const xlsx = require('xlsx');
+const ExcelJS = require('exceljs');
 const axios = require('axios');
-
 const documentController = {};
 
 // AWS Config 
@@ -477,28 +476,34 @@ documentController.importExcelDocument = async (req, res) => {
         const formatExcelResponse = await axios.get(formatExcelLink, { responseType: 'arraybuffer' });
 
         // Parse the format Excel file from memory
-        const formatWorkbook = xlsx.read(formatExcelResponse.data, { type: 'buffer' });
-        const formatSheet = formatWorkbook.Sheets[formatWorkbook.SheetNames[0]];
-        const formatHeaders = xlsx.utils.sheet_to_json(formatSheet, { header: 1 })[0];
+        const formatWorkbook = new ExcelJS.Workbook();
+        await formatWorkbook.xlsx.load(formatExcelResponse.data);
+        const formatSheet = formatWorkbook.getWorksheet(1); // Assuming the format is in the first sheet
+        const formatHeaders = formatSheet.getRow(1).values;
 
         // Read the uploaded Excel file from memory
-        const uploadedWorkbook = xlsx.read(req.file.buffer, { type: 'buffer' });
-        const uploadedSheet = uploadedWorkbook.Sheets[uploadedWorkbook.SheetNames[0]];
-        const uploadedHeaders = xlsx.utils.sheet_to_json(uploadedSheet, { header: 1 })[0];
+        const uploadedWorkbook = new ExcelJS.Workbook();
+        await uploadedWorkbook.xlsx.load(req.file.buffer);
+        const uploadedSheet = uploadedWorkbook.getWorksheet(1); // Assuming the data is in the first sheet
 
-        // Check if headers match
-        if (JSON.stringify(formatHeaders) !== JSON.stringify(uploadedHeaders)) {
-            return res.send({ stauts: 0, msg: "Uploaded file do not match the expected format" });
-        }
+        // Extract hyperlinks from the doc_pdf_link column in uploadedSheet
+        const links = [];
+        uploadedSheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
+            const hyperlink = row.getCell(8).hyperlink;
+            if (hyperlink && hyperlink.target) {
+                links.push(hyperlink.target);
+            }
+        });
 
-        let data = xlsx.utils.sheet_to_json(uploadedSheet, { header: uploadedHeaders });
-        data = data.slice(1);
-        res.send({ status: 1, msg: "Success", data });
+        console.log(links);
+
+        res.send({ status: 1, msg: "Success" });
     } catch (err) {
         console.error(err);
         res.status(500).send({ status: 0, msg: "Something Went Wrong" });
     }
 };
+
 
 
 module.exports = documentController;

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+  <head>
+    <base href="../" />
+    <meta charset="utf-8" />
+    <meta name="author" content="Softnio" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers." />
+    <link rel="shortcut icon" href="/app/assets/images/favicon.png" />
+    <title>Import | Document Controller</title>
+    <link rel="stylesheet" href="/app/assets/css/dashlite.css" />
+    <link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+    <style>
+      .nk-tb-item .nk-tb-col:first-child {
+        padding-left: 10px;
+      }
+      .nk-tb-col:first-child {
+        width: 30px;
+        min-width: 30px;
+        max-width: 30px;
+      }
+      .nk-tb-col:nth-child(2) {
+        width: 350px;
+        min-width: 350px;
+        max-width: 350px;
+      }
+      .nk-tb-col:nth-child(4) {
+        width: 300px;
+        min-width: 300px;
+        max-width: 300px;
+      }
+      .nk-tb-col:nth-child(5) {
+        width: 350px;
+        min-width: 350px;
+        max-width: 350px;
+      }
+      .nk-tb-col {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 5px 15px;
+        width: 170px;
+        min-width: 170px;
+        max-width: 170px;
+      }
+    </style>
+  </head>
+
+  <body class="nk-body bg-lighter npc-general has-sidebar">
+    <div class="nk-app-root">
+      <div class="nk-main">
+        <%- include('./common/sidebar' , {active : "Documents"}); -%>
+        <div class="nk-wrap">
+          <%- include('./common/navbar'); -%>
+          <div class="nk-content">
+            <div class="container-fluid">
+              <div class="nk-content-inner">
+                <div class="nk-content-body">
+                  <div class="nk-block-head nk-block-head-sm">
+                    <div class="nk-block-between">
+                      <div class="nk-block-head-content">
+                        <h3 class="nk-block-title page-title">Import Excel</h3>
+                      </div>
+                      <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                          <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu"><em class="icon ni ni-menu-alt-r"></em></a>
+                          <div class="toggle-expand-content" data-content="pageMenu">
+                            <ul class="nk-block-tools g-3">
+                              <li class="nk-block-tools-opt">
+                                <a href="<%= format_link %>" class="preview-item" download="import_excel_format.xlsx">
+                                  <button type="button" class="btn btn-primary">
+                                    <em class="icon ni ni-download-cloud" style="font-size: 13px"></em>
+                                    &nbsp; Download Format
+                                  </button>
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="nk-block nk-block-lg">
+                    <div class="card">
+                      <div class="card-inner">
+                        <div class="card-head">
+                          <h5 class="card-title">Upload Form</h5>
+                        </div>
+                        <form action="#">
+                          <div class="row g-4">
+                            <div class="col-lg-6">
+                              <div class="form-group">
+                                <label class="form-label" for="full-name-1">Full Name</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" id="full-name-1" />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="form-group">
+                                <label class="form-label" for="email-address-1">Email address</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" id="email-address-1" />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="form-group">
+                                <label class="form-label" for="phone-no-1">Phone No</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" id="phone-no-1" />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="form-group">
+                                <label class="form-label" for="pay-amount-1">Amount</label>
+                                <div class="form-control-wrap">
+                                  <input type="text" class="form-control" id="pay-amount-1" />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="form-group">
+                                <label class="form-label">Communication</label>
+                                <ul class="custom-control-group g-3 align-center">
+                                  <li>
+                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                      <input type="checkbox" class="custom-control-input" id="com-email-1" />
+                                      <label class="custom-control-label" for="com-email-1">Email</label>
+                                    </div>
+                                  </li>
+                                  <li>
+                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                      <input type="checkbox" class="custom-control-input" id="com-sms-1" />
+                                      <label class="custom-control-label" for="com-sms-1">SMS</label>
+                                    </div>
+                                  </li>
+                                  <li>
+                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                      <input type="checkbox" class="custom-control-input" id="com-phone-1" />
+                                      <label class="custom-control-label" for="com-phone-1">Phone</label>
+                                    </div>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="form-group">
+                                <label class="form-label">Payment Methods</label>
+                                <ul class="custom-control-group g-3 align-center">
+                                  <li>
+                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                      <input type="checkbox" class="custom-control-input" id="pay-card-1" />
+                                      <label class="custom-control-label" for="pay-card-1">Card</label>
+                                    </div>
+                                  </li>
+                                  <li>
+                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                      <input type="checkbox" class="custom-control-input" id="pay-bitcoin-1" />
+                                      <label class="custom-control-label" for="pay-bitcoin-1">Bitcoin</label>
+                                    </div>
+                                  </li>
+                                  <li>
+                                    <div class="custom-control custom-control-sm custom-checkbox">
+                                      <input type="checkbox" class="custom-control-input" id="pay-cash-1" />
+                                      <label class="custom-control-label" for="pay-cash-1">Cash</label>
+                                    </div>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                            <div class="col-12">
+                              <div class="form-group">
+                                <button type="submit" class="btn btn-lg btn-primary">Save Informations</button>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <%- include('./common/footer'); -%>
+        </div>
+      </div>
+    </div>
+    <script src="/app/assets/js/bundle.js"></script>
+    <script src="/app/assets/js/scripts.js"></script>
+  </body>
+</html>

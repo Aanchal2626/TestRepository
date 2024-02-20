@@ -179,9 +179,18 @@ renderController.renderSingleDocument = async (req, res) => {
     }
 };
 
-renderController.renderImportDocument = async (req, res) => {
+renderController.renderEmailImport = async (req, res) => {
     let token = req.session.token;
-    res.render("import.ejs", { token })
+    res.render("email-import.ejs", { token })
+};
+
+renderController.renderExcelImport = async (req, res) => {
+    let token = req.session.token;
+    let format_link = await pool.query(`SELECT misc_format_link FROM misc WHERE misc_id = 1`);
+    if (format_link) format_link = format_link.rows[0].misc_format_link;
+    const isElectron = req.get('User-Agent').includes('Electron');
+    console.log(isElectron)
+    res.render("excel-import.ejs", { token, format_link, isElectron })
 };
 
 module.exports = renderController;

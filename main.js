@@ -1,7 +1,6 @@
-const { app, BrowserWindow, screen, ipcMain, dialog } = require('electron');
-const path = require('path');
+const { app, BrowserWindow, screen } = require('electron');
 const expressApp = require('./index');
-const fs = require('fs');
+require('electron-reload')(__dirname);
 
 function createWindow() {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;

@@ -1,7 +1,7 @@
-const { app, BrowserWindow, screen } = require('electron');
+const { app, BrowserWindow, screen, ipcMain, dialog } = require('electron');
 const path = require('path');
-
-const expressApp = require('./server');
+const expressApp = require('./index');
+const fs = require('fs');
 
 function createWindow() {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
@@ -32,3 +32,5 @@ app.on('activate', () => {
         createWindow();
     }
 });
+
+

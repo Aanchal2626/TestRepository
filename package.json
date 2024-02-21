@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "electron": "electron main.js",
-    "serve": "concurrently \"npm run dev\" \"npm run electron\""
+    "electron": "electron main.js"
   },
   "keywords": [],
   "author": "",
@@ -35,8 +34,5 @@
     "pg": "^8.11.3",
     "redis": "^4.6.12",
     "uuid": "^9.0.1"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
   }
 }

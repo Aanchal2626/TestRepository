@@ -123,14 +123,6 @@
                                 </div>
                               </div>
                             </div>
-                            <div class="col-md-4">
-                              <div class="form-group">
-                                <label class="form-label" for="doc_file">Upload Excel</label>
-                                <div class="form-control-wrap">
-                                  <input type="file" accept=".xlsx" class="form-control" placeholder="Upload File" id="doc_file" name="doc_file" required />
-                                </div>
-                              </div>
-                            </div>
                             <div class="col-12">
                               <div class="form-group">
                                 <button id="uploadExcelButton" type="submit" class="btn btn-primary">Upload Excel</button>
@@ -151,12 +143,13 @@
     </div>
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.esm.min.js" integrity="sha512-43+Rln/YcxembRCKzM5U+2QLDAVEiRD8q+pG3vO4syOwmZkXi1ft809VmL8VYFXaQvtzpZq6eNR3aMlpGeqz7A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <script>
       let folders = `<%- JSON.stringify(folders) %>`;
       folders = folders ? JSON.parse(folders) : [];
 
       $("#doc_site").on("change", function () {
-        $("#doc_folder").val("");
         var selectedSiteParentId = $(this).find("option:selected").data("parent-id");
         var folderSelect = $("#doc_folder");
         folderSelect.val("");

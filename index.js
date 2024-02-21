@@ -1,5 +1,4 @@
-/* ॐ नमः शिवाय */
-// Importing Packages
+// server.js
 const express = require('express');
 const dotenv = require("dotenv").config();
 const path = require('path');
@@ -8,24 +7,14 @@ const connectRedis = require("connect-redis");
 const session = require("express-session");
 const cookieParser = require('cookie-parser');
 const router = require("./app/router/router");
-
-// Creating Express Application
 const app = express();
 
-// Initializing Port 
-const port = process.env.PORT || 3000;
-
-// Initializing Globals 
-global.app = app;
-global.basePath = __dirname;
-
-// Initializing Redis
+// Initialize Redis
 let RedisStore, redisClient;
 if (process.env.NODE_ENV === 'development') {
-
     RedisStore = connectRedis(session);
     redisClient = redis.createClient({
-        host: 'http://localhost/',
+        host: 'localhost',
         port: 6379,
         legacyMode: true,
     });
@@ -74,10 +63,7 @@ app.use(function (req, res, next) {
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
-// Listening on routes
 app.use('/', router);
 
-// Starting server on port
-app.listen(port, function () {
-    console.log("Server listening on port....", port);
-});
+// Export the Express app
+module.exports = app;

@@ -7,6 +7,8 @@ const { ImapFlow } = require('imapflow');
 const ExcelJS = require('exceljs');
 const axios = require('axios');
 const documentController = {};
+const { BrowserWindow, ipcMain, dialog } = require('electron');
+const fs = require("fs");
 
 // AWS Config 
 AWS.config.update({
@@ -468,9 +470,12 @@ documentController.importExcelDocument = async (req, res) => {
         let inputs = req.body;
         let token = req.session.token;
 
-        if (!req.file) {
-            return res.status(400).send({ status: 0, msg: "No file uploaded" });
+        if (!inputs.doc_site && !inputs.doc_folder && !inputs.doc_type) {
+            return res.send({ status: 0, msg: "Invalid Request" });
         }
+
+        let uploadedFile = await selectExcelFile();
+        if (!uploadedFile) return res.send({ status: 0, msg: "Invalid Request" });
 
         // Fetching latest excel format
         let formatExcelLink = await pool.query(`SELECT misc_format_link FROM misc WHERE misc_id = 1`);
@@ -482,16 +487,14 @@ documentController.importExcelDocument = async (req, res) => {
         // Parse the format Excel file from memory
         const formatWorkbook = new ExcelJS.Workbook();
         await formatWorkbook.xlsx.load(formatExcelResponse.data);
-        const formatSheet = formatWorkbook.getWorksheet(1); // Assuming the format is in the first sheet
+        const formatSheet = formatWorkbook.getWorksheet(1);
         const formatHeaders = formatSheet.getRow(1).values;
 
         // Read the uploaded Excel file from memory
         const uploadedWorkbook = new ExcelJS.Workbook();
         await uploadedWorkbook.xlsx.load(req.file.buffer);
-        const uploadedSheet = uploadedWorkbook.getWorksheet(1); // Assuming the data is in the first sheet
+        const uploadedSheet = uploadedWorkbook.getWorksheet(1);
 
-        // Extract hyperlinks from the doc_pdf_link column in uploadedSheet
-        const links = [];
         uploadedSheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
             const hyperlink = row.getCell(8).hyperlink;
             if (hyperlink && hyperlink.target) {
@@ -499,7 +502,6 @@ documentController.importExcelDocument = async (req, res) => {
             }
         });
 
-        console.log(links);
 
         res.send({ status: 1, msg: "Success" });
     } catch (err) {
@@ -507,6 +509,35 @@ documentController.importExcelDocument = async (req, res) => {
         res.status(500).send({ status: 0, msg: "Something Went Wrong" });
     }
 };
+
+
+function selectExcelFile() {
+    return new Promise((resolve, reject) => {
+        const mainWindow = BrowserWindow.getFocusedWindow();
+        if (!mainWindow) reject(false);
+
+        dialog.showOpenDialog(mainWindow, {
+            properties: ['openFile'],
+            filters: [{ name: 'Excel files', extensions: ['xlsx'] }]
+        }).then(result => {
+            const selectedFilePath = result.filePaths[0];
+            if (!selectedFilePath) {
+                reject(false);
+                return;
+            }
+
+            fs.readFile(selectedFilePath, (err, data) => {
+                if (err) {
+                    reject(false);
+                    return;
+                }
+                resolve(data, selectedFilePath);
+            });
+        }).catch(err => {
+            reject(false);
+        });
+    });
+}
 
 
 

@@ -1,5 +1,8 @@
 const { app, BrowserWindow, screen } = require('electron');
 const expressApp = require('./index');
+const dotenv = require('dotenv');
+const path = require('path');
+dotenv.config({ path: path.join(__dirname, '.env') });
 require('electron-reload')(__dirname);
 
 function createWindow() {
@@ -11,11 +14,12 @@ function createWindow() {
             nodeIntegration: true
         }
     });
-    mainWindow.loadURL('http://localhost:4000');
+    let listenString = `http://localhost:${process.env.PORT || 3000}`;
+    mainWindow.loadURL(listenString);
 }
 
 app.whenReady().then(() => {
-    const server = expressApp.listen(4000, () => {
+    const server = expressApp.listen(process.env.PORT || 3000, () => {
         console.log('Express server is running on port 4000');
         createWindow();
     });

@@ -80,6 +80,7 @@
                       </div>
                     </div>
                   </div>
+                  <%if(isElectron){%>
                   <div class="nk-block nk-block-lg">
                     <div class="card">
                       <div class="card-inner">
@@ -111,27 +112,7 @@
                                 </div>
                               </div>
                             </div>
-                            <div class="col-md-4">
-                              <div class="form-group">
-                                <label class="form-label" for="doc_type">Type</label>
-                                <div class="form-control-wrap">
-                                  <select class="form-select form-control js-select2" id="doc_type" name="doc_type" data-placeholder="Select Type" required>
-                                    <option label="empty" value=""></option>
-                                    <option value="INCOMING">INCOMING</option>
-                                    <option value="OUTGOING">OUTGOING</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-md-4">
-                              <div class="form-group">
-                                <label class="form-label" for="doc_file">Upload Excel</label>
-                                <div class="form-control-wrap">
-                                  <input type="file" accept=".xlsx" class="form-control" placeholder="Upload File" id="doc_file" name="doc_file" required />
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-12">
+                            <div class="col-md-12">
                               <div class="form-group">
                                 <button id="uploadExcelButton" type="submit" class="btn btn-primary">Upload Excel</button>
                               </div>
@@ -141,6 +122,20 @@
                       </div>
                     </div>
                   </div>
+                  <% }else{%>
+                  <div class="nk-block nk-block-lg">
+                    <div class="card">
+                      <div class="card-inner">
+                        <div class="card-head">
+                          <h5 class="card-title">Download Windows Application</h5>
+                        </div>
+                        <div class="col-12">
+                          <button class="btn btn-primary">Download Application</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <%}%>
                 </div>
               </div>
             </div>
@@ -151,12 +146,13 @@
     </div>
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.esm.min.js" integrity="sha512-43+Rln/YcxembRCKzM5U+2QLDAVEiRD8q+pG3vO4syOwmZkXi1ft809VmL8VYFXaQvtzpZq6eNR3aMlpGeqz7A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <script>
       let folders = `<%- JSON.stringify(folders) %>`;
       folders = folders ? JSON.parse(folders) : [];
 
       $("#doc_site").on("change", function () {
-        $("#doc_folder").val("");
         var selectedSiteParentId = $(this).find("option:selected").data("parent-id");
         var folderSelect = $("#doc_folder");
         folderSelect.val("");

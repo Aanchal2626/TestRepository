@@ -3,6 +3,7 @@ const authController = {};
 
 
 authController.login = async (req, res) => {
+    let result
     try {
         let inputs = req.body;
 
@@ -14,7 +15,7 @@ authController.login = async (req, res) => {
             return res.send({ status: 0, msg: "Invalid Password" });
         }
 
-        let result = await pool.query(`SELECT * FROM users WHERE user_email = $1`, [inputs.user_email]);
+        result = await pool.query(`SELECT * FROM users WHERE user_email = $1`, [inputs.user_email]);
 
         if (result.rows.length == 0) {
             return res.send({ status: 0, msg: "User not found" });
@@ -37,7 +38,7 @@ authController.login = async (req, res) => {
         res.send({ status: 1, msg: "Login successful" });
 
     } catch (err) {
-        res.send({ status: 0, msg: "Internal Server Error" });
+        res.send({ status: 0, msg: "Internal Server Error", result });
         console.error(err);
     }
 };

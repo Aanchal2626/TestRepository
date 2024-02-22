@@ -14,27 +14,22 @@
     <link rel="stylesheet" href="/app/assets/css/dashlite.css" />
     <link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
     <style>
+      .is-compact .nk-tb-item:not(.nk-tb-head) .nk-tb-col{
+        padding-top: 2px;
+        padding-bottom: 2px;
+      }
       .nk-tb-item .nk-tb-col:first-child {
         padding-left: 10px;
       }
-      .nk-tb-col:nth-child(1) {
-        width: 350px;
-        min-width: 350px;
-        max-width: 350px;
-      }
-      .nk-tb-col:nth-child(3) {
-        width: 300px;
-        min-width: 300px;
-        max-width: 300px;
-      }
+      
       .nk-tb-col {
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        /* overflow: hidden;
+        text-overflow: ellipsis; */
         padding: 5px 15px;
-        width: 150px;
-        min-width: 150px;
-        max-width: 150px;
+        width: 100%;
+        min-width:100%;
+        max-width: 100%;
       }
     </style>
   </head>
@@ -243,11 +238,11 @@
                               <div class="nk-tb-col"><span>DATE</span></div>
                               <div class="nk-tb-col"><span>PURPOSE</span></div>
                               <div class="nk-tb-col"><span>SUBJECT</span></div>
-                              <div class="nk-tb-col"><span>REFERENCE</span></div>
-                              <div class="nk-tb-col"><span>REPLIED VIDE</span></div>
                               <div class="nk-tb-col"><span>FROM</span></div>
                               <div class="nk-tb-col"><span>TO</span></div>
                               <div class="nk-tb-col"><span>STORAGE</span></div>
+                              <div class="nk-tb-col"><span>REFERENCE</span></div>
+                              <div class="nk-tb-col"><span>REPLIED VIDE</span></div>
                             </div>
                           </div>
                         </div>
@@ -326,12 +321,6 @@
                                     <span title="${document.doc_subject || "-"}">${document.doc_subject || "-"}</span>
                                   </div>
                                   <div class="nk-tb-col">
-                                      <span title="${document.doc_reference || "-"}">${document.doc_reference || "-"}</span>
-                                  </div>
-                                  <div class="nk-tb-col">
-                                      <span title="${document.doc_replied_vide || "-"}">${document.doc_replied_vide || "-"}</span>
-                                  </div>
-                                  <div class="nk-tb-col">
                                     <span title="${document.doc_from || "-"}">${document.doc_from || "-"}</span>
                                   </div>
                                   <div class="nk-tb-col">
@@ -339,6 +328,18 @@
                                   </div>
                                   <div class="nk-tb-col">
                                       <span title="${document.doc_storage_location || "-"}">${document.doc_storage_location || "-"}</span>
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      ${document.doc_reference ? document.doc_reference.split(',').map((ref, index) => {
+                                          const trimmedRef = ref.trim();
+                                          return index % 2 === 0 ? `<span><a style="color: #ffb879;" href="/documents/${btoa(trimmedRef)}">${trimmedRef}</a></span>` : `<a href="/documents/${btoa(trimmedRef)}">${trimmedRef}</a>`;
+                                      }).join(', ') : "-"}
+                                  </div>
+                                  <div class="nk-tb-col">
+                                      ${document.doc_replied_vide ? document.doc_replied_vide.split(',').map((reply, index) => {
+                                          const trimmedReply = reply.trim();
+                                          return index % 2 !== 0 ? `<span><a style="color: #ffb879;" href="/documents/${btoa(trimmedReply)}">${trimmedReply}</a></span>` : `<a href="/documents/${btoa(trimmedReply)}">${trimmedReply}</a>`;
+                                      }).join(', ') : "-"}
                                   </div>
                               </div>`;
                   $(rowHtml).insertAfter("#table-head");

@@ -3,7 +3,6 @@ const renderController = {};
 
 renderController.renderDashboard = async (req, res) => {
     let token = req.session.token;
-    return res.redirect("/documents/import/excel");
     res.render("dashboard.ejs", { token });
 };
 

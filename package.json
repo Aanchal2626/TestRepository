@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "electron": "electron main.js && nodemon index.js"
+    "electron": "electron main.js"
   },
   "keywords": [],
   "author": "",

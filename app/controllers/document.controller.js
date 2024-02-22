@@ -139,7 +139,7 @@ documentController.saveDraft = async (req, res) => {
             let updateSiteRecordQuery = `
             UPDATE sites
             SET site_record_value = site_record_value + 1
-            WHERE site_name = '${inputs.doc_site}';
+            WHERE site_name = '${inputs.doc_folder}';
         `;
             await pool.query(updateSiteRecordQuery);
         }
@@ -231,7 +231,7 @@ documentController.createDocument = async (req, res) => {
             let updateSiteRecordQuery = `
             UPDATE sites
             SET site_record_value = site_record_value + 1
-            WHERE site_name = '${inputs.doc_site}';
+            WHERE site_name = '${inputs.doc_folder}';
         `;
             await pool.query(updateSiteRecordQuery);
         }
@@ -259,7 +259,7 @@ documentController.createDocument = async (req, res) => {
                 DocumentLocation: {
                     S3Object: {
                         Bucket: process.env.BUCKET_NAME,
-                        Name: `${fileName}.pdf`,
+                        Name: `docs/${fileName}.pdf`,
                     },
                 },
                 ClientRequestToken: uuidv4(),
@@ -531,130 +531,292 @@ documentController.importExcelDocument = async (req, res) => {
 
         let uploadBatchId = await pool.query(`
             INSERT INTO doc_excel_imports (excel_batch_size, excel_batch_progress, excel_date, excel_status, excel_link) 
-            VALUES ('${uploadedSheetJson.length}', '0', '${moment().format('DD/MM/YYYY hh:mm A')}', 'Uploading', '${excelLocation}')
+            VALUES ('${uploadedSheetJson.length}', '0', '${moment().format('DD/MM/YYYY hh:mm A')}', 'UPLOADING', '${excelLocation}')
             RETURNING *;
         `);
 
         uploadBatchId = uploadBatchId.rows[0];
 
-        for (let i = 0; i < uploadedSheetJson.length; i++) {
-            const row = uploadedSheetJson[i];
-            let document = {};
+        if (uploadBatchId) {
+            res.send({ status: 1, msg: "Excel Uploading Queued" });
+        } else {
+            return res.send({ status: 0, msg: "Something Went Wrong" });
+        }
+        try {
+            for (let i = 0; i < uploadedSheetJson.length; i++) {
+                const row = uploadedSheetJson[i];
+                let document = {};
 
-            // Processing Document Number 
-            try {
-                let doc_number = row[0].replace(/\s/g, '');
-                if (!doc_number || doc_number == "") {
-                    await pool.query(`INSERT INTO doc_excel_imports_logs VALUES (excel_log_import_id, excel_log_row_id, excel_log_status)
-                VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_number')`)
-                    continue
-                } else {
-                    document.doc_number = doc_number;
-                }
-            } catch (err) {
-                await pool.query(`INSERT INTO doc_excel_imports_logs VALUES (excel_log_import_id, excel_log_row_id, excel_log_status)
-                VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_number')`);
-                continue
-            }
-
-            //let duplicateEntry = await pool.query(`SELECT count(*) FROM documents WHERE doc_number = '${}'`)
-
-            // Processing Subject
-            try {
-                let doc_subject = row[1].trim();
-                if (!doc_subject || doc_subject == "") {
-                    await pool.query(`INSERT INTO doc_excel_imports_logs VALUES (excel_log_import_id, excel_log_row_id, excel_log_status)
-                VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_subject')`)
-                    continue
-                } else {
-                    document.doc_subject = doc_subject;
-                }
-            } catch (err) {
-                await pool.query(`INSERT INTO doc_excel_imports_logs VALUES (excel_log_import_id, excel_log_row_id, excel_log_status)
-                VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_subject')`)
-                continue
-            }
-
-
-            // Processing Date
-            try {
-                let doc_created_at = row[2];
-                let parsedDate = moment(doc_created_at, ['DD/MM/YYYY', 'DD.MM.YYYY', 'DD-MM-YYYY'], true);
-                if (!parsedDate.isValid()) {
-                    await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
-                     VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_created_at')`);
-                    continue;
-                } else {
-                    let formattedDate = parsedDate.format('DD/MM/YYYY');
-                    document.doc_created_at = formattedDate;
-                }
-            } catch (err) {
-                await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
-                     VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_created_at')`);
-                continue;
-            }
-
-
-            // Processing PDF
-            const pdfLink = row[row.length - 1];
-            if (pdfLink && pdfLink.endsWith('.pdf')) {
+                // Processing Document Number 
                 try {
-                    const pdfFilePath = path.join(pdfDirectory, pdfLink);
-                    const pdfBuffer = fs.readFileSync(pdfFilePath);
+                    let doc_number = row[0].replace(/\s/g, '');
+                    if (!doc_number || doc_number == "") {
+                        await pool.query(`INSERT INTO doc_excel_imports_logs VALUES (excel_log_import_id, excel_log_row_id, excel_log_status)
+                    VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_number')`)
+                        continue
+                    } else {
+                        document.doc_number = doc_number;
+                    }
+                } catch (err) {
+                    await pool.query(`INSERT INTO doc_excel_imports_logs VALUES (excel_log_import_id, excel_log_row_id, excel_log_status)
+                    VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_number')`);
+                    continue
+                }
 
-                    if (!pdfBuffer) {
+                let duplicateEntryCount = await pool.query(`SELECT count(*) FROM documents WHERE doc_number = '${document.doc_number}'`);
+                duplicateEntryCount = duplicateEntryCount.rows[0].count;
+
+                if (duplicateEntryCount != 0) {
+                    const dublicateQuery = `
+                        INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
+                        VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid Already Uploaded')
+                    `;
+                    await new Promise((resolve, reject) => {
+                        pool.query(dublicateQuery)
+                            .then(result => {
+                                resolve(result);
+                            })
+                            .catch(error => {
+                                reject(error);
+                            });
+                    });
+                }
+
+                // Processing Subject
+                try {
+                    let doc_subject = row[1].trim();
+                    if (!doc_subject || doc_subject == "") {
+                        await pool.query(`INSERT INTO doc_excel_imports_logs VALUES (excel_log_import_id, excel_log_row_id, excel_log_status)
+                    VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_subject')`)
+                        continue
+                    } else {
+                        document.doc_subject = doc_subject;
+                    }
+                } catch (err) {
+                    await pool.query(`INSERT INTO doc_excel_imports_logs VALUES (excel_log_import_id, excel_log_row_id, excel_log_status)
+                    VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_subject')`)
+                    continue
+                }
+
+                // Processing Doc Type
+                try {
+                    let doc_type = row[2].trim();
+                    if (!doc_type || doc_type == "") {
+                        await pool.query(`INSERT INTO doc_excel_imports_logs VALUES (excel_log_import_id, excel_log_row_id, excel_log_status)
+                    VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_type')`)
+                        continue
+                    } else {
+                        document.doc_type = doc_type;
+                    }
+                } catch (err) {
+                    await pool.query(`INSERT INTO doc_excel_imports_logs VALUES (excel_log_import_id, excel_log_row_id, excel_log_status)
+                    VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_type')`)
+                    continue
+                }
+
+                // Processing PDF
+                const pdfLink = row[3].trim();
+                if (pdfLink && pdfLink.endsWith('.pdf')) {
+                    try {
+                        const pdfFilePath = path.join(pdfDirectory, pdfLink);
+                        const pdfBuffer = fs.readFileSync(pdfFilePath);
+
+                        if (!pdfBuffer) {
+                            await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
+                                             VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_pdf_path')`);
+                            continue;
+                        } else {
+                            document.pdf_buffer = pdfBuffer;
+                        }
+                    } catch (error) {
+                        console.log(error)
                         await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
                                          VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_pdf_path')`);
                         continue;
-                    } else {
-                        document.pdf_buffer = pdfBuffer;
                     }
-                } catch (error) {
-                    console.log(error)
+                } else {
                     await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
-                                     VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_pdf_path')`);
+                         VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_pdf_path')`);
                     continue;
                 }
-            } else {
-                await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
-                     VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_pdf_path')`);
-                continue;
-            }
 
-            // Uploading PDF to aws
-            const fileName = uuidv4();
-            const s3Params = {
-                Bucket: process.env.BUCKET_NAME,
-                Key: `docs/${fileName}.pdf`,
-                Body: document.pdf_buffer,
-                ContentType: "application/pdf",
-            };
+                // Processing Date
+                try {
+                    let doc_created_at = row[4].trim();
+                    let parsedDate = moment(doc_created_at, ['DD/MM/YYYY', 'DD.MM.YYYY', 'DD-MM-YYYY'], true);
+                    if (!parsedDate.isValid()) {
+                        await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
+                         VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_created_at')`);
+                        continue;
+                    } else {
+                        let formattedDate = parsedDate.format('DD/MM/YYYY');
+                        document.doc_created_at = formattedDate;
+                    }
+                } catch (err) {
+                    await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
+                         VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid doc_created_at')`);
+                    continue;
+                }
 
-            const s3Response = await s3.upload(s3Params).promise();
-            const pdfLocation = s3Response.Location;
-            if (!pdfLocation) {
-                await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
-                     VALUES ('${uploadBatchId.excel_id}', '${i}', 'Upload Failed')`);
-                continue;
+                // Processing Storage Location
+                try {
+                    let doc_storage_location = row[5].trim();
+                    if (doc_storage_location) {
+                        document.doc_storage_location = doc_storage_location;
+                    }
+                } catch (err) {
+
+                }
+
+                // Processing Doc Reference
+                try {
+                    let doc_reference = row[6].trim();
+                    if (doc_reference) {
+                        document.doc_reference = doc_reference;
+                    }
+                } catch (err) {
+
+                }
+
+                // Processing From
+                try {
+                    let doc_from = row[7].trim();
+                    if (doc_from) {
+                        document.doc_from = doc_from;
+                    }
+                } catch (err) {
+
+                }
+
+                // Processing To
+                try {
+                    let doc_to = row[8].trim();
+                    if (doc_to) {
+                        document.doc_to = doc_to;
+                    }
+                } catch (err) {
+
+                }
+
+                // Processing Document Purpose
+                try {
+                    let doc_purpose = row[9].trim();
+                    if (doc_purpose) {
+                        document.doc_purpose = doc_purpose;
+                    }
+                } catch (err) {
+
+                }
+
+
+                // Uploading PDF to aws
+                const fileName = uuidv4();
+                const s3Params = {
+                    Bucket: process.env.BUCKET_NAME,
+                    Key: `docs/${fileName}.pdf`,
+                    Body: document.pdf_buffer,
+                    ContentType: "application/pdf",
+                };
+
+                const s3Response = await s3.upload(s3Params).promise();
+                const pdfLocation = s3Response.Location;
+                delete document.pdf_buffer;
+
+                if (!pdfLocation) {
+                    await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
+                         VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid Upload Failed')`);
+                    continue;
+                }
+
+                const currentDate = moment().format('MM/DD/YYYY');
+                document.doc_site = inputs.doc_site;
+                document.doc_folder = inputs.doc_folder;
+                document.doc_uploaded_by = token.user_name;
+                document.doc_uploaded_by_id = token.user_id;
+                document.doc_uploaded_at = currentDate;
+                document.doc_source = "SHEETS";
+                document.doc_pdf_link = pdfLocation;
+
+                const insertKeys = Object.keys(document);
+                const insertValues = Object.values(document);
+
+                // Inserting document in table
+                const documentQuery = {
+                    text: `
+                        INSERT INTO documents (${insertKeys.join(', ')}, doc_status) 
+                        VALUES (${insertKeys.map((_, i) => `$${i + 1}`).join(', ')}, 'UPLOADED')
+                        ON CONFLICT (doc_number) DO NOTHING;
+                    `,
+                    values: insertValues
+                };
+
+                const promise = new Promise(async (resolve, reject) => {
+                    try {
+                        const res = await pool.query(documentQuery);
+                        resolve(res.rows);
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+
+                const insertedDocumentResult = await promise;
+
+                // Inserting Error 
+                if (!insertedDocumentResult) {
+                    await pool.query(`INSERT INTO doc_excel_imports_logs (excel_log_import_id, excel_log_row_id, excel_log_status)
+                         VALUES ('${uploadBatchId.excel_id}', '${i}', 'Invalid Query Failed')`);
+                    continue;
+                }
+
+                // Mainting site record for site_record_value
+                let updateSiteRecordQuery = `
+                    UPDATE sites
+                    SET site_record_value = site_record_value + 1
+                    WHERE site_name = '${document.doc_folder}';
+                `;
+                await pool.query(updateSiteRecordQuery);
+
+                // Replied Vide
+                let references = document.doc_reference?.split(',');
+                if (references?.length === 1 && references[0] !== "") {
+                    references = [document.doc_reference];
+                }
+
+                const updateQuery = `
+                UPDATE documents
+                SET doc_replied_vide = CASE
+                                            WHEN doc_replied_vide IS NULL THEN $1
+                                            WHEN $1 = ANY(string_to_array(doc_replied_vide, ', ')) THEN doc_replied_vide
+                                            ELSE doc_replied_vide || ', ' || $1
+                                        END
+                WHERE doc_number = ANY($2);`;
+
+                await pool.query(updateQuery, [document.doc_number, references]);
+
+                await pool.query(`
+                    UPDATE doc_excel_imports
+                    SET excel_batch_progress = CAST(excel_batch_progress AS INTEGER) + 1
+                    WHERE excel_id = ${uploadBatchId.excel_id}
+                    RETURNING *;
+                `);
             }
-            delete document.pdf_buffer;
-            let documentQuery = `
-                INSERT INTO documents (doc_site, doc_folder, doc_type, doc_number, doc_subject, doc_created_at, doc_status) 
-                VALUES (
-                    '${inputs.doc_site}', 
-                    '${inputs.doc_folder}', 
-                    '${inputs.doc_type}', 
-                    '${document.doc_number}', 
-                    '${document.doc_subject}', 
-                    '${document.doc_created_at}', 
-                    'UPLOADED'
-                )
-                ON CONFLICT (doc_number) DO NOTHING;`;
-            await pool.query(documentQuery);
+            await pool.query(`
+                    UPDATE doc_excel_imports
+                    SET excel_status = "UPLOADED"
+                    WHERE excel_id = ${uploadBatchId.excel_id}
+                    RETURNING *;
+                `);
+        } catch (err) {
+            await pool.query(`
+                    UPDATE doc_excel_imports
+                    SET excel_status = "FAILED"
+                    WHERE excel_id = ${uploadBatchId.excel_id}
+                    RETURNING *;
+                `);
         }
+
     } catch (err) {
         console.error(err);
-        res.status(500).send({ status: 0, msg: "Something Went Wrong" });
     }
 };
 

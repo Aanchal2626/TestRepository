@@ -1,42 +1,22 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
-require('electron-reload')(__dirname);
+const app = require('electron').app;
+const Window = require('electron').BrowserWindow;
+const server = require('./index');
 
+let mainWindow = null;
 
-
-// Electron app setup
-let mainWindow;
-
-app.on('ready', () => {
-    // Create the main Electron window
-    mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-            nodeIntegration: true
-        }
+app.on('ready', function () {
+    mainWindow = new Window({
+        width: 1280,
+        height: 1024,
+        autoHideMenuBar: false,
+        useContentSize: true,
+        resizable: true,
     });
+    mainWindow.loadURL('http://localhost:4000/');
 
-    mainWindow.loadFile(path.join(__dirname, './app/index.html'));
-
-    mainWindow.webContents.openDevTools();
-
-    mainWindow.on('closed', () => {
-        expressServer.close();
-        app.quit();
-    });
+    mainWindow.focus();
 });
 
-// Quit app when all windows are closed
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
-
-// Activate app (macOS)
-app.on('activate', () => {
-    if (mainWindow === null) {
-        createWindow();
-    }
+app.on('window-all-closed', function () {
+    app.quit();
 });

@@ -1,39 +1,42 @@
-const { app, BrowserWindow, screen } = require('electron');
-const expressApp = require('./index');
-const dotenv = require('dotenv');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
-dotenv.config({ path: path.join(__dirname, '.env') });
 require('electron-reload')(__dirname);
 
-function createWindow() {
-    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-    const mainWindow = new BrowserWindow({
-        width: width,
-        height: height,
+
+
+// Electron app setup
+let mainWindow;
+
+app.on('ready', () => {
+    // Create the main Electron window
+    mainWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
         webPreferences: {
             nodeIntegration: true
         }
     });
-    let listenString = `http://localhost:${process.env.PORT || 3000}`;
-    mainWindow.loadURL(listenString);
-}
 
-app.whenReady().then(() => {
-    const server = expressApp.listen(process.env.PORT || 3000, () => {
-        console.log('Express server is running on port 4000');
-        createWindow();
-    });
-    app.on('window-all-closed', () => {
-        if (process.platform !== 'darwin') {
-            app.quit();
-        }
+    mainWindow.loadFile(path.join(__dirname, './app/index.html'));
+
+    mainWindow.webContents.openDevTools();
+
+    mainWindow.on('closed', () => {
+        expressServer.close();
+        app.quit();
     });
 });
 
-app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
+// Quit app when all windows are closed
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit();
     }
 });
 
-
+// Activate app (macOS)
+app.on('activate', () => {
+    if (mainWindow === null) {
+        createWindow();
+    }
+});

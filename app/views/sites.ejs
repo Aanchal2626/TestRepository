@@ -202,12 +202,6 @@
                   <input type="text" placeholder="Enter Site Name" class="form-control" name="site_name" id="site_name" required />
                 </div>
               </div>
-              <div class="form-group">
-                <label class="form-label" for="site_record_value">Site Records Number </label>
-                <div class="form-control-wrap">
-                  <input type="text" placeholder="Enter Record Number" class="form-control" name="site_record_value" id="site_record_value" required />
-                </div>
-              </div>
               <div class="form-group" style="display: flex; justify-content: space-between">
                 <button data-bs-dismiss="modal" type="button" aria-label="Close" class="btn btn-light">Cancel</button>
                 <button id="saveSiteButton" class="btn btn-primary">Save Site</button>
@@ -250,7 +244,7 @@
               <div class="form-group">
                 <label class="form-label" for="folder_prefix">Folder Prefix</label>
                 <div class="form-control-wrap">
-                  <input type="text" placeholder="Enter Folder Prefix" class="form-control" name="folder_prefix" id="folder_prefix" required />
+                  <select class="form-control" name="folder_prefix" id="folder_prefix" multiple required></select>
                 </div>
               </div>
               <div class="form-group">
@@ -286,6 +280,37 @@
           $(this).val(function (_, val) {
             return val.replace(/-/g, "");
           });
+        });
+        $("#folder_prefix").select2({
+          placeholder: "Enter Folder Prefix",
+          tags: true,
+          multiple: true,
+          minimumInputLength: 1,
+          tokenSeparators: [","],
+          createTag: function (params) {
+            var term = $.trim(params.term).replace(/\s/g, "");
+            if (term === "") {
+              return null;
+            }
+            var selectedTags = $("#folder_prefix").val() || [];
+            if (selectedTags.indexOf(term) > -1) {
+              return null;
+            }
+            return {
+              id: term,
+              text: term,
+              newTag: true,
+            };
+          },
+          templateResult: function (params) {
+            return params.name || params.text;
+          },
+          templateSelection: function (params) {
+            return params.name || params.text;
+          },
+          escapeMarkup: function (markup) {
+            return markup;
+          },
         });
         $("#user_permissions").select2({ placeholder: "Select Reference" });
         $(".select2-search__field").css("width", "100%");
@@ -337,7 +362,6 @@
         if (site) {
           $("#site_code").val(site.site_code).prop("disabled", true);
           $("#site_name").val(site.site_name);
-          $("#site_record_value").val(site.site_record_value);
           $("#modalForm").modal("show");
           $(".modal_title").text("Edit");
         }
@@ -346,7 +370,6 @@
       $("#modalForm").on("hidden.bs.modal", function (e) {
         $("#site_code").val("").prop("disabled", false);
         $("#site_name").val("");
-        $("#site_record_value").val("");
         $(".modal_title").text("Add");
       });
 
@@ -401,7 +424,6 @@
         let formData = {
           site_code: $("#site_code").val(),
           site_name: $("#site_name").val(),
-          site_record_value: $("#site_record_value").val(),
         };
 
         $.ajax({

@@ -12,24 +12,20 @@ userController.saveSite = async (req, res) => {
         if (!inputs.site_code || inputs.site_code == "") {
             return res.send({ status: 0, msg: "Invalid Site Code" });
         }
-        if (!inputs.site_record_value || inputs.site_record_value == "") {
-            return res.send({ status: 0, msg: "Invalid Site Record" });
-        }
 
         let site = await pool.query(`SELECT * FROM sites WHERE site_code = '${inputs.site_code}'`);
         site = site.rows[0];
 
         const query = `
-        INSERT INTO sites (site_name, site_parent_id, site_code, site_record_value)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO sites (site_name, site_parent_id, site_code)
+        VALUES ($1, $2, $3)
         ON CONFLICT (site_code)
         DO UPDATE SET
-          site_name = EXCLUDED.site_name,
-          site_record_value = EXCLUDED.site_record_value
+          site_name = EXCLUDED.site_name
         RETURNING *;
       `;
 
-        let updatedSite = await pool.query(query, [inputs.site_name, 0, inputs.site_code, inputs.site_record_value]);
+        let updatedSite = await pool.query(query, [inputs.site_name, 0, inputs.site_code]);
         updatedSite = updatedSite?.rows[0];
         if (updatedSite) {
             if (!site) {

@@ -1,9 +1,7 @@
 const { pool } = require("../helpers/database.helpers");
 const authController = {};
 
-
 authController.login = async (req, res) => {
-
     try {
         let inputs = req.body;
 
@@ -42,7 +40,6 @@ authController.login = async (req, res) => {
         console.error(err);
     }
 };
-
 authController.logout = async (req, res) => {
     req.session.destroy();
     res.redirect("/");

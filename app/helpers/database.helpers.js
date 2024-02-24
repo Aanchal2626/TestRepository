@@ -1,13 +1,17 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    user: "spsingla",
+    host: "spsingla.cbkxhfun0lw5.ap-south-1.rds.amazonaws.com",
+    database: "spsingla",
+    password: "ms4U^!yE9946",
+    port: "5432",
     ssl: true
 });
-
+// DB_HOST = "spsingla.cbkxhfun0lw5.ap-south-1.rds.amazonaws.com"
+// DB_PASSWORD = "ms4U^!yE9946"
+// DB_PORT = "5432"
+// DB_USER = "spsingla"
+// DB_USERNAME = "spsingla"
 
 module.exports = { pool };

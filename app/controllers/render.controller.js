@@ -1,6 +1,9 @@
 const { pool } = require("../helpers/database.helpers");
 const renderController = {};
 
+renderController.renderNotFound = async (req, res) => {
+    res.render("404.ejs");
+}
 renderController.renderDashboard = async (req, res) => {
     let token = req.session.token;
     res.render("dashboard.ejs", { token });
@@ -14,7 +17,7 @@ renderController.renderDocuments = async (req, res) => {
 renderController.renderUsers = async (req, res) => {
     let token = req.session.token;
     try {
-        let query = `SELECT * FROM users`;
+        let query = `SELECT * FROM users WHERE user_role != 0`;
         let users = await pool.query(query);
         users = users.rows;
         res.render("users.ejs", { token, users });

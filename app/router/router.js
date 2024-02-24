@@ -11,4 +11,8 @@ router.use("/docs", documentRouter);
 router.use("/users", userRouter);
 router.use("/sites", siteRouter);
 
+router.use((req, res,) => {
+    res.render('404.ejs');
+});
+
 module.exports = router;

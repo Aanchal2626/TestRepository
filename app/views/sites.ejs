@@ -244,13 +244,19 @@
               <div class="form-group">
                 <label class="form-label" for="folder_prefix">Folder Prefix</label>
                 <div class="form-control-wrap">
-                  <select class="form-control" name="folder_prefix" id="folder_prefix" multiple required></select>
+                  <select class="form-control js-select2" data-placeholder="Select Permissions" name="folder_prefix" id="folder_prefix" multiple required></select>
                 </div>
               </div>
               <div class="form-group">
                 <label class="form-label" for="folder_code">Folder Code</label>
                 <div class="form-control-wrap">
                   <input type="number" placeholder="Enter Folder Code" class="form-control" name="folder_code" id="folder_code" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="folder_record_value">Folder Record Value</label>
+                <div class="form-control-wrap">
+                  <input type="number" placeholder="Enter Folder Record Value" class="form-control" name="folder_record_value" id="folder_record_value" required />
                 </div>
               </div>
               <div class="form-group">
@@ -395,8 +401,14 @@
               $("#user_permissions").append(`<option value="${users[i].user_id}" ${isUserSelected ? "selected" : ""}>${users[i].user_name}</option>`);
             }
             $("#user_permissions").trigger("change");
+            $("#folder_prefix").empty();
+            for (let prefix of parse_data.site_prefix.split(",")) {
+              let option = new Option(prefix, prefix, true, true);
+              $("#folder_prefix").append(option);
+            }
+            $("#folder_prefix").trigger("change");
             $("#folder_name").val(parse_data.site_name.substring(parse_data.site_name.lastIndexOf("-") + 2));
-            $("#folder_prefix").val(parse_data.site_prefix);
+            $("#folder_record_value").val(parse_data.site_record_value);
             $("#folder_code").val(parse_data.site_code).prop("disabled", true);
             $("#folder_site").val(parse_data.site_parent_id).prop("disabled", true).trigger("change");
             $(".modal_title").text("Edit");
@@ -408,7 +420,8 @@
       $("#modalForm2").on("hidden.bs.modal", function (e) {
         $("#folder_site").val("").trigger("change").prop("disabled", false);
         $("#folder_name").val("");
-        $("#folder_prefix").val("");
+        $("#folder_prefix").val("").trigger("change");
+        $("#folder_record_value").val("");
         $("#folder_code").val("").prop("disabled", false);
         $("#user_permissions").val("").trigger("change");
         $(".modal_title").text("Add");
@@ -461,6 +474,7 @@
           folder_site_name: $("#folder_site option:selected").text(),
           folder_name: $("#folder_name").val(),
           folder_prefix: $("#folder_prefix").val(),
+          folder_record_value: $("#folder_record_value").val(),
           folder_code: $("#folder_code").val(),
           user_permissions: $("#user_permissions").val(),
         };

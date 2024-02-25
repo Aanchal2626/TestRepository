@@ -66,7 +66,6 @@
                               </ul>
                             </div>
                           </span>
-                          <!-- <a href="/documents/import/document" class="btn btn-outline-light bg-white d-none d-sm-inline-flex"><em class="icon ni ni-download-cloud"></em><span>Import</span></a> -->
                           <a href="/documents/create-document" class="btn btn-outline-light bg-white"><em class="icon ni ni-plus-sm"></em><span>Add Document</span></a>
                         </div>
                         <%}%>
@@ -330,16 +329,20 @@
                                       <span title="${document.doc_storage_location || "-"}">${document.doc_storage_location || "-"}</span>
                                   </div>
                                   <div class="nk-tb-col">
-                                      ${document.doc_reference ? document.doc_reference.split(',').map((ref, index) => {
-                                          const trimmedRef = ref.trim();
-                                          return index % 2 === 0 ? `<span><a style="color: #ffb879;" href="/documents/${btoa(trimmedRef)}">${trimmedRef}</a></span>` : `<a href="/documents/${btoa(trimmedRef)}">${trimmedRef}</a>`;
-                                      }).join(', ') : "-"}
+                                      ${document.doc_reference ? 
+                                          document.doc_reference.split(',').map((ref, index) => {
+                                              const trimmedRef = ref.trim();
+                                              return `<span style='margin-right : 4px' class="badge bg-outline-primary"><a target="_blank" href="/documents/${btoa(trimmedRef)}">${trimmedRef}</a></span>`;
+                                          }).join('') 
+                                          : "-"}
                                   </div>
                                   <div class="nk-tb-col">
-                                      ${document.doc_replied_vide ? document.doc_replied_vide.split(',').map((reply, index) => {
-                                          const trimmedReply = reply.trim();
-                                          return index % 2 !== 0 ? `<span><a style="color: #ffb879;" href="/documents/${btoa(trimmedReply)}">${trimmedReply}</a></span>` : `<a href="/documents/${btoa(trimmedReply)}">${trimmedReply}</a>`;
-                                      }).join(', ') : "-"}
+                                      ${document.doc_replied_vide ? 
+                                          document.doc_replied_vide.split(',').map((reply, index) => {
+                                              const trimmedReply = reply.trim();
+                                              return `<span style='margin-right : 4px' class="badge bg-outline-primary"><a target="_blank" href="/documents/${btoa(trimmedReply)}">${trimmedReply}</a></span>`;
+                                          }).join('') 
+                                          : "-"}
                                   </div>
                               </div>`;
                   $(rowHtml).insertAfter("#table-head");

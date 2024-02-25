@@ -86,11 +86,16 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_number">Number</label>
                                 <div class="form-control-wrap">
-                                  <input type="text" class="form-control" placeholder="Document Number" id="doc_number" name="doc_number" value="<%= documentData ? documentData.doc_number : '' %>" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %>/>
+                                  <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Document Number" id="doc_number" name="doc_number" value="<%= documentData ? documentData.doc_number : '' %>" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %>/>
+                                    <div class="input-group-append">
+                                      <button id="choosePrefixButton" class="btn btn-outline-primary btn-dim">Choose Prefix</button>
+                                  </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                              <div class="col-md-8">
+                              <div class="col-md-6">
                               <div class="form-group">
                                 <label class="form-label" for="doc_reference">Reference</label>
                                 <div class="form-control-wrap">
@@ -191,11 +196,30 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" tabindex="-1" id="selectPrefixModal">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <em class="icon ni ni-cross"></em>
+              </a>
+              <div class="modal-header modal-header-sm">
+                  <h5 class="modal-title">Select Prefix</h5>
+              </div>
+              <div class="modal-body">
+                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem similique earum necessitatibus nesciunt! Quia id expedita asperiores voluptatem odit quis fugit sapiente assumenda sunt voluptatibus atque facere autem, omnis explicabo.</p>
+              </div>
+              <div class="modal-footer bg-light">
+                  <span class="sub-text">Modal Footer Text</span>
+              </div>
+          </div>
+      </div>
+    </div>
     <input type="hidden" id="doc_status" value="<%=documentData.doc_status%>">
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
     <script>
       let folders = `<%- JSON.stringify(folders) %>`;
+      let selectedPrefix = "";
       folders = folders ? JSON.parse(folders) : [];
       $(document).ready(function () {
         // Rendering Dynamic Folders Based on doc_site
@@ -259,7 +283,10 @@
               data: { site_id: dataSiteId, folder_id : dataFolderId},
               success: function (response) {
                 if (response.status == 1) {
-                  let sitePrefix = response.payload.site_prefix;
+                  let sitePrefix = response.payload.site_prefix.split(",")[0];
+                  if(selectedPrefix != ""){
+                    sitePrefix = selectedPrefix;
+                  }
                   if (!sitePrefix.endsWith('/')) {
                       sitePrefix += '/';
                   }
@@ -278,6 +305,10 @@
             docNumberInput.prop("disabled", false);
           }
         }
+        $("#choosePrefixButton").click(function(e){
+          e.preventDefault();
+          $("#selectPrefixModal").modal("show")
+        })
 
         $("#doc_reference").select2({
           ajax: {

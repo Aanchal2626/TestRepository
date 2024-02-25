@@ -254,67 +254,67 @@ documentController.createDocument = async (req, res) => {
 
         res.send({ status: 1, msg: "Success", payload: inputs.doc_number })
 
-        try {
-            const startTextractParams = {
-                DocumentLocation: {
-                    S3Object: {
-                        Bucket: process.env.BUCKET_NAME,
-                        Name: `docs/${fileName}.pdf`,
-                    },
-                },
-                ClientRequestToken: uuidv4(),
-            };
+        // try {
+        //     const startTextractParams = {
+        //         DocumentLocation: {
+        //             S3Object: {
+        //                 Bucket: process.env.BUCKET_NAME,
+        //                 Name: `docs/${fileName}.pdf`,
+        //             },
+        //         },
+        //         ClientRequestToken: uuidv4(),
+        //     };
 
-            async function processTextractJob(jobId, nextToken = null, textractResult = '') {
-                const getStatusParams = {
-                    JobId: jobId,
-                    NextToken: nextToken
-                };
+        //     async function processTextractJob(jobId, nextToken = null, textractResult = '') {
+        //         const getStatusParams = {
+        //             JobId: jobId,
+        //             NextToken: nextToken
+        //         };
 
-                const statusResponse = await textract.getDocumentTextDetection(getStatusParams).promise();
-                const status = statusResponse.JobStatus;
+        //         const statusResponse = await textract.getDocumentTextDetection(getStatusParams).promise();
+        //         const status = statusResponse.JobStatus;
 
-                if (status === 'SUCCEEDED') {
-                    textractResult += statusResponse.Blocks.reduce((acc, block) => {
-                        if (block.BlockType === 'LINE') {
-                            acc += block.Text + ",";
-                        }
-                        return acc;
-                    }, '');
+        //         if (status === 'SUCCEEDED') {
+        //             textractResult += statusResponse.Blocks.reduce((acc, block) => {
+        //                 if (block.BlockType === 'LINE') {
+        //                     acc += block.Text + ",";
+        //                 }
+        //                 return acc;
+        //             }, '');
 
-                    if (statusResponse.NextToken) {
-                        return processTextractJob(jobId, statusResponse.NextToken, textractResult);
-                    } else {
-                        console.log("Textract job completed successfully");
-                        return textractResult;
-                    }
-                } else if (status === 'FAILED' || status === 'PARTIAL_SUCCESS') {
-                    console.error('Textract job failed or partially succeeded. Status:', status);
-                    throw new Error('Textract job failed or partially succeeded');
-                } else {
-                    console.log('Textract job still in progress. Status:', status);
-                    await new Promise(resolve => setTimeout(resolve, 10000));
-                    return processTextractJob(jobId, nextToken, textractResult);
-                }
-            }
+        //             if (statusResponse.NextToken) {
+        //                 return processTextractJob(jobId, statusResponse.NextToken, textractResult);
+        //             } else {
+        //                 console.log("Textract job completed successfully");
+        //                 return textractResult;
+        //             }
+        //         } else if (status === 'FAILED' || status === 'PARTIAL_SUCCESS') {
+        //             console.error('Textract job failed or partially succeeded. Status:', status);
+        //             throw new Error('Textract job failed or partially succeeded');
+        //         } else {
+        //             console.log('Textract job still in progress. Status:', status);
+        //             await new Promise(resolve => setTimeout(resolve, 10000));
+        //             return processTextractJob(jobId, nextToken, textractResult);
+        //         }
+        //     }
 
-            try {
-                const startTextractResponse = await textract.startDocumentTextDetection(startTextractParams).promise();
-                const jobId = startTextractResponse.JobId;
+        //     try {
+        //         const startTextractResponse = await textract.startDocumentTextDetection(startTextractParams).promise();
+        //         const jobId = startTextractResponse.JobId;
 
-                const textractResult = await processTextractJob(jobId);
+        //         const textractResult = await processTextractJob(jobId);
 
-                await pool.query(`INSERT INTO doc_metadata (dm_id, dm_ocr_content) VALUES ($1, $2) ON CONFLICT (dm_id) DO UPDATE SET dm_ocr_content = EXCLUDED.dm_ocr_content;`, [inputs.doc_number, textractResult]);
-                await pool.query(`UPDATE documents SET doc_ocr_proccessed = true WHERE doc_number = '${inputs.doc_number}';`);
+        //         await pool.query(`INSERT INTO doc_metadata (dm_id, dm_ocr_content) VALUES ($1, $2) ON CONFLICT (dm_id) DO UPDATE SET dm_ocr_content = EXCLUDED.dm_ocr_content;`, [inputs.doc_number, textractResult]);
+        //         await pool.query(`UPDATE documents SET doc_ocr_proccessed = true WHERE doc_number = '${inputs.doc_number}';`);
 
-                console.log("Content Update Successfully");
-            } catch (error) {
-                console.error("An error occurred:", error);
-            }
+        //         console.log("Content Update Successfully");
+        //     } catch (error) {
+        //         console.error("An error occurred:", error);
+        //     }
 
-        } catch (error) {
-            console.error(error);
-        }
+        // } catch (error) {
+        //     console.error(error);
+        // }
     } catch (error) {
         res.send({ status: 0, msg: "Something Went Wrong" })
         console.error(error);
@@ -336,7 +336,7 @@ documentController.getFilteredDocuments = async (req, res) => {
             query += ' WHERE ';
             for (const key in filters) {
                 if (key === 'dm_ocr_content') {
-                    query += `dm.dm_ocr_content LIKE '%${filters[key]}%'`;
+                    query += `LOWER(dm.dm_ocr_content) LIKE LOWER('%${filters[key]}%')`;
                     filterApplied = true;
                 } else {
                     if (filters[key]) {

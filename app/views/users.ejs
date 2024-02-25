@@ -89,7 +89,7 @@
                                 <span><%= user.user_email %></span>
                               </div>
                               <div class="nk-tb-col tb-col-md">
-                                <span> <% if (user.user_role === '0') { %> Administrator <% } else if (user.user_role === '1') { %> Editor <% } else if (user.user_role === '2') { %> Viewer <% } %> </span>
+                                <span> <% if (user.user_role === '0') { %> Administrator <% } else if (user.user_role === '1') { %> Admin <% } else if (user.user_role === '2') { %> Editor <% } else if (user.user_role === '3') { %> Viewer <% }%> </span>
                               </div>
                               <div class="nk-tb-col"><span class="tb-status <%= user.user_status ? 'text-success' : 'text-danger' %>"><%= user.user_status ? 'Active' : 'Suspended' %></span></div>
                               <div class="nk-tb-col">

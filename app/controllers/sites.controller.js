@@ -47,26 +47,29 @@ userController.saveSite = async (req, res) => {
 userController.saveFolder = async (req, res) => {
     try {
         const inputs = req.body;
-
+        console.log(inputs)
         if (!inputs.folder_name || inputs.folder_name == "") {
             return res.send({ status: 0, msg: "Invalid Folder Name" });
         }
         if (!inputs.folder_code || inputs.folder_code == "") {
             return res.send({ status: 0, msg: "Invalid Folder Code" });
         }
-
+        if (!inputs.folder_prefix || inputs.folder_prefix == "") {
+            return res.send({ status: 0, msg: "Invalid Folder Prefix" });
+        }
         inputs.folder_name = inputs.folder_site_name + " - " + inputs.folder_name;
-
+        inputs.folder_prefix = inputs.folder_prefix.join(",");
         const query = `
-        INSERT INTO sites (site_name, site_parent_id, site_code, site_prefix)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO sites (site_name, site_parent_id, site_code, site_prefix, site_record_value)
+        VALUES ($1, $2, $3, $4, $5)
         ON CONFLICT (site_code)
         DO UPDATE SET
           site_name = EXCLUDED.site_name,
-          site_prefix = EXCLUDED.site_prefix
+          site_prefix = EXCLUDED.site_prefix,
+          site_record_value = EXCLUDED.site_record_value
         RETURNING *;`;
 
-        let updatedSite = await pool.query(query, [inputs.folder_name, inputs.folder_site, inputs.folder_code, inputs.folder_prefix]);
+        let updatedSite = await pool.query(query, [inputs.folder_name, inputs.folder_site, inputs.folder_code, inputs.folder_prefix, inputs.folder_record_value]);
         updatedSite = updatedSite?.rows[0];
 
         if (updatedSite) {

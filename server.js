@@ -77,6 +77,9 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 // Listening on routes
 app.use('/', router);
 
+// Cron Jobs 
+require("./app/crons/textract.cron");
+
 // Starting server on port
 app.listen(port, function () {
     console.log("Server listening on port....", port);

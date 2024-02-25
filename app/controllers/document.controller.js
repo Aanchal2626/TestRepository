@@ -16,7 +16,7 @@ const documentController = {};
 AWS.config.update({
     accessKeyId: process.env.BUCKET_KEY,
     secretAccessKey: process.env.BUCKET_SECRET,
-    region: process.env.BUCKET_REASON,
+    region: process.env.BUCKET_REGION,
 });
 
 // Initializing S3
@@ -36,14 +36,11 @@ documentController.generateDocumentNumber = async (req, res) => {
             return res.send({ status: 0, msg: "Invalid Site Id" });
         }
 
-        let dataFromDb = await pool.query(`SELECT * FROM sites WHERE site_id = ${inputs.site_id}`);
-        let prefixFromDb = await pool.query(`SELECT * FROM sites WHERE site_id = ${inputs.folder_id}`);
+        let dataFromDb = await pool.query(`SELECT * FROM sites WHERE site_id = ${inputs.folder_id}`);
 
         if (dataFromDb.rows.length == 0) {
             return res.send({ status: 0, msg: "Site record not found" });
         }
-        dataFromDb.rows[0].site_prefix = prefixFromDb.rows[0].site_prefix;
-
         res.send({ status: 1, msg: "Success", payload: dataFromDb.rows[0] });
     } catch (error) {
         console.error(error);
@@ -118,7 +115,6 @@ documentController.saveDraft = async (req, res) => {
                     if (typeof value == 'string') {
                         value = `'${value}'`;
                     }
-                    console.log(key, "=", value);
                     let updatePart = `${key} = ${value}`;
                     if (updateValues.length > 0) {
                         updateValues += ', ';
@@ -444,7 +440,6 @@ const fetchEmails = async (filter = {}, pageSize = 10, offset = 0, user, passwor
         const pageUids = allUids.slice(startIndex, endIndex);
         for await (let message of client.fetch(pageUids, { envelope: true, flags: true })) {
 
-            //console.log(message)
             let email = {
                 subject: message.envelope.subject,
                 date: moment(message.envelope.date).format('DD/MM/YYYY'),
@@ -454,7 +449,6 @@ const fetchEmails = async (filter = {}, pageSize = 10, offset = 0, user, passwor
                 seen: message.flags.has('\\Seen'),
                 flags: [...message.flags].filter(flag => !flag.startsWith('$') && flag !== '\\Seen')
             }
-            //console.log(email)
             payload.emails.push(email);
         }
         payload.totalRecords = allUids.length;
@@ -502,14 +496,12 @@ documentController.importExcelDocument = async (req, res) => {
 
         // Check if the number of headers match
         if (formatSheetHeaders.length !== uploadedSheetHeaders.length) {
-            console.log("Headers do not match: Different number of columns");
             return res.send({ status: 0, msg: "Headers do not match: Different number of columns" });
         }
 
         // Check if each header matches
         for (let i = 0; i < formatSheetHeaders.length; i++) {
             if (formatSheetHeaders[i] !== uploadedSheetHeaders[i]) {
-                console.log(`Headers do not match: Mismatch at index ${i}`);
                 return res.send({ status: 0, msg: `Headers do not match: Mismatch at index ${i}` });
             }
         }

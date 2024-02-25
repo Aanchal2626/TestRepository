@@ -89,13 +89,13 @@
                                   <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Document Number" id="doc_number" name="doc_number" value="<%= documentData ? documentData.doc_number : '' %>" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %>/>
                                     <div class="input-group-append">
-                                      <button id="choosePrefixButton" class="btn btn-outline-primary btn-dim">Choose Prefix</button>
+                                      <button disabled id="choosePrefixButton" class="btn btn-outline-primary btn-dim">Choose Prefix</button>
                                   </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                              <div class="col-md-6">
+                              <div class="col-md-8">
                               <div class="form-group">
                                 <label class="form-label" for="doc_reference">Reference</label>
                                 <div class="form-control-wrap">
@@ -202,14 +202,26 @@
               <a href="#" class="close" data-bs-dismiss="modal" aria-label="Close">
                   <em class="icon ni ni-cross"></em>
               </a>
-              <div class="modal-header modal-header-sm">
-                  <h5 class="modal-title">Select Prefix</h5>
-              </div>
               <div class="modal-body">
-                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatem similique earum necessitatibus nesciunt! Quia id expedita asperiores voluptatem odit quis fugit sapiente assumenda sunt voluptatibus atque facere autem, omnis explicabo.</p>
-              </div>
-              <div class="modal-footer bg-light">
-                  <span class="sub-text">Modal Footer Text</span>
+                <form id="documentForm" class="form-validate is-alter">
+                  <div class="row g-gs">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="form-label" for="doc_number">Select Prefix</label>
+                        <div class="form-control-wrap">
+                          <div class="input-group">
+                            <select class="form-control" data-placeholder="Select Prefix" name="folder_prefix" id="folder_prefix">
+                              
+                            </select>
+                            <div class="input-group-append">
+                              <button id="savePrefixButton" class="btn btn-outline-primary btn-dim">Choose Prefix</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
               </div>
           </div>
       </div>
@@ -241,7 +253,6 @@
         });
 
         $(".form-control").on("change", function () {
-          generateDocumentNumber();
           toggleSaveDraftButton();
         });
 
@@ -283,9 +294,20 @@
               data: { site_id: dataSiteId, folder_id : dataFolderId},
               success: function (response) {
                 if (response.status == 1) {
-                  let sitePrefix = response.payload.site_prefix.split(",")[0];
+                  let selectPrefixOptions = response.payload.site_prefix.split(",");
+                  $("#choosePrefixButton").prop("disabled" , false);
+                  let sitePrefix = selectPrefixOptions[0];
                   if(selectedPrefix != ""){
                     sitePrefix = selectedPrefix;
+                  }
+                  $("#folder_prefix").empty();
+                  for (let i = 0; i < selectPrefixOptions.length; i++) {
+                    let value = selectPrefixOptions[i];
+                    let option = $('<option>').val(value).text(value);
+                    if (value === sitePrefix) {
+                      option.prop("selected", true);
+                    }
+                    $('#folder_prefix').append(option);
                   }
                   if (!sitePrefix.endsWith('/')) {
                       sitePrefix += '/';
@@ -308,8 +330,13 @@
         $("#choosePrefixButton").click(function(e){
           e.preventDefault();
           $("#selectPrefixModal").modal("show")
+        });
+        $("#savePrefixButton").click(function(e){
+          e.preventDefault();
+          selectedPrefix = $("#folder_prefix").val();
+          generateDocumentNumber();
+          $("#selectPrefixModal").modal("hide")
         })
-
         $("#doc_reference").select2({
           ajax: {
             url: function (params) {
@@ -343,6 +370,7 @@
         $(".form-control").each(function () {
           let fieldName = $(this).attr('id');
           let fieldValue = $(this).val();
+          if(fieldName == "folder_prefix") return;
           if(fieldValue == "" || fieldValue.length == 0 || fieldValue.length == []){
             fieldValue = null;
           }
@@ -354,6 +382,7 @@
           data: formData,
           success: function (response) {
             if (response.status == 1) {
+              $("#doc_site,#doc_folder,#doc_number,#choosePrefixButton,#doc_type").prop("disabled", true);
               NioApp.handleButtonState("saveDraftButton", "Save Draft", false);
               NioApp.Toast("<h5>Update Successfully</h5><p>Draft Saved Successfully</p>", "success");
             } else {

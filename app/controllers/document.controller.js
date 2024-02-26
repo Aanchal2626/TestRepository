@@ -14,9 +14,9 @@ const documentController = {};
 
 // AWS Config 
 AWS.config.update({
-    accessKeyId: process.env.BUCKET_KEY,
-    secretAccessKey: process.env.BUCKET_SECRET,
-    region: process.env.BUCKET_REGION,
+    accessKeyId: "AKIAW2T4SFQSPKIQHQWE",
+    secretAccessKey: "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",
+    region: "ap-south-1",
 });
 
 // Initializing S3
@@ -167,7 +167,7 @@ documentController.createDocument = async (req, res) => {
         const fileName = uuidv4();
 
         const s3Params = {
-            Bucket: process.env.BUCKET_NAME,
+            Bucket: "spsingla-docs",
             Key: `docs/${fileName}.pdf`,
             Body: req.file.buffer,
             ContentType: req.file.mimetype,
@@ -254,7 +254,7 @@ documentController.createDocument = async (req, res) => {
         //     const startTextractParams = {
         //         DocumentLocation: {
         //             S3Object: {
-        //                 Bucket: process.env.BUCKET_NAME,
+        //                 Bucket: "spsingla-docs",
         //                 Name: `docs/${fileName}.pdf`,
         //             },
         //         },
@@ -509,7 +509,7 @@ documentController.importExcelDocument = async (req, res) => {
         const pdfDirectory = path.dirname(uploadedFile.selectedFilePath);
         const fileName = uuidv4();
         const s3Params = {
-            Bucket: process.env.BUCKET_NAME,
+            Bucket: "spsingla-docs",
             Key: `excels/${fileName}.xlsx`,
             Body: uploadedFile.data,
             ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -704,7 +704,7 @@ documentController.importExcelDocument = async (req, res) => {
                 // Uploading PDF to aws
                 const fileName = uuidv4();
                 const s3Params = {
-                    Bucket: process.env.BUCKET_NAME,
+                    Bucket: "spsingla-docs",
                     Key: `docs/${fileName}.pdf`,
                     Body: document.pdf_buffer,
                     ContentType: "application/pdf",
@@ -802,7 +802,8 @@ documentController.importExcelDocument = async (req, res) => {
         } catch (err) {
             await pool.query(`
                     UPDATE doc_excel_imports
-                    SET excel_status = 'FAILED'
+                    SET excel_status = 'FAILED',
+                    excel_error_log = '${err}'
                     WHERE excel_id = ${uploadBatchId.excel_id}
                     RETURNING *;
                 `);

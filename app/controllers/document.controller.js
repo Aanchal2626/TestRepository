@@ -795,14 +795,14 @@ documentController.importExcelDocument = async (req, res) => {
             }
             await pool.query(`
                     UPDATE doc_excel_imports
-                    SET excel_status = "UPLOADED"
+                    SET excel_status = 'UPLOADED'
                     WHERE excel_id = ${uploadBatchId.excel_id}
                     RETURNING *;
                 `);
         } catch (err) {
             await pool.query(`
                     UPDATE doc_excel_imports
-                    SET excel_status = "FAILED"
+                    SET excel_status = 'FAILED'
                     WHERE excel_id = ${uploadBatchId.excel_id}
                     RETURNING *;
                 `);

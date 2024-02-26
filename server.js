@@ -8,7 +8,11 @@ const connectRedis = require("connect-redis");
 const session = require("express-session");
 const cookieParser = require('cookie-parser');
 const router = require("./app/router/router");
-//require("./app/crons/textract.cron");
+const devEnvivronment = process.env.NODE_ENV;
+
+if (!devEnvivronment) {
+    require("./app/crons/textract.cron");
+}
 // Creating Express Application
 const app = express();
 
@@ -21,7 +25,7 @@ global.basePath = __dirname;
 
 // Initializing Redis
 let RedisStore, redisClient;
-if (process.env.NODE_ENV === 'development') {
+if (devEnvivronment === 'development') {
 
     RedisStore = connectRedis(session);
     redisClient = redis.createClient({

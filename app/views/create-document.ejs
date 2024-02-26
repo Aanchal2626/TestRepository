@@ -256,10 +256,20 @@
           toggleSaveDraftButton();
         });
 
-        $("#doc_type").on("change", function () {
+        $("#doc_folder").on("change", function () {
+          $("#doc_number").val("");
+          $("#choosePrefixButton").prop("disabled" , true);
+          selectedPrefix = "";
           generateDocumentNumber();
           toggleSaveDraftButton();
+        });
+
+        $("#doc_type").on("change", function () {
+          selectedPrefix = "";
           $("#doc_number").val("");
+          $("#choosePrefixButton").prop("disabled" , true);
+          generateDocumentNumber();
+          toggleSaveDraftButton();
         });
 
         function toggleSaveDraftButton() {
@@ -267,6 +277,9 @@
           let docFolderValue = $("#doc_folder").val();
           let docTypeValue = $("#doc_type").val();
           let docNumberValue = $("#doc_number").val();
+          if(docTypeValue == "INCOMING"){
+            $("#choosePrefixButton").prop("disabled" , true);
+          }
           if (docFolderValue && docFolderValue && docTypeValue && docNumberValue) {
             $("#saveDraftButton").removeClass("d-none");
           } else {
@@ -287,6 +300,7 @@
           let dataFolderId = $("#doc_folder").find("option:selected").data("site-id");
 
           if (docSiteValue && docFolderValue && docTypeValue == "OUTGOING") {
+            selectPrefixOptions = "";
             docNumberInput.prop("disabled", true).val();
             $.ajax({
               type: "GET",
@@ -337,6 +351,7 @@
           generateDocumentNumber();
           $("#selectPrefixModal").modal("hide")
         })
+        
         $("#doc_reference").select2({
           ajax: {
             url: function (params) {

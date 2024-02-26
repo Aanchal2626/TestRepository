@@ -319,8 +319,37 @@ documentController.createDocument = async (req, res) => {
 
 documentController.getFilteredDocuments = async (req, res) => {
     try {
-        let query = `SELECT d.doc_site, d.doc_type, d.doc_number, d.doc_created_at, d.doc_uploaded_at, d.doc_status, d.doc_from, d.doc_to, d.doc_purpose, d.doc_subject, d.doc_reference, d.doc_replied_vide, d.doc_storage_location, d.doc_uploaded_by, d.doc_folder 
-                     FROM documents d`;
+        let token = req.session.token;
+
+        let query = `SELECT * FROM documents`;
+
+        if (token.user_role === "0") {
+            siteQuery = `SELECT * FROM sites WHERE site_parent_id = 0`;
+            folderQuery = `
+                SELECT s.*, sp.site_name as site_parent_name
+                FROM sites s
+                LEFT JOIN sites sp ON s.site_parent_id = sp.site_id
+                WHERE s.site_parent_id != 0
+                ORDER BY s.site_name`;
+        } else {
+            siteQuery = `
+                SELECT s.*
+                FROM sites s
+                JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
+                WHERE usj.usj_user_id = ${token.user_id} AND site_parent_id = 0
+            `;
+            folderQuery = `
+                SELECT s.*, sp.site_name as site_parent_name
+                FROM sites s
+                JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
+                LEFT JOIN sites sp ON s.site_parent_id = sp.site_id
+                WHERE usj.usj_user_id = ${token.user_id} AND s.site_parent_id != 0
+                ORDER BY s.site_name
+            `;
+        }
+
+        let { rows: sitesPermission } = await pool.query(siteQuery);
+        let { rows: folderPermissiom } = await pool.query(folderQuery);
 
         let filters = req.body;
         let filterApplied = false;

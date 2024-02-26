@@ -142,7 +142,7 @@
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER CODE</span></div>
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER NAME</span></div>
                               <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER PARENT CODE</span></div>
-                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER PREFIX</span></div>
+                              <div class="nk-tb-col tb-col-md"><span class="sub-text">FOLDER RECORD VALUE</span></div>
                               <div class="nk-tb-col nk-tb-col-tools text-end"><span class="sub-text">ACTIONS</span></div>
                             </div>
                             <% headerRendered = true; %> <% } %>
@@ -157,7 +157,7 @@
                                 <span><%= site.site_code%></span>
                               </div>
                               <div class="nk-tb-col tb-col-sm child-content">
-                                <span><%= childSite.site_prefix%></span>
+                                <span><%= childSite.site_record_value%></span>
                               </div>
                               <div class="nk-tb-col text-end child-content">
                                 <a onclick="handleChildEditClicked(`<%= JSON.stringify(childSite) %> `, `<%= JSON.stringify(users) %>`, `<%= JSON.stringify(permissions) %>`)" style="margin-right: 20px !important; font-size: 18px; cursor: pointer" class="link-cross me-sm-n1 action-dropdown more-dropdown-<%= site.site_id %>"><em class="icon ni ni-edit-fill"></em> </a>

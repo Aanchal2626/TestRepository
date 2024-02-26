@@ -39,7 +39,7 @@
   "devDependencies": {
     "electron": "^28.2.3",
     "electron-builder": "^24.12.0",
-    "nsis": "^3.07.1"
+    "nsis": "*"
   },
   "build" : {
     "nsis": { 

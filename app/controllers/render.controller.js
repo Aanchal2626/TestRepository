@@ -11,13 +11,13 @@ renderController.renderDashboard = async (req, res) => {
     if (isElectron) {
         res.redirect("/documents/import/excel");
     } else {
-        let { rows: totalDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'SAWALKOTE RAMBAN'`);
+        let { rows: totalDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'JP Ganga Path'`);
         totalDocuments = totalDocuments[0]?.count;
 
-        let { rows: draftedDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'SAWALKOTE RAMBAN' AND doc_status = 'DRAFTED'`);
+        let { rows: draftedDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'JP Ganga Path' AND doc_status = 'DRAFTED'`);
         draftedDocuments = draftedDocuments[0]?.count;
 
-        let { rows: uploadedDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'SAWALKOTE RAMBAN' AND doc_status = 'UPLOADED'`);
+        let { rows: uploadedDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'JP Ganga Path' AND doc_status = 'UPLOADED'`);
         uploadedDocuments = uploadedDocuments[0]?.count;
 
         documentStats.totalDocuments = totalDocuments;

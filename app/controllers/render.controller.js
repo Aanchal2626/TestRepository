@@ -6,7 +6,26 @@ renderController.renderNotFound = async (req, res) => {
 }
 renderController.renderDashboard = async (req, res) => {
     let token = req.session.token;
-    res.render("dashboard.ejs", { token });
+    let documentStats = {};
+    const isElectron = req.get('User-Agent').includes('Electron');
+    if (isElectron) {
+        res.redirect("/documents/import/excel");
+    } else {
+        let { rows: totalDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'SAWALKOTE RAMBAN'`);
+        totalDocuments = totalDocuments[0]?.count;
+
+        let { rows: draftedDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'SAWALKOTE RAMBAN' AND doc_status = 'DRAFTED'`);
+        draftedDocuments = draftedDocuments[0]?.count;
+
+        let { rows: uploadedDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'SAWALKOTE RAMBAN' AND doc_status = 'UPLOADED'`);
+        uploadedDocuments = uploadedDocuments[0]?.count;
+
+        documentStats.totalDocuments = totalDocuments;
+        documentStats.draftedDocuments = draftedDocuments;
+        documentStats.uploadedDocuments = uploadedDocuments;
+        documentStats.pagesUploaded = 0;
+        res.render("dashboard.ejs", { token, documentStats });
+    }
 };
 
 renderController.renderDocuments = async (req, res) => {
@@ -189,8 +208,13 @@ renderController.renderEmailImport = async (req, res) => {
 
 renderController.renderExcelImport = async (req, res) => {
     let token = req.session.token;
-    let format_link = await pool.query(`SELECT misc_format_link FROM misc WHERE misc_id = 1`);
-    if (format_link) format_link = format_link.rows[0].misc_format_link;
+    let miscData = await pool.query(`SELECT * FROM misc WHERE misc_id = 1`);
+
+    if (miscData) {
+        miscData.format_link = miscData.rows[0].misc_format_link;
+        miscData.app_link = miscData.rows[0].misc_app_link;
+    }
+
     if (token.user_role === "0") {
         siteQuery = `SELECT * FROM sites WHERE site_parent_id = 0`;
         folderQuery = `
@@ -220,7 +244,7 @@ renderController.renderExcelImport = async (req, res) => {
     let sites = siteFromDb.rows;
     let folders = folderFromDb.rows;
     const isElectron = req.get('User-Agent').includes('Electron');
-    res.render("excel-import.ejs", { token, format_link, isElectron, sites, folders })
+    res.render("excel-import.ejs", { token, miscData, isElectron, sites, folders })
 };
 
 module.exports = renderController;

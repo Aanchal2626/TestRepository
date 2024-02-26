@@ -131,7 +131,7 @@ documentController.saveDraft = async (req, res) => {
         let selectResult = await pool.query(selectQuery);
         selectResult = selectResult?.rows[0]?.count;
         let dataFromDb = await pool.query(query);
-        if (dataFromDb && selectResult == 0) {
+        if (dataFromDb && selectResult == 0 && inputs.doc_type == "OUTGOING") {
             let updateSiteRecordQuery = `
             UPDATE sites
             SET site_record_value = site_record_value + 1
@@ -223,7 +223,7 @@ documentController.createDocument = async (req, res) => {
         let dataFromDb = await pool.query(query);
 
         // Maintaing site record to auto generate document numbers
-        if (dataFromDb && selectResult == 0) {
+        if (dataFromDb && selectResult == 0 && inputs.doc_type == "OUTGOING") {
             let updateSiteRecordQuery = `
             UPDATE sites
             SET site_record_value = site_record_value + 1
@@ -761,13 +761,14 @@ documentController.importExcelDocument = async (req, res) => {
                 }
 
                 // Mainting site record for site_record_value
-                let updateSiteRecordQuery = `
+                if (document.doc_type == "OUTGOING") {
+                    let updateSiteRecordQuery = `
                     UPDATE sites
                     SET site_record_value = site_record_value + 1
                     WHERE site_name = '${document.doc_folder}';
                 `;
-                await pool.query(updateSiteRecordQuery);
-
+                    await pool.query(updateSiteRecordQuery);
+                }
                 // Replied Vide
                 let references = document.doc_reference?.split(',');
                 if (references?.length === 1 && references[0] !== "") {

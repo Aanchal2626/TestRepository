@@ -8,7 +8,7 @@ const connectRedis = require("connect-redis");
 const session = require("express-session");
 const cookieParser = require('cookie-parser');
 const router = require("./app/router/router");
-
+//require("./app/crons/textract.cron");
 // Creating Express Application
 const app = express();
 
@@ -76,9 +76,6 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 // Listening on routes
 app.use('/', router);
-
-// Cron Jobs 
-require("./app/crons/textract.cron");
 
 // Starting server on port
 app.listen(port, function () {

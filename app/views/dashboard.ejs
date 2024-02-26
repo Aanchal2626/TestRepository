@@ -67,6 +67,43 @@
                   </div>
                   <div class="nk-block">
                     <div class="row g-gs">
+                      <div class="col-lg-12">
+                        <div class="card card-bordered h-100">
+                          <div class="card-inner">
+                            <div class="card-title-group pb-3 g-2">
+                              <div class="card-title card-title-sm">
+                                <h6 class="title">Documents Overview</h6>
+                              </div>
+                              <div class="card-tools shrink-0 d-none d-sm-block">
+                                <select name="siteFilter" id="siteFilter" class="form-select form-control js-select2 form-control">
+                                  <option selected value="site">SITE NAME</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="analytic-ov">
+                              <div class="analytic-data-group analytic-ov-group g-3">
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Total Documents</div>
+                                  <div class="amount"><%=documentStats.totalDocuments%></div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Drafted Documents</div>
+                                  <div class="amount"><%=documentStats.draftedDocuments%></div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Uploaded Documents</div>
+                                  <div class="amount"><%=documentStats.uploadedDocuments%></div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Pages Uploaded</div>
+                                  <div class="amount"><%=documentStats.pagesUploaded%></div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- .card -->
+                      </div>
                       <div class="col-lg-6 col-xxl-4">
                         <div class="card card-bordered h-100">
                           <div class="card-inner border-bottom">

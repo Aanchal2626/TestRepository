@@ -14,9 +14,9 @@ const documentController = {};
 
 // AWS Config 
 AWS.config.update({
-    accessKeyId: process.env.BUCKET_KEY,
-    secretAccessKey: process.env.BUCKET_SECRET,
-    region: process.env.BUCKET_REASON,
+    accessKeyId: "AKIAW2T4SFQSPKIQHQWE",
+    secretAccessKey: "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",
+    region: "ap-south-1",
 });
 
 // Initializing S3
@@ -36,14 +36,11 @@ documentController.generateDocumentNumber = async (req, res) => {
             return res.send({ status: 0, msg: "Invalid Site Id" });
         }
 
-        let dataFromDb = await pool.query(`SELECT * FROM sites WHERE site_id = ${inputs.site_id}`);
-        let prefixFromDb = await pool.query(`SELECT * FROM sites WHERE site_id = ${inputs.folder_id}`);
+        let dataFromDb = await pool.query(`SELECT * FROM sites WHERE site_id = ${inputs.folder_id}`);
 
         if (dataFromDb.rows.length == 0) {
             return res.send({ status: 0, msg: "Site record not found" });
         }
-        dataFromDb.rows[0].site_prefix = prefixFromDb.rows[0].site_prefix;
-
         res.send({ status: 1, msg: "Success", payload: dataFromDb.rows[0] });
     } catch (error) {
         console.error(error);
@@ -118,7 +115,6 @@ documentController.saveDraft = async (req, res) => {
                     if (typeof value == 'string') {
                         value = `'${value}'`;
                     }
-                    console.log(key, "=", value);
                     let updatePart = `${key} = ${value}`;
                     if (updateValues.length > 0) {
                         updateValues += ', ';
@@ -135,7 +131,7 @@ documentController.saveDraft = async (req, res) => {
         let selectResult = await pool.query(selectQuery);
         selectResult = selectResult?.rows[0]?.count;
         let dataFromDb = await pool.query(query);
-        if (dataFromDb && selectResult == 0) {
+        if (dataFromDb && selectResult == 0 && inputs.doc_type == "OUTGOING") {
             let updateSiteRecordQuery = `
             UPDATE sites
             SET site_record_value = site_record_value + 1
@@ -171,7 +167,7 @@ documentController.createDocument = async (req, res) => {
         const fileName = uuidv4();
 
         const s3Params = {
-            Bucket: process.env.BUCKET_NAME,
+            Bucket: "spsingla-docs",
             Key: `docs/${fileName}.pdf`,
             Body: req.file.buffer,
             ContentType: req.file.mimetype,
@@ -227,7 +223,7 @@ documentController.createDocument = async (req, res) => {
         let dataFromDb = await pool.query(query);
 
         // Maintaing site record to auto generate document numbers
-        if (dataFromDb && selectResult == 0) {
+        if (dataFromDb && selectResult == 0 && inputs.doc_type == "OUTGOING") {
             let updateSiteRecordQuery = `
             UPDATE sites
             SET site_record_value = site_record_value + 1
@@ -258,7 +254,7 @@ documentController.createDocument = async (req, res) => {
         //     const startTextractParams = {
         //         DocumentLocation: {
         //             S3Object: {
-        //                 Bucket: process.env.BUCKET_NAME,
+        //                 Bucket: "spsingla-docs",
         //                 Name: `docs/${fileName}.pdf`,
         //             },
         //         },
@@ -444,7 +440,6 @@ const fetchEmails = async (filter = {}, pageSize = 10, offset = 0, user, passwor
         const pageUids = allUids.slice(startIndex, endIndex);
         for await (let message of client.fetch(pageUids, { envelope: true, flags: true })) {
 
-            //console.log(message)
             let email = {
                 subject: message.envelope.subject,
                 date: moment(message.envelope.date).format('DD/MM/YYYY'),
@@ -454,7 +449,6 @@ const fetchEmails = async (filter = {}, pageSize = 10, offset = 0, user, passwor
                 seen: message.flags.has('\\Seen'),
                 flags: [...message.flags].filter(flag => !flag.startsWith('$') && flag !== '\\Seen')
             }
-            //console.log(email)
             payload.emails.push(email);
         }
         payload.totalRecords = allUids.length;
@@ -502,14 +496,12 @@ documentController.importExcelDocument = async (req, res) => {
 
         // Check if the number of headers match
         if (formatSheetHeaders.length !== uploadedSheetHeaders.length) {
-            console.log("Headers do not match: Different number of columns");
             return res.send({ status: 0, msg: "Headers do not match: Different number of columns" });
         }
 
         // Check if each header matches
         for (let i = 0; i < formatSheetHeaders.length; i++) {
             if (formatSheetHeaders[i] !== uploadedSheetHeaders[i]) {
-                console.log(`Headers do not match: Mismatch at index ${i}`);
                 return res.send({ status: 0, msg: `Headers do not match: Mismatch at index ${i}` });
             }
         }
@@ -517,7 +509,7 @@ documentController.importExcelDocument = async (req, res) => {
         const pdfDirectory = path.dirname(uploadedFile.selectedFilePath);
         const fileName = uuidv4();
         const s3Params = {
-            Bucket: process.env.BUCKET_NAME,
+            Bucket: "spsingla-docs",
             Key: `excels/${fileName}.xlsx`,
             Body: uploadedFile.data,
             ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -712,7 +704,7 @@ documentController.importExcelDocument = async (req, res) => {
                 // Uploading PDF to aws
                 const fileName = uuidv4();
                 const s3Params = {
-                    Bucket: process.env.BUCKET_NAME,
+                    Bucket: "spsingla-docs",
                     Key: `docs/${fileName}.pdf`,
                     Body: document.pdf_buffer,
                     ContentType: "application/pdf",
@@ -769,13 +761,14 @@ documentController.importExcelDocument = async (req, res) => {
                 }
 
                 // Mainting site record for site_record_value
-                let updateSiteRecordQuery = `
+                if (document.doc_type == "OUTGOING") {
+                    let updateSiteRecordQuery = `
                     UPDATE sites
                     SET site_record_value = site_record_value + 1
                     WHERE site_name = '${document.doc_folder}';
                 `;
-                await pool.query(updateSiteRecordQuery);
-
+                    await pool.query(updateSiteRecordQuery);
+                }
                 // Replied Vide
                 let references = document.doc_reference?.split(',');
                 if (references?.length === 1 && references[0] !== "") {
@@ -802,14 +795,15 @@ documentController.importExcelDocument = async (req, res) => {
             }
             await pool.query(`
                     UPDATE doc_excel_imports
-                    SET excel_status = "UPLOADED"
+                    SET excel_status = 'UPLOADED'
                     WHERE excel_id = ${uploadBatchId.excel_id}
                     RETURNING *;
                 `);
         } catch (err) {
             await pool.query(`
                     UPDATE doc_excel_imports
-                    SET excel_status = "FAILED"
+                    SET excel_status = 'FAILED',
+                    excel_error_log = '${err}'
                     WHERE excel_id = ${uploadBatchId.excel_id}
                     RETURNING *;
                 `);

@@ -8,7 +8,7 @@ const connectRedis = require("connect-redis");
 const session = require("express-session");
 const cookieParser = require('cookie-parser');
 const router = require("./app/router/router");
-
+//require("./app/crons/textract.cron");
 // Creating Express Application
 const app = express();
 

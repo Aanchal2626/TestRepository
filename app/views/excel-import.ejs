@@ -49,7 +49,7 @@
   <body class="nk-body bg-lighter npc-general has-sidebar">
     <div class="nk-app-root">
       <div class="nk-main">
-        <%- include('./common/sidebar' , {active : "Documents"}); -%>
+        <%if(!isElectron){%><%- include('./common/sidebar' , {active : "Documents"}); -%><% }%>
         <div class="nk-wrap">
           <%- include('./common/navbar'); -%>
           <div class="nk-content">
@@ -67,7 +67,7 @@
                           <div class="toggle-expand-content" data-content="pageMenu">
                             <ul class="nk-block-tools g-3">
                               <li class="nk-block-tools-opt">
-                                <a href="<%= format_link %>" class="preview-item" download="import_excel_format.xlsx">
+                                <a href="<%= miscData.format_link %>" class="preview-item" download="import_excel_format.xlsx">
                                   <button type="button" class="btn btn-primary">
                                     <em class="icon ni ni-download-cloud" style="font-size: 13px"></em>
                                     &nbsp; Download Format
@@ -130,7 +130,12 @@
                           <h5 class="card-title">Download Windows Application</h5>
                         </div>
                         <div class="col-12">
-                          <button class="btn btn-primary">Download Application</button>
+                          <a href="<%= miscData.app_link %>" class="preview-item" download="import_excel_format.xlsx">
+                            <button type="button" class="btn btn-primary">
+                              <em class="icon ni ni-download-cloud" style="font-size: 13px"></em>
+                              &nbsp; Download Application
+                            </button>
+                          </a>
                         </div>
                       </div>
                     </div>

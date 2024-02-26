@@ -8,7 +8,7 @@ app.on('ready', function () {
     mainWindow = new Window({
         width: 1280,
         height: 1024,
-        autoHideMenuBar: false,
+        autoHideMenuBar: true,
         useContentSize: true,
         resizable: true,
     });

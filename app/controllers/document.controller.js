@@ -249,68 +249,6 @@ documentController.createDocument = async (req, res) => {
         await pool.query(updateQuery, [inputs.doc_number, references]);
 
         res.send({ status: 1, msg: "Success", payload: inputs.doc_number })
-
-        // try {
-        //     const startTextractParams = {
-        //         DocumentLocation: {
-        //             S3Object: {
-        //                 Bucket: "spsingla-docs",
-        //                 Name: `docs/${fileName}.pdf`,
-        //             },
-        //         },
-        //         ClientRequestToken: uuidv4(),
-        //     };
-
-        //     async function processTextractJob(jobId, nextToken = null, textractResult = '') {
-        //         const getStatusParams = {
-        //             JobId: jobId,
-        //             NextToken: nextToken
-        //         };
-
-        //         const statusResponse = await textract.getDocumentTextDetection(getStatusParams).promise();
-        //         const status = statusResponse.JobStatus;
-
-        //         if (status === 'SUCCEEDED') {
-        //             textractResult += statusResponse.Blocks.reduce((acc, block) => {
-        //                 if (block.BlockType === 'LINE') {
-        //                     acc += block.Text + ",";
-        //                 }
-        //                 return acc;
-        //             }, '');
-
-        //             if (statusResponse.NextToken) {
-        //                 return processTextractJob(jobId, statusResponse.NextToken, textractResult);
-        //             } else {
-        //                 console.log("Textract job completed successfully");
-        //                 return textractResult;
-        //             }
-        //         } else if (status === 'FAILED' || status === 'PARTIAL_SUCCESS') {
-        //             console.error('Textract job failed or partially succeeded. Status:', status);
-        //             throw new Error('Textract job failed or partially succeeded');
-        //         } else {
-        //             console.log('Textract job still in progress. Status:', status);
-        //             await new Promise(resolve => setTimeout(resolve, 10000));
-        //             return processTextractJob(jobId, nextToken, textractResult);
-        //         }
-        //     }
-
-        //     try {
-        //         const startTextractResponse = await textract.startDocumentTextDetection(startTextractParams).promise();
-        //         const jobId = startTextractResponse.JobId;
-
-        //         const textractResult = await processTextractJob(jobId);
-
-        //         await pool.query(`INSERT INTO doc_metadata (dm_id, dm_ocr_content) VALUES ($1, $2) ON CONFLICT (dm_id) DO UPDATE SET dm_ocr_content = EXCLUDED.dm_ocr_content;`, [inputs.doc_number, textractResult]);
-        //         await pool.query(`UPDATE documents SET doc_ocr_proccessed = true WHERE doc_number = '${inputs.doc_number}';`);
-
-        //         console.log("Content Update Successfully");
-        //     } catch (error) {
-        //         console.error("An error occurred:", error);
-        //     }
-
-        // } catch (error) {
-        //     console.error(error);
-        // }
     } catch (error) {
         res.send({ status: 0, msg: "Something Went Wrong" })
         console.error(error);
@@ -319,12 +257,13 @@ documentController.createDocument = async (req, res) => {
 
 documentController.getFilteredDocuments = async (req, res) => {
     try {
+        let inputs = req.body;
         let token = req.session.token;
+        let query = `SELECT * FROM documents d`;
+        let conditions = [];
+        let folderQuery = "";
 
-        let query = `SELECT * FROM documents`;
-
-        if (token.user_role === "0") {
-            siteQuery = `SELECT * FROM sites WHERE site_parent_id = 0`;
+        if (token.user_role == "0") {
             folderQuery = `
                 SELECT s.*, sp.site_name as site_parent_name
                 FROM sites s
@@ -332,12 +271,6 @@ documentController.getFilteredDocuments = async (req, res) => {
                 WHERE s.site_parent_id != 0
                 ORDER BY s.site_name`;
         } else {
-            siteQuery = `
-                SELECT s.*
-                FROM sites s
-                JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
-                WHERE usj.usj_user_id = ${token.user_id} AND site_parent_id = 0
-            `;
             folderQuery = `
                 SELECT s.*, sp.site_name as site_parent_name
                 FROM sites s
@@ -346,41 +279,40 @@ documentController.getFilteredDocuments = async (req, res) => {
                 WHERE usj.usj_user_id = ${token.user_id} AND s.site_parent_id != 0
                 ORDER BY s.site_name
             `;
-        }
 
-        let { rows: sitesPermission } = await pool.query(siteQuery);
-        let { rows: folderPermissiom } = await pool.query(folderQuery);
-
-        let filters = req.body;
-        let filterApplied = false;
-
-        if (Object.keys(filters).length > 0) {
-            if ('dm_ocr_content' in filters) {
-                query += ` JOIN doc_metadata dm ON d.doc_number = dm.dm_id`;
-            }
-            query += ' WHERE ';
-            for (const key in filters) {
-                if (key === 'dm_ocr_content') {
-                    query += `LOWER(dm.dm_ocr_content) LIKE LOWER('%${filters[key]}%')`;
-                    filterApplied = true;
-                } else {
-                    if (filters[key]) {
-                        if (filterApplied) {
-                            query += ' AND ';
-                        }
-                        query += `d.${key} = '${filters[key]}'`;
-                        filterApplied = true;
-                    }
-                }
+            let { rows: folderPermission } = await pool.query(folderQuery);
+            const permission = folderPermission.map(fp => `'${fp.site_name.replace(/'/g, "''")}'`).join(', ');
+            if (permission.length > 0) {
+                query += ` JOIN sites s ON d.doc_folder = s.site_name`;
+                conditions.push(`s.site_name IN (${permission})`);
+            } else if (permission.length == 0 && token.user_role != "0") {
+                return res.json({ status: 1, msg: 'Success', payload: { documents: [] } });
             }
         }
+
+        if (inputs.dm_ocr_content) {
+            query += ` JOIN doc_metadata dm ON d.doc_number = dm.dm_id`;
+            conditions.push(`LOWER(dm.dm_ocr_content) LIKE LOWER('%${inputs.dm_ocr_content}%')`);
+        }
+
+        Object.keys(inputs).forEach(key => {
+            if (key !== 'dm_ocr_content' && inputs[key]) {
+                conditions.push(`d.${key} = '${inputs[key].replace(/'/g, "''")}'`);
+            }
+        });
+
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.join(' AND ');
+        }
+
+        console.log(query);
         let { rows: documents } = await pool.query(query);
         res.json({ status: 1, msg: 'Success', payload: { documents } });
     } catch (err) {
         console.error('Error fetching filtered documents:', err);
         res.json({ status: 0, msg: 'Internal Server Error' });
     }
-}
+};
 
 documentController.getImportDocuments = async (req, res) => {
     try {

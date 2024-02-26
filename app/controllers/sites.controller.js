@@ -73,12 +73,15 @@ userController.saveFolder = async (req, res) => {
         updatedSite = updatedSite?.rows[0];
 
         if (updatedSite) {
-            // Removing Previous Permissions
-            await pool.query('DELETE FROM users_sites_junction WHERE usj_site_id = $1', [updatedSite.site_id]);
-
             // Adding Site Permissions
             let parentSiteId = await pool.query('SELECT site_parent_id FROM sites WHERE site_id = $1', [updatedSite.site_id]);
             parentSiteId = parentSiteId.rows[0].site_parent_id;
+
+            // Removing Previous Permissions
+            await pool.query('DELETE FROM users_sites_junction WHERE usj_site_id = $1;', [updatedSite.site_id]);
+            await pool.query('DELETE FROM users_sites_junction WHERE usj_site_id = $1;', [parentSiteId]);
+
+
 
             for (let userId of inputs.user_permissions) {
                 await pool.query('INSERT INTO users_sites_junction (usj_user_id, usj_site_id) VALUES ($1, $2)', [userId, parentSiteId]);

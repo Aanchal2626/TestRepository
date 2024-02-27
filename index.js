@@ -35,9 +35,6 @@
             },
             saveUninitialized: true,
             resave: false,
-            ...(process.env.NODE_ENV === "development" && {
-                store: new RedisStore({ client: redisClient }),
-            }),
         })
     );
 

@@ -153,7 +153,7 @@ documentController.createDocument = async (req, res) => {
         let token = req.session.token;
 
         if (token.user_role == "3") {
-            return res.send({ status: 0, msg: "Access Denie Insufficient Permissions." });
+            return res.send({ status: 0, msg: "Access Denied Insufficient Permissions." });
         }
 
         if (!req.file) {
@@ -304,7 +304,7 @@ documentController.getFilteredDocuments = async (req, res) => {
         if (conditions.length > 0) {
             query += ' WHERE ' + conditions.join(' AND ');
         }
-
+        query += ' ORDER BY d.doc_number DESC';
         console.log(query);
         let { rows: documents } = await pool.query(query);
         res.json({ status: 1, msg: 'Success', payload: { documents } });
@@ -340,9 +340,6 @@ documentController.getImportDocuments = async (req, res) => {
     }
 }
 
-documentController.importExcelDocuments = async (req, res) => {
-
-}
 
 const fetchEmails = async (filter = {}, pageSize = 10, offset = 0, user, password) => {
     const client = new ImapFlow({
@@ -737,14 +734,14 @@ documentController.importExcelDocument = async (req, res) => {
                     references = [document.doc_reference];
                 }
 
-                const updateQuery = `
-                UPDATE documents
+                const updateQuery = `UPDATE documents
                 SET doc_replied_vide = CASE
-                                            WHEN doc_replied_vide IS NULL THEN $1
-                                            WHEN $1 = ANY(string_to_array(doc_replied_vide, ', ')) THEN doc_replied_vide
-                                            ELSE doc_replied_vide || ', ' || $1
-                                        END
-                WHERE doc_number = ANY($2);`;
+                    WHEN doc_replied_vide IS NULL THEN $1  -- If there's no reply, add the current doc number
+                    WHEN NOT $1 = ANY(string_to_array(doc_replied_vide, ', ')) THEN doc_replied_vide || ', ' || $1  -- Append if not already present
+                    ELSE doc_replied_vide  -- Otherwise, leave as is
+                END
+                WHERE doc_number = ANY($2);  -- $2 is an array of doc_numbers referenced by the current document
+                `
 
                 await pool.query(updateQuery, [document.doc_number, references]);
 
@@ -804,7 +801,5 @@ function selectExcelFile() {
         });
     });
 }
-
-
 
 module.exports = documentController;

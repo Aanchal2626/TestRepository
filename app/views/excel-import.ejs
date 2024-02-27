@@ -93,7 +93,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_site">Site</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select form-control js-select2" id="doc_site" name="doc_site" data-placeholder="Select Site" required>
+                                  <select class="form-select form-control js-select2" id="doc_site" name="doc_site" data-placeholder="Select Site" data-search="on" required>
                                     <option label="empty" value=""></option>
                                     <% sites.forEach(function(site) { %>
                                     <option value="<%= site.site_name %>" data-parent-id="<%= site.site_id %>"><%= site.site_name %></option>
@@ -106,7 +106,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_folder">Folder</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select form-control js-select2" id="doc_folder" name="doc_folder" data-placeholder="Select Folder" required>
+                                  <select class="form-select form-control js-select2" id="doc_folder" name="doc_folder" data-placeholder="Select Folder" data-search="on" required>
                                     <option label="empty" value=""></option>
                                   </select>
                                 </div>

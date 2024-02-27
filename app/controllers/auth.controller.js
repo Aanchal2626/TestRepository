@@ -31,30 +31,30 @@ authController.sendResetOTP = async (req, res) => {
         let otpExpireTimestamp = moment().add(5, 'minutes').unix();
         let otp = Math.floor(100000 + Math.random() * 900000);
 
-        const transporter = nodemailer.createTransport({
-            host: 'mail.spsingla.com',
-            port: 465,
-            secure: true,
-            auth: {
-                user: "portal@spsingla.com",
-                pass: "New$pas"
-            }
-        });
+        // const transporter = nodemailer.createTransport({
+        //     host: 'mail.spsingla.com',
+        //     port: 465,
+        //     secure: true,
+        //     auth: {
+        //         user: "portal@spsingla.com",
+        //         pass: "New$pas"
+        //     }
+        // });
 
-        const mailOptions = {
-            from: 'portal@spsingla.com',
-            to: user.user_email,
-            subject: 'SPS DOCS CONTROLLER PASSWORD RESET',
-            text: `TEST MAIL Your password reset OTP is: ${otp}`,
-        };
+        // const mailOptions = {
+        //     from: 'portal@spsingla.com',
+        //     to: user.user_email,
+        //     subject: 'SPS DOCS CONTROLLER PASSWORD RESET',
+        //     text: `TEST MAIL Your password reset OTP is: ${otp}`,
+        // };
 
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.log('Error sending email: ' + error);
-            } else {
-                console.log('Email sent: ' + info.response);
-            }
-        });
+        // transporter.sendMail(mailOptions, (error, info) => {
+        //     if (error) {
+        //         console.log('Error sending email: ' + error);
+        //     } else {
+        //         console.log('Email sent: ' + info.response);
+        //     }
+        // });
 
         await pool.query(
             `UPDATE users SET user_otp = $1, user_otp_expire = $2 WHERE user_id = $3`,

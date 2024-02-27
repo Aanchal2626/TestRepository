@@ -4,6 +4,9 @@ const renderController = {};
 renderController.renderNotFound = async (req, res) => {
     res.render("404.ejs");
 }
+renderController.renderForgotPassword = async (req, res) => {
+    res.render("forget-password.ejs");
+}
 renderController.renderDashboard = async (req, res) => {
     let token = req.session.token;
     const isElectron = req.get('User-Agent').includes('Electron');

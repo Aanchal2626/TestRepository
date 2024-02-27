@@ -1,5 +1,35 @@
 const { pool } = require("../helpers/database.helpers");
+const moment = require("moment");
 const authController = {};
+
+authController.sendResetOTP = async (req, res) => {
+    try {
+        let inputs = req.body;
+
+        if (!inputs.user_email) {
+            return res.send({ status: 0, msg: "Invalid Email" })
+        }
+
+        let result = await pool.query(`SELECT * FROM users WHERE user_email = $1`, [inputs.user_email]);
+
+        if (result.rows.length == 0) {
+            return res.send({ status: 0, msg: "User not found" });
+        }
+
+        let user = result.rows[0];
+
+        if (!user.user_status) {
+            return res.send({ status: 0, msg: "User Suspended" })
+        }
+
+        let otpExpireTimestamp = moment().add(5, 'minutes').unix();
+
+        console.log(otpExpireTimestamp)
+    } catch (err) {
+        console.log(err)
+        res.send({ status: 0, msg: "Something Went Wrong" });
+    }
+}
 
 authController.login = async (req, res) => {
     try {
@@ -40,6 +70,7 @@ authController.login = async (req, res) => {
         console.error(err);
     }
 };
+
 authController.logout = async (req, res) => {
     req.session.destroy();
     res.redirect("/");

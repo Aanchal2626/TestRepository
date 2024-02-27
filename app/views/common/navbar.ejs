@@ -25,7 +25,7 @@
                   <em class="icon ni ni-user-alt"></em>
                 </div>
                 <div class="user-info d-none d-md-block">
-                  <% let user_role = ""; if(token.user_role == 0) user_role = "Administrator"; if(token.user_role == 1) user_role = "Editor"; if(token.user_role == 2) user_role = "Viewer"; %>
+                  <% let user_role = ""; if(token.user_role == 0) user_role = "Administrator"; if(token.user_role == 1) user_role = "Admin"; if(token.user_role == 2) user_role = "Editor"; if(token.user_role == 2) user_role = "Viewer";%>
                   <div class="user-status"><%= user_role %></div>
                   <div class="user-name dropdown-indicator"><%= token.user_name %></div>
                 </div>

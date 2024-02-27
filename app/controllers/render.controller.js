@@ -6,26 +6,24 @@ renderController.renderNotFound = async (req, res) => {
 }
 renderController.renderDashboard = async (req, res) => {
     let token = req.session.token;
-    let documentStats = {};
     const isElectron = req.get('User-Agent').includes('Electron');
     if (isElectron) {
         res.redirect("/documents/import/excel");
-    } else {
-        let { rows: totalDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'JP Ganga Path'`);
-        totalDocuments = totalDocuments[0]?.count;
-
-        let { rows: draftedDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'JP Ganga Path' AND doc_status = 'DRAFTED'`);
-        draftedDocuments = draftedDocuments[0]?.count;
-
-        let { rows: uploadedDocuments } = await pool.query(`SELECT COUNT(*) FROM documents WHERE doc_site = 'JP Ganga Path' AND doc_status = 'UPLOADED'`);
-        uploadedDocuments = uploadedDocuments[0]?.count;
-
-        documentStats.totalDocuments = totalDocuments;
-        documentStats.draftedDocuments = draftedDocuments;
-        documentStats.uploadedDocuments = uploadedDocuments;
-        documentStats.pagesUploaded = 0;
-        res.render("dashboard.ejs", { token, documentStats });
     }
+    if (token.user_role === "0") {
+        siteQuery = `SELECT * FROM sites WHERE site_parent_id = 0`;
+    } else {
+        siteQuery = `
+            SELECT s.*
+            FROM sites s
+            JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
+            WHERE usj.usj_user_id = ${token.user_id} AND site_parent_id = 0
+        `;
+    }
+
+    let { rows: sites } = await pool.query(siteQuery);
+
+    res.render("dashboard.ejs", { token, sites });
 };
 
 renderController.renderDocuments = async (req, res) => {

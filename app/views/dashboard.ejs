@@ -13,6 +13,11 @@
     <!-- StyleSheets  -->
     <link rel="stylesheet" href="/app/assets/css/dashlite.css" />
     <link id="skin-default" rel="stylesheet" href="/app/assets/css/theme.css" />
+    <style>
+      .amount {
+        font-size: 15px !important;
+      }
+    </style>
   </head>
 
   <body class="nk-body bg-lighter npc-general has-sidebar">
@@ -34,33 +39,13 @@
                       <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
                           <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu"><em class="icon ni ni-more-v"></em></a>
-                          <div class="toggle-expand-content" data-content="pageMenu">
+                          <!-- <div class="toggle-expand-content" data-content="pageMenu">
                             <ul class="nk-block-tools g-3">
-                              <li>
-                                <div class="dropdown">
-                                  <a href="#" class="dropdown-toggle btn btn-white btn-dim btn-outline-light" data-bs-toggle="dropdown"
-                                    ><em class="d-none d-sm-inline icon ni ni-calender-date"></em><span><span class="d-none d-md-inline">Last</span> 30 Days</span><em class="dd-indc icon ni ni-chevron-right"></em
-                                  ></a>
-                                  <div class="dropdown-menu dropdown-menu-end">
-                                    <ul class="link-list-opt no-bdr">
-                                      <li>
-                                        <a href="#"><span>Last 30 Days</span></a>
-                                      </li>
-                                      <li>
-                                        <a href="#"><span>Last 6 Months</span></a>
-                                      </li>
-                                      <li>
-                                        <a href="#"><span>Last 1 Years</span></a>
-                                      </li>
-                                    </ul>
-                                  </div>
-                                </div>
-                              </li>
                               <li class="nk-block-tools-opt">
                                 <a href="#" class="btn btn-primary"><em class="icon ni ni-reports"></em><span>Reports</span></a>
                               </li>
                             </ul>
-                          </div>
+                          </div> -->
                         </div>
                       </div>
                     </div>
@@ -75,28 +60,34 @@
                                 <h6 class="title">Documents Overview</h6>
                               </div>
                               <div class="card-tools shrink-0 d-none d-sm-block">
-                                <select name="siteFilter" id="siteFilter" class="form-select form-control js-select2 form-control">
-                                  <option selected value="site">SITE NAME</option>
+                                <select name="statsSiteFilter" id="statsSiteFilter" class="form-select form-control js-select2 form-control" data-search="on">
+                                  <% sites.forEach(function(site){ %>
+                                  <option value="<%= site.site_id %>"><%= site.site_name %></option>
+                                  <% }); %>
                                 </select>
                               </div>
                             </div>
-                            <div class="analytic-ov">
+                            <div class="analytic-ov" id="folderStats">
                               <div class="analytic-data-group analytic-ov-group g-3">
                                 <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Folder Name</div>
+                                  <div class="amount">-</div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
                                   <div class="title">Total Documents</div>
-                                  <div class="amount"><%=documentStats.totalDocuments%></div>
+                                  <div class="amount">-</div>
                                 </div>
                                 <div class="analytic-data analytic-ov-data">
                                   <div class="title">Drafted Documents</div>
-                                  <div class="amount"><%=documentStats.draftedDocuments%></div>
+                                  <div class="amount">-</div>
                                 </div>
                                 <div class="analytic-data analytic-ov-data">
                                   <div class="title">Uploaded Documents</div>
-                                  <div class="amount"><%=documentStats.uploadedDocuments%></div>
+                                  <div class="amount">-</div>
                                 </div>
                                 <div class="analytic-data analytic-ov-data">
                                   <div class="title">Pages Uploaded</div>
-                                  <div class="amount"><%=documentStats.pagesUploaded%></div>
+                                  <div class="amount">-</div>
                                 </div>
                               </div>
                             </div>
@@ -249,6 +240,58 @@
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
     <script src="/app/assets/js/charts/gd-default.js"></script>
-    <script></script>
+    <script>
+      $("#statsSiteFilter").change(function () {
+        fetchDashboardStats();
+      });
+      function fetchDashboardStats() {
+        let site = $("#statsSiteFilter").val();
+        $.ajax({
+          url: "/dashboard/site-stats",
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ site_id: site }),
+          success: function (response) {
+            if (response.status == 1) {
+              let htmlString = ``;
+
+              response.documentStatsPerFolder.forEach(function (folder) {
+                folder.siteName = folder.siteName.split(" - ").pop();
+                htmlString += ` <div class="analytic-data-group analytic-ov-group g-3">
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Folder Name</div>
+                                  <div class="amount">${folder.siteName || "-"}</div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Total Documents</div>
+                                  <div class="amount">${folder.stats.totalDocuments || "-"}</div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Drafted Documents</div>
+                                  <div class="amount">${folder.stats.draftedDocuments || "-"}</div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Uploaded Documents</div>
+                                  <div class="amount">${folder.stats.uploadedDocuments || "-"}</div>
+                                </div>
+                                <div class="analytic-data analytic-ov-data">
+                                  <div class="title">Pages Uploaded</div>
+                                  <div class="amount">${folder.stats.pagesUploaded || "-"}</div>
+                                </div>
+                              </div>`;
+              });
+              $("#folderStats").html(htmlString);
+            } else {
+              $("#folderStats").html("<p>No data available</p>");
+            }
+          },
+          error: function (xhr, status, error) {
+            $("#folderStats").html("<p>Error loading data</p>");
+            console.error(error);
+          },
+        });
+      }
+      fetchDashboardStats();
+    </script>
   </body>
 </html>

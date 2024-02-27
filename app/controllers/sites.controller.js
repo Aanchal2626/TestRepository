@@ -29,9 +29,12 @@ userController.saveSite = async (req, res) => {
         updatedSite = updatedSite?.rows[0];
         if (updatedSite) {
             if (!site) {
-                let folderQuery = `INSERT INTO sites (site_name, site_parent_id, site_code, site_prefix) 
-                VALUES ('${updatedSite.site_name + ` - MAIN`}', ${updatedSite.site_id}, '${updatedSite.site_code}1', 'SPS/${updatedSite.site_code}/')`;
-                await pool.query(folderQuery);
+                let addingHO = `INSERT INTO sites (site_name, site_parent_id, site_code, site_prefix) 
+                VALUES ('${updatedSite.site_name + ` - HO`}', ${updatedSite.site_id}, '${updatedSite.site_code}1', 'SPS/HO/${updatedSite.site_code}/')`;
+                await pool.query(addingHO);
+                let addingSITE = `INSERT INTO sites (site_name, site_parent_id, site_code, site_prefix) 
+                VALUES ('${updatedSite.site_name + ` - HO`}', ${updatedSite.site_id}, '${updatedSite.site_code}1', 'SPS/SITE/${updatedSite.site_code}/')`;
+                await pool.query(addingSITE);
             }
             res.send({ status: 1, msg: "Site saved successfully" });
         } else {
@@ -80,8 +83,6 @@ userController.saveFolder = async (req, res) => {
             // Removing Previous Permissions
             await pool.query('DELETE FROM users_sites_junction WHERE usj_site_id = $1;', [updatedSite.site_id]);
             await pool.query('DELETE FROM users_sites_junction WHERE usj_site_id = $1;', [parentSiteId]);
-
-
 
             for (let userId of inputs.user_permissions) {
                 await pool.query('INSERT INTO users_sites_junction (usj_user_id, usj_site_id) VALUES ($1, $2)', [userId, parentSiteId]);

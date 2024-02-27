@@ -625,6 +625,7 @@ documentController.importExcelDocument = async (req, res) => {
                 try {
                     let doc_reference = row[6].trim();
                     if (doc_reference) {
+                        doc_reference = doc_reference.replace(/\s/g, '')
                         document.doc_reference = doc_reference;
                     }
                 } catch (err) {

@@ -10,9 +10,8 @@ const cookieParser = require('cookie-parser');
 const router = require("./app/router/router");
 const devEnvivronment = process.env.NODE_ENV;
 
-if (!devEnvivronment) {
-    require("./app/crons/textract.cron");
-}
+require("./app/crons/textract.cron");
+
 // Creating Express Application
 const app = express();
 

@@ -152,6 +152,6 @@ const getCurrentDateTime = () => {
 };
 
 
-const job = cron.schedule('*/5 * * * * *', () => ProcessDocument(job));
-//const job = cron.schedule('0 * * * *', () => ProcessDocument(job));
+//const job = cron.schedule('*/5 * * * * *', () => ProcessDocument(job));
+const job = cron.schedule('0 * * * *', () => ProcessDocument(job));
 

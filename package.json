@@ -21,28 +21,27 @@
     "dotenv": "^16.4.1",
     "ejs": "^3.1.9",
     "electron-reload": "^2.0.0-alpha.1",
+    "express": "^4.18.2",
     "express-session": "^1.18.0",
-    "imap": "^0.8.19",
-    "imap-simple": "^5.1.0",
     "imapflow": "^1.0.152",
     "mailparser": "^3.6.7",
     "moment": "^2.30.1",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.10",
     "nodemon": "^3.0.3",
     "pg": "^8.11.3",
     "redis": "^4.6.12",
     "uuid": "^9.0.1",
-    "xlsx": "^0.18.5",
-    "express": "^4.18.2"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "electron": "^28.2.3",
     "electron-builder": "^24.12.0",
     "nsis": "*"
   },
-  "build" : {
-    "nsis": { 
+  "build": {
+    "nsis": {
       "oneClick": false,
       "perMachine": false,
       "allowElevation": true,

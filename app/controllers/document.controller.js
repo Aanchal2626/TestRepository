@@ -258,7 +258,12 @@ documentController.getFilteredDocuments = async (req, res) => {
     try {
         let inputs = req.body;
         let token = req.session.token;
-        let query = `SELECT * FROM documents d`;
+
+        let query = `
+            SELECT d.*,string_agg(j.doc_junc_number, ', ') AS doc_replied_vide
+            FROM documents d
+            LEFT JOIN doc_reference_junction j ON j.doc_junc_replied = d.doc_number
+        `;
         let conditions = [];
         let folderQuery = "";
 
@@ -276,8 +281,7 @@ documentController.getFilteredDocuments = async (req, res) => {
                 JOIN users_sites_junction usj ON s.site_id = usj.usj_site_id
                 LEFT JOIN sites sp ON s.site_parent_id = sp.site_id
                 WHERE usj.usj_user_id = ${token.user_id} AND s.site_parent_id != 0
-                ORDER BY s.site_name
-            `;
+                ORDER BY s.site_name`;
 
             let { rows: folderPermission } = await pool.query(folderQuery);
             const permission = folderPermission.map(fp => `'${fp.site_name.replace(/'/g, "''")}'`).join(', ');
@@ -303,8 +307,11 @@ documentController.getFilteredDocuments = async (req, res) => {
         if (conditions.length > 0) {
             query += ' WHERE ' + conditions.join(' AND ');
         }
+
+        query += ' GROUP BY d.doc_id';
+
         query += ' ORDER BY d.doc_number DESC';
-        console.log(query);
+        console.log(query); // For debugging purposes
         let { rows: documents } = await pool.query(query);
         res.json({ status: 1, msg: 'Success', payload: { documents } });
     } catch (err) {
@@ -766,7 +773,6 @@ documentController.importExcelDocument = async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        console.log("I AM HERE <<<<<<<<<<<<<<<")
     }
 };
 

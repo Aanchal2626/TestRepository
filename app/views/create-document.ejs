@@ -46,7 +46,7 @@
                               <div class="form-group">
                                 <label class="form-label" for="doc_site">Site</label>
                                 <div class="form-control-wrap">
-                                  <select class="form-select form-control js-select2" id="doc_site" name="doc_site" data-placeholder="Select Site" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %>>
+                                  <select class="form-select form-control js-select2" id="doc_site" name="doc_site" data-search="on" data-placeholder="Select Site" required <% if(documentData.doc_status == "DRAFTED") { %> disabled <% } %>>
                                     <option label="empty" value=""></option>
                                     <% sites.forEach(function(site) { %>
                                       <option value="<%= site.site_name %>" data-parent-id="<%= site.site_id %>" <%= documentData && documentData.doc_site == site.site_name ? 'selected' : '' %>><%= site.site_name %></option>

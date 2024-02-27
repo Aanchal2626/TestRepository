@@ -160,6 +160,8 @@ documentController.createDocument = async (req, res) => {
             return res.send({ status: 0, msg: "No file uploaded" });
         }
 
+        inputs.doc_number = inputs.doc_number.replace(/\s/g, '');
+
         if (inputs.doc_reference && Array.isArray(inputs.doc_reference)) {
             inputs.doc_reference = inputs.doc_reference.join(',');
         }
@@ -190,7 +192,8 @@ documentController.createDocument = async (req, res) => {
             data['doc_uploaded_at'] = currentDate;
             data['doc_status'] = 'UPLOADED';
             data['doc_pdf_link'] = pdfLocation;
-            data['doc_source'] = "FORM"
+            data['doc_source'] = "FORM";
+
             const columns = nonEmptyKeys.join(', ');
             const values = nonEmptyKeys.map(key => {
                 let value = data[key];
@@ -233,20 +236,16 @@ documentController.createDocument = async (req, res) => {
         }
 
         // Replied Vide
-        let references = inputs.doc_reference?.split(',');
-        if (references?.length === 1 && references[0] !== "") {
-            references = [inputs.doc_reference];
+        if (inputs.doc_reference) {
+            let references = inputs.doc_reference?.split(',');
+            references = references.filter(reference => reference.trim() !== '');
+
+            if (references.length > 0) {
+                const valuesString = references.map(reference => `('${inputs.doc_number}', '${reference.trim()}')`).join(', ');
+                const query = `INSERT INTO doc_reference_junction (doc_junc_number, doc_junc_replied) VALUES ${valuesString}`;
+                await pool.query(query);
+            }
         }
-        const updateQuery = `
-            UPDATE documents
-            SET doc_replied_vide = CASE
-                                        WHEN doc_replied_vide IS NULL THEN $1
-                                        WHEN $1 = ANY(string_to_array(doc_replied_vide, ', ')) THEN doc_replied_vide
-                                        ELSE doc_replied_vide || ', ' || $1
-                                    END
-            WHERE doc_number = ANY($2)
-        `;
-        await pool.query(updateQuery, [inputs.doc_number, references]);
 
         res.send({ status: 1, msg: "Success", payload: inputs.doc_number })
     } catch (error) {
@@ -669,8 +668,9 @@ documentController.importExcelDocument = async (req, res) => {
                     ContentType: "application/pdf",
                 };
 
-                const s3Response = await s3.upload(s3Params).promise();
-                const pdfLocation = s3Response.Location;
+                //const s3Response = await s3.upload(s3Params).promise();
+                //const pdfLocation = s3Response.Location;
+                const pdfLocation = "https://spsingla-docs.s3.ap-south-1.amazonaws.com/docs/366c09cc-db97-4c3e-8fee-e55f9c371032.pdf";
                 delete document.pdf_buffer;
 
                 if (!pdfLocation) {
@@ -728,22 +728,15 @@ documentController.importExcelDocument = async (req, res) => {
                 `;
                     await pool.query(updateSiteRecordQuery);
                 }
+
                 // Replied Vide
                 let references = document.doc_reference?.split(',');
-                if (references?.length === 1 && references[0] !== "") {
-                    references = [document.doc_reference];
+
+                if (references && references.length > 0) {
+                    const valuesString = references.map(reference => `('${document.doc_number}', '${reference.trim()}')`).join(', ');
+                    const query = `INSERT INTO doc_reference_junction (doc_junc_number, doc_junc_replied) VALUES ${valuesString}`;
+                    await pool.query(query);
                 }
-
-                let updateQuery = `UPDATE documents
-                SET doc_replied_vide = CASE
-                    WHEN doc_replied_vide IS NULL THEN $1
-                    WHEN NOT $1 = ANY(string_to_array(doc_replied_vide, ', ')) THEN doc_replied_vide || ', ' || $1
-                    ELSE doc_replied_vide
-                END
-                WHERE doc_number = ANY($2);
-                `
-
-                await pool.query(updateQuery, [document.doc_number, references]);
 
                 await pool.query(`
                     UPDATE doc_excel_imports
@@ -751,6 +744,7 @@ documentController.importExcelDocument = async (req, res) => {
                     WHERE excel_id = ${uploadBatchId.excel_id}
                     RETURNING *;
                 `);
+
             }
             await pool.query(`
                     UPDATE doc_excel_imports
@@ -759,6 +753,8 @@ documentController.importExcelDocument = async (req, res) => {
                     RETURNING *;
                 `);
         } catch (err) {
+            console.log(err);
+            console.log(err.stack)
             await pool.query(`
                     UPDATE doc_excel_imports
                     SET excel_status = 'FAILED',
@@ -770,6 +766,7 @@ documentController.importExcelDocument = async (req, res) => {
 
     } catch (err) {
         console.error(err);
+        console.log("I AM HERE <<<<<<<<<<<<<<<")
     }
 };
 

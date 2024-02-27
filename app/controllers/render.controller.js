@@ -8,7 +8,7 @@ renderController.renderDashboard = async (req, res) => {
     let token = req.session.token;
     const isElectron = req.get('User-Agent').includes('Electron');
     if (isElectron) {
-        res.redirect("/documents/import/excel");
+        return res.redirect("/documents/import/excel");
     }
     if (token.user_role === "0") {
         siteQuery = `SELECT * FROM sites WHERE site_parent_id = 0`;
@@ -108,7 +108,12 @@ renderController.renderSingleDocument = async (req, res) => {
     try {
         let siteQuery, folderQuery, documentQuery;
         let doc_number = Buffer.from(req.params.id, 'base64').toString('utf-8');
-        documentQuery = `SELECT * FROM documents WHERE doc_number = '${doc_number}'`;
+        documentQuery = `SELECT d.*, 
+                                string_agg(j.doc_junc_number, ', ') AS doc_replied_vide
+                        FROM documents d
+                        LEFT JOIN doc_reference_junction j ON j.doc_junc_replied = d.doc_number
+                        WHERE d.doc_number = '${doc_number}'
+                        GROUP BY d.doc_id`;
         let documentData = await pool.query(documentQuery);
         documentData = documentData.rows[0];
 

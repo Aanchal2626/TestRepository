@@ -734,13 +734,13 @@ documentController.importExcelDocument = async (req, res) => {
                     references = [document.doc_reference];
                 }
 
-                const updateQuery = `UPDATE documents
+                let updateQuery = `UPDATE documents
                 SET doc_replied_vide = CASE
-                    WHEN doc_replied_vide IS NULL THEN $1  -- If there's no reply, add the current doc number
-                    WHEN NOT $1 = ANY(string_to_array(doc_replied_vide, ', ')) THEN doc_replied_vide || ', ' || $1  -- Append if not already present
-                    ELSE doc_replied_vide  -- Otherwise, leave as is
+                    WHEN doc_replied_vide IS NULL THEN $1
+                    WHEN NOT $1 = ANY(string_to_array(doc_replied_vide, ', ')) THEN doc_replied_vide || ', ' || $1
+                    ELSE doc_replied_vide
                 END
-                WHERE doc_number = ANY($2);  -- $2 is an array of doc_numbers referenced by the current document
+                WHERE doc_number = ANY($2);
                 `
 
                 await pool.query(updateQuery, [document.doc_number, references]);

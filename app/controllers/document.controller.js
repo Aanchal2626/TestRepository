@@ -479,11 +479,10 @@ documentController.importExcelDocument = async (req, res) => {
             ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         };
 
-        // const s3Response = await s3.upload(s3Params).promise();
+        const s3Response = await s3.upload(s3Params).promise();
+        const excelLocation = s3Response.Location;
 
-        // const excelLocation = s3Response.Location;
-
-        const excelLocation = `https://spsingla-docs.s3.ap-south-1.amazonaws.com/excels/121423f5-7e83-49c4-afe9-50cfed61707b.xlsx`
+        //const excelLocation = `https://spsingla-docs.s3.ap-south-1.amazonaws.com/excels/121423f5-7e83-49c4-afe9-50cfed61707b.xlsx`
 
         let uploadBatchId = await pool.query(`
             INSERT INTO doc_excel_imports (excel_batch_size, excel_batch_progress, excel_date, excel_status, excel_link) 

@@ -60,9 +60,6 @@
                     <div class="nk-block-between">
                       <div class="nk-block-head-content">
                         <h3 class="nk-block-title page-title">Import List</h3>
-                        <div class="nk-block-des text-soft">
-                          <p id="totalEmails">Fetching Total Emails...</p>
-                        </div>
                       </div>
                       <div class="nk-block-head-content">
                         <div class="toggle-wrap nk-block-tools-toggle">
@@ -84,7 +81,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="nk-block">
+                  <div id="emailSection" class="nk-block <%= token.user_email_password ? '' : 'd-none' %>">
                     <div class="card card-stretch">
                       <div class="card-inner-group">
                         <div class="card-inner position-relative card-tools-toggle">
@@ -100,7 +97,7 @@
                                   <div class="toggle-wrap">
                                     <a href="#" class="btn btn-icon btn-trigger toggle" data-target="cardTools"><em class="icon ni ni-menu-right"></em></a>
                                     <div class="toggle-content" data-content="cardTools">
-                                      <ul class="btn-toolbar gx-1">
+                                      <ul class="btn-toolbar gx-1 d-none">
                                         <li class="toggle-close">
                                           <a href="#" class="btn btn-icon btn-trigger toggle" data-target="cardTools"><em class="icon ni ni-arrow-left"></em></a>
                                         </li>
@@ -233,6 +230,43 @@
                       </div>
                     </div>
                   </div>
+                  <div id="authSection" class="nk-block nk-block-middle nk-auth-body wide-xs <%= token.user_email_password ? 'd-none' : '' %>">
+                    <div class="card card-bordered">
+                      <div class="card-inner card-inner-lg">
+                        <div class="nk-block-head">
+                          <div class="nk-block-head-content">
+                            <h4 class="nk-block-title">Authenticate Zimbra Mail</h4>
+                          </div>
+                        </div>
+                        <form id="loginForm" class="form-validate is-alter">
+                          <div class="form-group">
+                            <div class="form-label-group">
+                              <label class="form-label" for="user_email">Email</label>
+                            </div>
+                            <div class="form-control-wrap">
+                              <input type="email" required disabled value="<%=token.user_email%>" class="form-control form-control-lg" autocomplete="username" id="user_email" name="user_email" placeholder="Enter your email address" />
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <div class="form-label-group">
+                              <label class="form-label" for="user_email_password">Password</label>
+                            </div>
+                            <div class="form-control-wrap">
+                              <a href="#" class="form-icon form-icon-right passcode-switch lg" data-target="user_email_password">
+                                <em class="passcode-icon icon-show icon ni ni-eye"></em>
+                                <em class="passcode-icon icon-hide icon ni ni-eye-off"></em>
+                              </a>
+                              <input type="password" required class="form-control form-control-lg" autocomplete="new-password" id="user_email_password" name="user_email_password" placeholder="Enter your password" />
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <button id="loginBtn" class="btn btn-lg btn-primary btn-block">Authenticate</button>
+                          </div>
+                          <div id="alert-wrapper"></div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -241,23 +275,53 @@
         </div>
       </div>
     </div>
+    <input type="hidden" id="userEmailPassword" value="<%=token.user_email_password%>" />
     <script src="/app/assets/js/bundle.js"></script>
     <script src="/app/assets/js/scripts.js"></script>
     <script>
-      // const filter = {
-      //subject: "",
-      //seen: 'false'
-      //from: "",
-      //to: "jimmydhingra.ac@spsingla.com"
-      //keyword: "Test",
-      //on: "2024-02-01",
-      //sentOn: ""
-      // };
+      const filter = {
+        subject: "",
+        seen: "false",
+        from: "",
+        to: "jimmydhingra.ac@spsingla.com",
+        keyword: "Test",
+        on: "2024-02-01",
+        sentOn: "",
+      };
       let payload = {
         filter: {},
         pageSize: 10,
         offset: 0,
       };
+      $("#loginBtn").click(function () {
+        if ($("#loginForm").valid()) {
+          NioApp.handleButtonState("loginBtn", "Login", true);
+          let user_email_password = $("#user_email_password").val();
+          let formData = JSON.stringify({ user_email, user_email_password });
+          $.ajax({
+            type: "POST",
+            url: "/auth/auth-email",
+            contentType: "application/json",
+            data: formData,
+            success: function (response) {
+              if (response.status == 1) {
+                window.location.reload();
+              } else if (response.status == 0) {
+                NioApp.handleButtonState("loginBtn", "Login", false);
+                $("#alert-wrapper").html(`<div class="alert alert-danger alert-icon alert-dismissible"><em class="icon ni ni-cross-circle"></em> <strong>${response.msg}</strong><button class="close" data-bs-dismiss="alert"></button></div>`);
+              }
+            },
+            error: function (xhr, status, error) {
+              NioApp.handleButtonState("loginBtn", "Login", false);
+              $("#alert-wrapper").html(`<div class="alert alert-danger alert-icon alert-dismissible"><em class="icon ni ni-cross-circle"></em> <strong>Contact Admin</strong><button class="close" data-bs-dismiss="alert"></button></div>`);
+            },
+          });
+        }
+      });
+      let Authenticate = $("#userEmailPassword").val();
+      if (Authenticate && Authenticate != "") {
+        fetchDocuments();
+      }
       function fetchDocuments() {
         $(".table-content").remove();
         $("#table-status").html(`<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>`);
@@ -270,8 +334,6 @@
             console.log(response);
             if (response.status == 1) {
               if (response.payload.emails && response.payload.emails.length > 0) {
-                console.log(response);
-                $("#totalEmails").html(`You have total of ${response.payload.totalRecords} emails`);
                 $("#table-status").empty();
                 let rowHtml = ``;
                 response.payload.emails.forEach(function (email) {
@@ -307,8 +369,10 @@
                 $("#table-status").html(`<div class="text-center"><p>No Records Found</p></div>`);
               }
             } else {
-              if (response.msg == "Invalid Credentials") {
-                $("#table-status").html(`<div class="text-center"><p style='color:red;'>Invalid Credentials</p></div>`);
+              if (response.msg == "Authentication Failed") {
+                $("#authSection").removeClass("d-none");
+                $("#emailSection").addClass("d-none");
+                $("#alert-wrapper").html(`<div class="alert alert-danger alert-icon alert-dismissible"><em class="icon ni ni-cross-circle"></em> <strong>${response.msg}</strong><button class="close" data-bs-dismiss="alert"></button></div>`);
               } else {
                 $("#table-status").html(`<div class="text-center"><p>Something Went Wrong</p></div>`);
               }
@@ -320,7 +384,6 @@
           },
         });
       }
-      fetchDocuments();
 
       $("#searchDocumentButton").click(function () {
         handleSearch();

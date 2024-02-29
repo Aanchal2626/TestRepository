@@ -324,22 +324,26 @@ documentController.getImportDocuments = async (req, res) => {
     try {
         let token = req.session.token;
         let inputs = req.body;
-        let query = `SELECT * FROM users WHERE user_id = ${token.user_id}`;
-        const { rows: [dataFromDb] } = await pool.query(query);
         const filter = inputs.filter;
-        const payload = await fetchEmails(filter, inputs.pageSize, inputs.offset, dataFromDb.user_email, dataFromDb.user_email_password);
-        if (payload.emails.length > 0) {
-            for (let i = 0; i < payload.emails.length; i++) {
-                let query = `SELECT * FROM doc_email_imports WHERE dei_msg_id = '${payload.emails[i].uid}'`;
-                let dataFromDb = await pool.query(query);
-                if (dataFromDb.rows.length > 0) {
-                    payload.emails[i].imported = true
-                } else {
-                    payload.emails[i].imported = false
-                }
+        try {
+            const payload = await fetchEmails(filter, inputs.pageSize, inputs.offset, token.user_email, token.user_email_password);
+            if (payload.emails.length > 0) {
+                // for (let i = 0; i < payload.emails.length; i++) {
+                //     let query = `SELECT * FROM doc_email_imports WHERE dei_msg_id = '${payload.emails[i].uid}'`;
+                //     let dataFromDb = await pool.query(query);
+                //     if (dataFromDb.rows.length > 0) {
+                //         payload.emails[i].imported = true
+                //     } else {
+                //         payload.emails[i].imported = false
+                //     }
+                // }
+            }
+            res.json({ status: 1, payload });
+        } catch (err) {
+            if (err.authenticationFailed) {
+                return res.send({ status: 0, msg: "Authentication Failed" })
             }
         }
-        res.json({ status: 1, payload });
     } catch (err) {
         console.log(err);
         res.status(500).json({ status: 0, msg: "Internal Server Error" });

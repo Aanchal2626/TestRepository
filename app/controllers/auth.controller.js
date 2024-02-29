@@ -108,6 +108,25 @@ authController.login = async (req, res) => {
     }
 };
 
+authController.addZimbraPassword = async (req, res) => {
+    try {
+        let inputs = req.body;
+        let token = req.session.token;
+        if (!inputs.user_email_password) return res.send({ status: 0, msg: "Invalid Password" });
+        let query = `UPDATE users SET user_email_password = $1 WHERE user_id = $2`;
+        let users = await pool.query(query, [inputs.user_email_password, token.user_id])
+        if (users) {
+            req.session.token.user_email_password = inputs.user_email_password;
+            res.send({ status: 1, msg: "Authentication Success" });
+        } else {
+            return res.send({ status: 0, msg: "Something Went Wrong" });
+        }
+    } catch (err) {
+        console.log(err);
+        res.send({ status: 0, msg: "Something Went Wrong" });
+    }
+}
+
 authController.logout = async (req, res) => {
     req.session.destroy();
     res.redirect("/");

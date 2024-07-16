@@ -1,6 +1,6 @@
 !(function (NioApp, $) {
     "use strict";
-
+"Changes committed"
     var $win = $(window), $body = $('body'), breaks = NioApp.Break;
 
     // Messages Variable
